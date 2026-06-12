@@ -9,79 +9,78 @@ const championProductsBase = [
     price: "$315",
     colorKey: "jetBlack",
     colors: ["black"],
-    crop: "crop-1",
+    image: "/assets/product-red-jacket.jpeg",
     alt: "Black track jacket product",
   },
   {
     price: "$180",
     colorKey: "washedBlack",
     colors: ["black", "pink"],
-    crop: "crop-2",
+    image: "/assets/product-black-pants.jpeg",
     alt: "Washed black jersey product",
   },
   {
     price: "$180",
     colorKey: "englishRose",
     colors: ["pink", "black"],
-    crop: "crop-3",
+    image: "/assets/product-red-jacket.jpeg",
     alt: "Pink jersey product",
   },
   {
     price: "$165",
     colorKey: "flatWhite",
     colors: ["light"],
-    crop: "crop-4",
+    image: "/assets/product-black-pants.jpeg",
     alt: "White and red jersey product",
   },
   {
     price: "$165",
     colorKey: "jetBlack",
     colors: ["black"],
-    crop: "crop-5",
+    image: "/assets/product-red-jacket.jpeg",
     alt: "Black jersey product",
   },
   {
     price: "$170",
     colorKey: "jetBlack",
     colors: ["black"],
-    crop: "crop-6",
+    image: "/assets/product-black-pants.jpeg",
     alt: "Black long sleeve jersey product",
   },
 ] satisfies Array<{
   price: string;
   colorKey: ColorKey;
   colors: string[];
-  crop: string;
+  image: string;
   alt: string;
 }>;
 
 const productRowsBase = [
   [
-    { price: "$95", colorKey: "flatWhite", tone: "white-card" },
-    { price: "$105", colorKey: "washedBlack", tone: "dark-card" },
-    { price: "$110", colorKey: "jetBlack", image: "/assets/products-grid.png" },
-    { price: "$90", colorKey: "flatWhite", image: "/assets/products-grid.png" },
-    { price: "$120", colorKey: "skyBlue", tone: "sky-card" },
+    { price: "$95", colorKey: "flatWhite", image: "/assets/product-red-jacket.jpeg" },
+    { price: "$105", colorKey: "washedBlack", image: "/assets/product-black-pants.jpeg" },
+    { price: "$110", colorKey: "jetBlack", image: "/assets/product-red-jacket.jpeg" },
+    { price: "$90", colorKey: "flatWhite", image: "/assets/product-black-pants.jpeg" },
+    { price: "$120", colorKey: "skyBlue", image: "/assets/product-red-jacket.jpeg" },
   ],
   [
-    { price: "$285", colorKey: "cobalt", tone: "blue-card" },
-    { price: "$340", colorKey: "bone", tone: "cream-card" },
-    { price: "$190", colorKey: "jetBlack", tone: "dark-card" },
-    { price: "$190", colorKey: "powderBlue", tone: "sky-card" },
-    { price: "$210", colorKey: "jetBlack", image: "/assets/products-grid.png" },
+    { price: "$285", colorKey: "cobalt", image: "/assets/product-red-jacket.jpeg" },
+    { price: "$340", colorKey: "bone", image: "/assets/product-black-pants.jpeg" },
+    { price: "$190", colorKey: "jetBlack", image: "/assets/product-red-jacket.jpeg" },
+    { price: "$190", colorKey: "powderBlue", image: "/assets/product-black-pants.jpeg" },
+    { price: "$210", colorKey: "jetBlack", image: "/assets/product-red-jacket.jpeg" },
   ],
   [
-    { price: "$180", colorKey: "washedBlue", tone: "blue-card" },
-    { price: "$180", colorKey: "jetBlack", tone: "dark-card" },
-    { price: "$180", colorKey: "earth", tone: "brown-card" },
-    { price: "$150", colorKey: "flatWhite", tone: "white-card" },
-    { price: "$155", colorKey: "jetBlack", image: "/assets/products-grid.png" },
+    { price: "$180", colorKey: "washedBlue", image: "/assets/product-red-jacket.jpeg" },
+    { price: "$180", colorKey: "jetBlack", image: "/assets/product-black-pants.jpeg" },
+    { price: "$180", colorKey: "earth", image: "/assets/product-red-jacket.jpeg" },
+    { price: "$150", colorKey: "flatWhite", image: "/assets/product-black-pants.jpeg" },
+    { price: "$155", colorKey: "jetBlack", image: "/assets/product-red-jacket.jpeg" },
   ],
 ] satisfies Array<
   Array<{
     price: string;
     colorKey: ColorKey;
-    tone?: string;
     image?: string;
   }>
 >;
@@ -142,9 +141,9 @@ function ChampionProductCard({
   const colorName = dictionary.products.colours[product.colorKey];
 
   return (
-    <article className={`product-card champion-card ${product.crop}`}>
+    <article className="product-card champion-card">
       <div className="product-media">
-        <img src="/assets/jersey-rail.png" alt={product.alt} />
+        <img src={product.image} alt={product.alt} />
       </div>
       <div className="product-info">
         <p>{name}</p>
@@ -165,15 +164,19 @@ function SimpleProductCard({
   product,
   dictionary,
   name,
+  index,
 }: {
   product: (typeof productRowsBase)[number][number];
   dictionary: Dictionary;
   name: string;
+  index: number;
 }) {
+  const image = product.image ?? "/assets/products-grid.png";
+
   return (
-    <article className="product-card">
+    <article className={`product-card simple-card crop-${(index % 5) + 1}`}>
       <div className={`product-media ${product.tone ?? ""}`}>
-        {product.image ? <img src={product.image} alt={name} /> : name.charAt(0)}
+        <img src={image} alt={name} />
       </div>
       <div className="product-info">
         <p>{name}</p>
@@ -193,7 +196,7 @@ function ChampionRail({ dictionary }: { dictionary: Dictionary }) {
     <section className="rail" id="champion" aria-label="Champion collection products">
       <div className="rail-track">
         {championProductsBase.map((product, index) => (
-          <ChampionProductCard dictionary={dictionary} index={index} product={product} key={`${product.crop}-${index}`} />
+          <ChampionProductCard dictionary={dictionary} index={index} product={product} key={`${product.image}-${index}`} />
         ))}
       </div>
       <a className="rail-cta" href="#summer">
@@ -220,7 +223,7 @@ function ProductRail({
     <section className="rail" id={id} aria-label={`${id} products`}>
       <div className="rail-track rail-light">
         {products.map((product, index) => (
-          <SimpleProductCard dictionary={dictionary} name={names[index]} product={product} key={`${id}-${names[index]}`} />
+          <SimpleProductCard dictionary={dictionary} index={index} name={names[index]} product={product} key={`${id}-${names[index]}`} />
         ))}
       </div>
       <a className="rail-cta" href={`#${id}`}>
@@ -257,7 +260,7 @@ export function Storefront({ locale }: { locale: Locale }) {
       <main id="top">
         <Campaign
           className="hero-short"
-          image="/assets/campaign-beach.png"
+          image="/assets/cover-main.png"
           label={dictionary.beach.label}
           title={dictionary.beach.title}
           cta={dictionary.campaigns.shopNow}

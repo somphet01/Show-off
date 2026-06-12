@@ -368,7 +368,6 @@ img {
 .product-card {
   min-height: 194px;
   padding: 0 0 8px;
-  border-right: 1px solid #eee;
   background: #fff;
 }
 
@@ -382,6 +381,7 @@ img {
   color: rgba(0, 0, 0, 0.08);
   font-size: 44px;
   font-weight: 800;
+  border-right: 1px solid #eee;
 }
 
 .product-media::after {
@@ -400,6 +400,12 @@ img {
   width: 210%;
   max-width: none;
   height: 210%;
+  object-fit: cover;
+}
+
+.simple-card .product-media img {
+  width: 200%;
+  height: 200%;
   object-fit: cover;
 }
 
@@ -435,6 +441,26 @@ img {
 
 .crop-6 .product-media {
   background-position: 100% center;
+}
+
+.simple-card.crop-1 .product-media img {
+  object-position: 0% 0%;
+}
+
+.simple-card.crop-2 .product-media img {
+  object-position: 100% 0%;
+}
+
+.simple-card.crop-3 .product-media img {
+  object-position: 0% 100%;
+}
+
+.simple-card.crop-4 .product-media img {
+  object-position: 100% 100%;
+}
+
+.simple-card.crop-5 .product-media img {
+  object-position: 50% 50%;
 }
 
 .product-info {
@@ -673,12 +699,9 @@ img {
     align-items: center;
     justify-content: center;
     height: 44px;
-    border-top: 1px solid #111;
     color: #000;
     font-size: 15px;
-    text-decoration: underline;
     text-transform: uppercase;
-    text-underline-offset: 10px;
   }
 
   .float-dot {
@@ -801,7 +824,7 @@ img {
   }
 
   .rail-track {
-    grid-auto-columns: 50vw;
+    grid-auto-columns: 48vw;
   }
 
   .product-card {
@@ -842,6 +865,16 @@ img {
   .product-card small i {
     width: 11px;
     height: 11px;
+  }
+
+  .rail-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    color: #000;
+    font-size: 14px;
+    text-transform: uppercase;
   }
 
   .footer {
