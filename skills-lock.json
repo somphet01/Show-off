@@ -1,11 +1,35 @@
 {
   "version": 1,
   "skills": {
+    "baseline-ui": {
+      "source": "local",
+      "sourceType": "project",
+      "skillPath": ".agents/skills/baseline-ui/SKILL.md",
+      "computedHash": "bbd26ea28b6aece922c65e8d5a8dab94f98c383f68981bcfe4fb7e08dc1a6220"
+    },
+    "commercial-key-visual-designer": {
+      "source": "local",
+      "sourceType": "project",
+      "skillPath": ".agents/skills/commercial-key-visual-designer/SKILL.md",
+      "computedHash": "21d872f03078d1927642725a91a85ae9da55fb5d1c5b7cb2f5051ee9f6697c7f"
+    },
+    "design-system-explore-represent": {
+      "source": "local",
+      "sourceType": "project",
+      "skillPath": ".agents/skills/design-system/SKILL.md",
+      "computedHash": "36045efebf15d7831c1365b6515f1f803670e4e203698f3c8ebcc4bd25911f65"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
-      "skillPath": "skills/frontend-design/SKILL.md",
-      "computedHash": "93f53fd1c0352d3d7ec17b8f73d7351bf76f4821e55d123c9d2abc2c53ba48e4"
+      "skillPath": ".agents/skills/frontend-design/SKILL.md",
+      "computedHash": "35c43b9d10c2388dbb228047ad028c989a14033750812125f351c85aa42c7a4a"
+    },
+    "impeccable": {
+      "source": "local",
+      "sourceType": "project",
+      "skillPath": ".agents/skills/impeccable/SKILL.md",
+      "computedHash": "881f679f4c96b4cb38b6b9a4bfb8d78275fd2b54860c60c313ee094cb7b1a76a"
     }
   }
 }
