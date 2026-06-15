@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans_Lao, Roboto_Condensed } from "next/font/google";
+import { ScrollMotion } from "./components/ScrollMotion";
+import { ScrollRestorationReset } from "./components/ScrollRestorationReset";
 import "./globals.css";
 
 const robotoCondensed = Roboto_Condensed({
@@ -26,7 +28,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${robotoCondensed.variable} ${notoSansLao.variable}`}>{children}</body>
+      <body className={`${robotoCondensed.variable} ${notoSansLao.variable}`}>
+        <ScrollRestorationReset />
+        {children}
+        <ScrollMotion />
+      </body>
     </html>
   );
 }

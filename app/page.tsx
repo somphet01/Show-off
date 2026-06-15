@@ -1,53 +1,71 @@
+import { Footer as SiteFooter } from "./components/Footer";
 import { Header } from "./components/Header";
+import { SaveProductButton } from "./components/SaveProductButton";
+import { TransitionLink } from "./components/TransitionLink";
 import { dictionaries, type Dictionary, type Locale } from "./lib/i18n";
+import { slugify } from "./lib/shop";
 import { redirect } from "next/navigation";
 
 type ColorKey = keyof (typeof dictionaries.en.products.colours);
+type ProductRowItem = {
+  slug?: string;
+  price: string;
+  colorKey: ColorKey;
+  image?: string;
+  tone?: string;
+};
 
 const championProductsBase = [
   {
-    price: "$315",
+    slug: "track-star-jacket",
+    price: "6.300.000 LAK",
     colorKey: "jetBlack",
     colors: ["black"],
     image: "/assets/product-red-jacket.jpeg",
     alt: "Black track jacket product",
   },
   {
-    price: "$180",
+    slug: "thoroughbred-jersey-washed-black",
+    price: "3.600.000 LAK",
     colorKey: "washedBlack",
     colors: ["black", "pink"],
     image: "/assets/product-black-pants.jpeg",
     alt: "Washed black jersey product",
   },
   {
-    price: "$180",
+    slug: "thoroughbred-jersey-english-rose",
+    price: "3.600.000 LAK",
     colorKey: "englishRose",
     colors: ["pink", "black"],
     image: "/assets/product-red-jacket.jpeg",
     alt: "Pink jersey product",
   },
   {
-    price: "$165",
+    slug: "spike-jersey-flat-white",
+    price: "3.300.000 LAK",
     colorKey: "flatWhite",
     colors: ["light"],
     image: "/assets/product-black-pants.jpeg",
     alt: "White and red jersey product",
   },
   {
-    price: "$165",
+    slug: "star-jersey-jet-black",
+    price: "3.300.000 LAK",
     colorKey: "jetBlack",
     colors: ["black"],
     image: "/assets/product-red-jacket.jpeg",
     alt: "Black jersey product",
   },
   {
-    price: "$170",
+    slug: "star-long-sleeve-jet-black",
+    price: "3.400.000 LAK",
     colorKey: "jetBlack",
     colors: ["black"],
     image: "/assets/product-black-pants.jpeg",
     alt: "Black long sleeve jersey product",
   },
 ] satisfies Array<{
+  slug: string;
   price: string;
   colorKey: ColorKey;
   colors: string[];
@@ -55,35 +73,29 @@ const championProductsBase = [
   alt: string;
 }>;
 
-const productRowsBase = [
+const productRowsBase: ProductRowItem[][] = [
   [
-    { price: "$95", colorKey: "flatWhite", image: "/assets/product-red-jacket.jpeg" },
-    { price: "$105", colorKey: "washedBlack", image: "/assets/product-black-pants.jpeg" },
-    { price: "$110", colorKey: "jetBlack", image: "/assets/product-red-jacket.jpeg" },
-    { price: "$90", colorKey: "flatWhite", image: "/assets/product-black-pants.jpeg" },
-    { price: "$120", colorKey: "skyBlue", image: "/assets/product-red-jacket.jpeg" },
+    { slug: "beach-boys-americas-band-sweater", price: "1.900.000 LAK", colorKey: "flatWhite", image: "/assets/product-red-jacket.jpeg" },
+    { slug: "beach-boys-endless-summer-t-shirt", price: "2.100.000 LAK", colorKey: "washedBlack", image: "/assets/product-black-pants.jpeg" },
+    { slug: "beach-boys-tour-t-shirt", price: "2.200.000 LAK", colorKey: "jetBlack", image: "/assets/product-red-jacket.jpeg" },
+    { slug: "beach-boys-cap", price: "1.800.000 LAK", colorKey: "flatWhite", image: "/assets/product-black-pants.jpeg" },
+    { slug: "beach-boys-hoodie", price: "2.400.000 LAK", colorKey: "skyBlue", image: "/assets/product-red-jacket.jpeg" },
   ],
   [
-    { price: "$285", colorKey: "cobalt", image: "/assets/product-red-jacket.jpeg" },
-    { price: "$340", colorKey: "bone", image: "/assets/product-black-pants.jpeg" },
-    { price: "$190", colorKey: "jetBlack", image: "/assets/product-red-jacket.jpeg" },
-    { price: "$190", colorKey: "powderBlue", image: "/assets/product-black-pants.jpeg" },
-    { price: "$210", colorKey: "jetBlack", image: "/assets/product-red-jacket.jpeg" },
+    { slug: "summer-graphic-t-shirt", price: "5.700.000 LAK", colorKey: "cobalt", image: "/assets/product-red-jacket.jpeg" },
+    { slug: "open-hem-sweatpant", price: "6.800.000 LAK", colorKey: "bone", image: "/assets/product-black-pants.jpeg" },
+    { slug: "cowboys-vintage-t-shirt", price: "3.800.000 LAK", colorKey: "jetBlack", image: "/assets/product-red-jacket.jpeg" },
+    { slug: "summer-jersey", price: "3.800.000 LAK", colorKey: "powderBlue", image: "/assets/product-black-pants.jpeg" },
+    { slug: "relaxed-short", price: "4.200.000 LAK", colorKey: "jetBlack", image: "/assets/product-red-jacket.jpeg" },
   ],
   [
-    { price: "$180", colorKey: "washedBlue", image: "/assets/product-red-jacket.jpeg" },
-    { price: "$180", colorKey: "jetBlack", image: "/assets/product-black-pants.jpeg" },
-    { price: "$180", colorKey: "earth", image: "/assets/product-red-jacket.jpeg" },
-    { price: "$150", colorKey: "flatWhite", image: "/assets/product-black-pants.jpeg" },
-    { price: "$155", colorKey: "jetBlack", image: "/assets/product-red-jacket.jpeg" },
+    { slug: "belstaff-storm-shell", price: "3.600.000 LAK", colorKey: "washedBlue", image: "/assets/product-red-jacket.jpeg" },
+    { slug: "belstaff-moto-jacket", price: "3.600.000 LAK", colorKey: "jetBlack", image: "/assets/product-black-pants.jpeg" },
+    { slug: "initial-hoodie", price: "3.600.000 LAK", colorKey: "earth", image: "/assets/product-red-jacket.jpeg" },
+    { slug: "powder-blue-hoodie", price: "3.000.000 LAK", colorKey: "flatWhite", image: "/assets/product-black-pants.jpeg" },
+    { slug: "utility-cargo-pant", price: "3.100.000 LAK", colorKey: "jetBlack", image: "/assets/product-red-jacket.jpeg" },
   ],
-] satisfies Array<
-  Array<{
-    price: string;
-    colorKey: ColorKey;
-    image?: string;
-  }>
->;
+];
 
 function Campaign({
   image,
@@ -130,23 +142,29 @@ function Campaign({
 function ChampionProductCard({
   product,
   dictionary,
+  locale,
   index,
 }: {
   product: (typeof championProductsBase)[number];
   dictionary: Dictionary;
+  locale: Locale;
   index: number;
 }) {
   const name = dictionary.products.champion[index];
   const colourCount = product.colors.length === 1 ? dictionary.products.oneColour : dictionary.products.twoColours;
   const colorName = dictionary.products.colours[product.colorKey];
+  const href = `/${locale}/products/${product.slug}`;
 
   return (
-    <article className="product-card champion-card">
+    <TransitionLink className="product-card champion-card" href={href} aria-label={`View ${name}`}>
       <div className="product-media">
         <img src={product.image} alt={product.alt} />
       </div>
       <div className="product-info">
-        <p>{name}</p>
+        <div className="product-title-row">
+          <p>{name}</p>
+          <SaveProductButton item={{ slug: product.slug, name, color: colorName, price: product.price, image: product.image }} />
+        </div>
         <strong>{product.price}</strong>
       </div>
       <span>{colorName}</span>
@@ -156,52 +174,60 @@ function ChampionProductCard({
         ))}
         {colourCount}
       </small>
-    </article>
+    </TransitionLink>
   );
 }
 
 function SimpleProductCard({
   product,
   dictionary,
+  locale,
   name,
   index,
 }: {
   product: (typeof productRowsBase)[number][number];
   dictionary: Dictionary;
+  locale: Locale;
   name: string;
   index: number;
 }) {
   const image = product.image ?? "/assets/products-grid.png";
+  const slug = product.slug ?? slugify(name);
+  const href = `/${locale}/products/${slug}`;
+  const colorName = dictionary.products.colours[product.colorKey];
 
   return (
-    <article className={`product-card simple-card crop-${(index % 5) + 1}`}>
+    <TransitionLink className={`product-card simple-card crop-${(index % 5) + 1}`} href={href} aria-label={`View ${name}`}>
       <div className={`product-media ${product.tone ?? ""}`}>
         <img src={image} alt={name} />
       </div>
       <div className="product-info">
-        <p>{name}</p>
+        <div className="product-title-row">
+          <p>{name}</p>
+          <SaveProductButton item={{ slug, name, color: colorName, price: product.price, image }} />
+        </div>
         <strong>{product.price}</strong>
       </div>
-      <span>{dictionary.products.colours[product.colorKey]}</span>
+      <span>{colorName}</span>
       <small>
         <i />
         {dictionary.products.oneColour}
       </small>
-    </article>
+    </TransitionLink>
   );
 }
 
-function ChampionRail({ dictionary }: { dictionary: Dictionary }) {
+function ChampionRail({ dictionary, locale }: { dictionary: Dictionary; locale: Locale }) {
   return (
     <section className="rail" id="champion" aria-label="Champion collection products">
       <div className="rail-track">
         {championProductsBase.map((product, index) => (
-          <ChampionProductCard dictionary={dictionary} index={index} product={product} key={`${product.image}-${index}`} />
+          <ChampionProductCard dictionary={dictionary} index={index} locale={locale} product={product} key={`${product.image}-${index}`} />
         ))}
       </div>
-      <a className="rail-cta" href="#summer">
+      <TransitionLink className="rail-cta" href={`/${locale}/collections/clothing`}>
         {"->"} {dictionary.products.ctas.champion}
-      </a>
+      </TransitionLink>
     </section>
   );
 }
@@ -211,43 +237,29 @@ function ProductRail({
   products,
   names,
   dictionary,
+  locale,
   cta,
+  ctaHref,
 }: {
   id: string;
   products: (typeof productRowsBase)[number];
   names: readonly string[];
   dictionary: Dictionary;
+  locale: Locale;
   cta: string;
+  ctaHref: string;
 }) {
   return (
     <section className="rail" id={id} aria-label={`${id} products`}>
       <div className="rail-track rail-light">
         {products.map((product, index) => (
-          <SimpleProductCard dictionary={dictionary} index={index} name={names[index]} product={product} key={`${id}-${names[index]}`} />
+          <SimpleProductCard dictionary={dictionary} index={index} locale={locale} name={names[index]} product={product} key={`${id}-${names[index]}`} />
         ))}
       </div>
-      <a className="rail-cta" href={`#${id}`}>
+      <TransitionLink className="rail-cta" href={ctaHref}>
         {"->"} {cta}
-      </a>
+      </TransitionLink>
     </section>
-  );
-}
-
-function Footer({ dictionary }: { dictionary: Dictionary }) {
-  return (
-    <footer className="footer">
-      <div>
-        <h2>REPRESENT</h2>
-        <p>{dictionary.footer.description}</p>
-      </div>
-      {dictionary.footer.columns.map((column, index) => (
-        <nav key={index}>
-          {column.map((item) => (
-            <a key={item}>{item}</a>
-          ))}
-        </nav>
-      ))}
-    </footer>
   );
 }
 
@@ -266,7 +278,15 @@ export function Storefront({ locale }: { locale: Locale }) {
           cta={dictionary.campaigns.shopNow}
           href="#beach-boys"
         />
-        <ProductRail dictionary={dictionary} id="beach-boys" names={dictionary.products.rows[0]} products={productRowsBase[0]} cta={dictionary.products.ctas.beach} />
+        <ProductRail
+          dictionary={dictionary}
+          id="beach-boys"
+          locale={locale}
+          names={dictionary.products.rows[0]}
+          products={productRowsBase[0]}
+          cta={dictionary.products.ctas.beach}
+          ctaHref={`/${locale}/collections/t-shirts`}
+        />
         <Campaign
           className="medium"
           image="/assets/campaign-dark.png"
@@ -275,7 +295,7 @@ export function Storefront({ locale }: { locale: Locale }) {
           cta={dictionary.hero.cta}
           href="#champion"
         />
-        <ChampionRail dictionary={dictionary} />
+        <ChampionRail dictionary={dictionary} locale={locale} />
         <Campaign
           className="tall"
           image="/assets/campaign-motel.png"
@@ -283,7 +303,15 @@ export function Storefront({ locale }: { locale: Locale }) {
           cta={dictionary.campaigns.shopNow}
           href="#summer"
         />
-        <ProductRail dictionary={dictionary} id="summer" names={dictionary.products.rows[1]} products={productRowsBase[1]} cta={dictionary.products.ctas.summer} />
+        <ProductRail
+          dictionary={dictionary}
+          id="summer"
+          locale={locale}
+          names={dictionary.products.rows[1]}
+          products={productRowsBase[1]}
+          cta={dictionary.products.ctas.summer}
+          ctaHref={`/${locale}/collections/t-shirts`}
+        />
         <Campaign
           className="medium"
           image="/assets/campaign-moto.png"
@@ -293,7 +321,15 @@ export function Storefront({ locale }: { locale: Locale }) {
           href="#belstaff"
           dark
         />
-        <ProductRail dictionary={dictionary} id="belstaff" names={dictionary.products.rows[2]} products={productRowsBase[2]} cta={dictionary.products.ctas.belstaff} />
+        <ProductRail
+          dictionary={dictionary}
+          id="belstaff"
+          locale={locale}
+          names={dictionary.products.rows[2]}
+          products={productRowsBase[2]}
+          cta={dictionary.products.ctas.belstaff}
+          ctaHref={`/${locale}/collections/jackets`}
+        />
         <Campaign
           className="tall fog"
           image="/assets/campaign-beach.png"
@@ -304,9 +340,17 @@ export function Storefront({ locale }: { locale: Locale }) {
           secondaryCta={dictionary.beach.secondaryCta}
           href="#summer"
         />
-        <ProductRail dictionary={dictionary} id="heaton" names={dictionary.products.rows[0]} products={productRowsBase[0]} cta={dictionary.products.ctas.heaton} />
+        <ProductRail
+          dictionary={dictionary}
+          id="heaton"
+          locale={locale}
+          names={dictionary.products.rows[0]}
+          products={productRowsBase[0]}
+          cta={dictionary.products.ctas.heaton}
+          ctaHref={`/${locale}/collections/t-shirts`}
+        />
       </main>
-      <Footer dictionary={dictionary} />
+      <SiteFooter dictionary={dictionary} locale={locale} />
     </>
   );
 }
