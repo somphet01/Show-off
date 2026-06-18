@@ -3,15 +3,15 @@ export default function AdminPurchaseOrdersPage() {
     <main className="admin-page">
       <div className="admin-page-heading">
         <div>
-          <span>Backoffice</span>
-          <h1>Purchase Orders</h1>
+          <span>ຫຼັງບ້ານ</span>
+          <h1>ສັ່ງຊື້ເຂົ້າ</h1>
         </div>
-        <p>Record supplier orders, receiving status, costs, and automatic stock increases.</p>
+        <p>ບັນທຶກອໍເດີຈາກຜູ້ສະໜອງ, ຕົ້ນທຶນ, ສະຖານະຮັບຂອງ ແລະເພີ່ມສະຕ໊ອກ.</p>
       </div>
       <section className="admin-panel">
         <div className="admin-empty-state">
-          <strong>PO receiving is planned</strong>
-          <p>Receiving a PO will increase stock and create movement records.</p>
+          <strong>ການຮັບຂອງ PO ຈະຕໍ່ຫຼັງຈາກນີ້</strong>
+          <p>ເມື່ອຮັບ PO ລະບົບຈະເພີ່ມສະຕ໊ອກ ແລະສ້າງປະຫວັດການເຄື່ອນໄຫວ.</p>
         </div>
       </section>
     </main>

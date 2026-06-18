@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import type { CollectionProduct } from "../lib/shop";
+import { QuickAddButton } from "./QuickAddButton";
 import { SaveProductButton } from "./SaveProductButton";
 import { TransitionLink } from "./TransitionLink";
 
@@ -15,6 +16,7 @@ const viewModes: { id: ViewMode; label: string }[] = [
   { id: "two", label: "Two column view" },
   { id: "dense", label: "Dense view" },
 ];
+const swatchClasses = ["black", "deep-brown", "navy", "white", "cream", "grey", "olive"];
 
 function readViewMode() {
   if (typeof window === "undefined") {
@@ -62,9 +64,9 @@ export function CollectionView({ locale, products, title, showFilter = true }: {
         {products.map((product, index) => (
           <TransitionLink className="collection-card" href={`/${locale}/products/${product.slug}`} key={`${product.name}-${index}`} style={{ "--product-index": index } as ProductStyle}>
             <div className="collection-media">
-              {product.badge ? <span>{product.badge}</span> : null}
+              {product.badge ? <span className={`collection-badge is-${product.badge.toLowerCase().replaceAll(" ", "-")}`}>{product.badge}</span> : null}
               <img src={product.image} alt={product.name} />
-              <b aria-hidden="true">+</b>
+              <QuickAddButton item={{ slug: product.slug, name: product.name, color: product.color, price: product.price, image: product.image }} swatches={swatchClasses.slice(0, Math.max(1, product.colors))} />
             </div>
             <div className="collection-info">
               <div className="product-title-row">
@@ -75,13 +77,18 @@ export function CollectionView({ locale, products, title, showFilter = true }: {
                 <span>{product.color}</span>
                 <div>
                   <small>
-                    <i />
-                    {product.colors > 1 ? <i className="muted-dot" /> : null}
-                    {product.colors} {product.colors === 1 ? "Colour" : "Colours"}
+                    {swatchClasses.slice(0, Math.min(product.colors, 3)).map((swatch) => (
+                      <i className={swatch} key={`${product.slug}-${swatch}`} />
+                    ))}
+                    <span className="colour-count-text">
+                      {product.colors > 3 ? `+${product.colors} Colours` : `${product.colors} ${product.colors === 1 ? "Colour" : "Colours"}`}
+                    </span>
                   </small>
-                  <em>{product.price}</em>
                 </div>
               </div>
+              <em>
+                <span>{product.price}</span>
+              </em>
             </div>
           </TransitionLink>
         ))}

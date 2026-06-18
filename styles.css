@@ -3,7 +3,7 @@
   --white: #ffffff;
   --line: #e7e7e7;
   --muted: #767676;
-  --font: "Roboto Condensed", "Arial Narrow", Arial, sans-serif;
+  --font: "Europa Grotesk No 2 SH", Inter, "Helvetica Neue", Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -12,7 +12,7 @@ body {
   margin: 0;
   background: var(--white);
   color: var(--black);
-  font-family: var(--font);
+  font-family: "Europa Grotesk No 2 SH", Inter, "Helvetica Neue", Arial, sans-serif;
   font-size: 12px;
   letter-spacing: 0;
   overflow-x: hidden;
@@ -77,9 +77,9 @@ img { display: block; width: 100%; }
   color: currentColor;
 }
 .logo-mark {
-  font-family: Georgia, "Times New Roman", serif;
-  font-style: italic;
-  font-weight: 700;
+  font-family: "Europa Grotesk No 2 SH", Inter, "Helvetica Neue", Arial, sans-serif;
+  font-style: normal;
+  font-weight: 600;
 }
 .header-actions {
   justify-self: end;

@@ -1,19 +1,19 @@
-export default function AdminCustomersPage() {
+import { AdminCustomersConsole } from "../../../admin/AdminCustomersConsole";
+import { getAdminCustomers } from "../../../lib/admin/data";
+
+export default async function AdminCustomersPage() {
+  const { customers } = await getAdminCustomers();
+
   return (
-    <main className="admin-page">
-      <div className="admin-page-heading">
+    <main className="admin-page admin-customers-page-v2">
+      <div className="admin-page-heading admin-customers-head">
         <div>
-          <span>Backoffice</span>
-          <h1>Customers</h1>
+          <span>ຫຼັງບ້ານ</span>
+          <h1>ລູກຄ້າ</h1>
         </div>
-        <p>Manage customer details, contact channels, purchase history, and VIP status.</p>
+        <p>ຈັດການຂໍ້ມູນລູກຄ້າ, ເບີໂທ, ທີ່ຢູ່, ປະຫວັດການຊື້ ແລະລະດັບລູກຄ້າ.</p>
       </div>
-      <section className="admin-panel">
-        <div className="admin-empty-state">
-          <strong>Customer profiles come after orders</strong>
-          <p>The schema supports web accounts and manual customers from chat orders.</p>
-        </div>
-      </section>
+      <AdminCustomersConsole customers={customers} />
     </main>
   );
 }

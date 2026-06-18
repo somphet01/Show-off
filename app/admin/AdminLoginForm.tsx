@@ -11,16 +11,16 @@ export function AdminLoginForm() {
   return (
     <form className="admin-login-form" action={formAction}>
       <label>
-        <span>Email</span>
+        <span>ອີເມວ</span>
         <input name="email" type="email" autoComplete="email" required />
       </label>
       <label>
-        <span>Password</span>
+        <span>ລະຫັດຜ່ານ</span>
         <input name="password" type="password" autoComplete="current-password" required />
       </label>
       {state.error ? <p className="admin-form-error">{state.error}</p> : null}
       <button type="submit" disabled={pending}>
-        {pending ? "Signing in..." : "Sign in"}
+        {pending ? "ກຳລັງເຂົ້າ..." : "ເຂົ້າລະບົບ"}
       </button>
     </form>
   );

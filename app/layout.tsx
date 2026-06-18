@@ -1,19 +1,22 @@
 import type { Metadata } from "next";
-import { Noto_Sans_Lao, Roboto_Condensed } from "next/font/google";
+import { Inter, Noto_Sans_Lao } from "next/font/google";
+import { PressMotion } from "./components/PressMotion";
 import { ScrollMotion } from "./components/ScrollMotion";
 import { ScrollRestorationReset } from "./components/ScrollRestorationReset";
 import "./globals.css";
 
-const robotoCondensed = Roboto_Condensed({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-latin",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 const notoSansLao = Noto_Sans_Lao({
   subsets: ["lao"],
   variable: "--font-lao",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -28,9 +31,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${robotoCondensed.variable} ${notoSansLao.variable}`}>
+      <body className={`${inter.variable} ${notoSansLao.variable}`}>
         <ScrollRestorationReset />
         {children}
+        <PressMotion />
         <ScrollMotion />
       </body>
     </html>

@@ -3,15 +3,15 @@ export default function AdminFinancialsPage() {
     <main className="admin-page">
       <div className="admin-page-heading">
         <div>
-          <span>Backoffice</span>
-          <h1>Financials</h1>
+          <span>ຫຼັງບ້ານ</span>
+          <h1>ການເງິນ</h1>
         </div>
-        <p>Review revenue, expenses, cost, and profit/loss by date range.</p>
+        <p>ກວດຍອດຂາຍ, ລາຍຈ່າຍ, ຕົ້ນທຶນ ແລະກຳໄລຕາມຊ່ວງເວລາ.</p>
       </div>
       <section className="admin-panel">
         <div className="admin-empty-state">
-          <strong>Financial reports come after orders</strong>
-          <p>Paid orders and expenses will feed this module automatically.</p>
+          <strong>ລາຍງານການເງິນຈະຕໍ່ຈາກອໍເດີ</strong>
+          <p>ອໍເດີທີ່ຈ່າຍແລ້ວ ແລະລາຍຈ່າຍຈະຖືກຄິດເຂົ້າລາຍງານນີ້ອັດຕະໂນມັດ.</p>
         </div>
       </section>
     </main>

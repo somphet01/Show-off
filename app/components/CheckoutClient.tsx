@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import type { Locale } from "../lib/i18n";
+import { createSupabaseBrowserClient } from "../lib/supabase/client";
 
 const cartStorageKey = "show-off-cart";
 const customerStorageKey = "show-off-customer";
+const orderRefsStorageKey = "show-off-order-refs";
 
 type CartItem = {
   slug: string;
@@ -27,7 +29,80 @@ type CustomerProfile = {
 type SlipPreview = {
   name: string;
   url: string;
+  file: File;
+  uploadedPath?: string;
 };
+
+type StorefrontOrder = {
+  order_id: string;
+  order_no: string;
+  payment_id: string;
+  total_amount: number;
+  item_count: number;
+};
+
+type AttachedSlipsResult = {
+  order_id: string;
+  payment_id: string;
+  slip_count: number;
+};
+
+type StoredOrderRef = {
+  id: string;
+  orderNo: string;
+  createdAt: string;
+};
+
+function rememberOrder(order: StorefrontOrder) {
+  try {
+    const stored = window.localStorage.getItem(orderRefsStorageKey);
+    const current = stored ? (JSON.parse(stored) as StoredOrderRef[]) : [];
+    const next = [
+      { id: order.order_id, orderNo: order.order_no, createdAt: new Date().toISOString() },
+      ...current.filter((item) => item.id !== order.order_id),
+    ].slice(0, 50);
+
+    window.localStorage.setItem(orderRefsStorageKey, JSON.stringify(next));
+    window.dispatchEvent(new CustomEvent("showoff-orders-updated", { detail: next }));
+  } catch {
+    // Checkout still succeeds when browser storage is unavailable.
+  }
+}
+
+function getOrderErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (error && typeof error === "object") {
+    const maybeError = error as { code?: string; message?: string; details?: string; hint?: string };
+    if (maybeError.code === "PGRST202" && maybeError.message?.includes("create_storefront_order")) {
+      return "Database checkout function is not installed yet. Apply migration 0005_storefront_checkout_order_rpc.sql in Supabase, then try again.";
+    }
+
+    if (maybeError.code === "PGRST202" && maybeError.message?.includes("attach_storefront_payment_slips")) {
+      return "Payment slip function is not installed yet. Apply migration 0006_storefront_payment_slip_uploads.sql in Supabase, then try again.";
+    }
+
+    const parts = [maybeError.message, maybeError.details, maybeError.hint].filter(Boolean);
+
+    if (parts.length > 0) {
+      return maybeError.code ? `${maybeError.code}: ${parts.join(" ")}` : parts.join(" ");
+    }
+  }
+
+  return "Could not create order. Please try again.";
+}
+
+function getSlipErrorMessage(error: unknown) {
+  const message = getOrderErrorMessage(error);
+
+  if (message.includes("row-level security") || message.includes("violates row-level security policy")) {
+    return "Payment slip upload is blocked by Storage policy. Apply migration 0006_storefront_payment_slip_uploads.sql, then try again.";
+  }
+
+  return message;
+}
 
 function readCartItems() {
   try {
@@ -62,14 +137,22 @@ function priceToNumber(price: string) {
 }
 
 function formatLak(value: number) {
-  return `${Math.round(value).toLocaleString("de-DE")} LAK`;
+  return `฿${Math.round(value).toLocaleString("en-US")}`;
+}
+
+function cleanFileName(name: string) {
+  const extension = name.includes(".") ? name.split(".").pop() : "jpg";
+  const baseName = name.replace(/\.[^/.]+$/, "");
+  const safeBase = baseName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+
+  return `${safeBase || "payment-slip"}.${extension || "jpg"}`;
 }
 
 function buildOrderCode(index: number, item: CartItem) {
   return `RPS-${item.slug.slice(0, 4).toUpperCase()}-${item.size}-${String(index + 1).padStart(2, "0")}`;
 }
 
-function buildOrderMessage(items: CartItem[], customer: CustomerProfile | null) {
+function buildOrderMessage(items: CartItem[], customer: CustomerProfile | null, orderNo?: string) {
   const total = items.reduce((sum, item) => sum + priceToNumber(item.price) * item.quantity, 0);
   const lines = items.map((item, index) => {
     return `${buildOrderCode(index, item)} | ${item.name} | ${item.color} | Size ${item.size} | Qty ${item.quantity} | ${formatLak(priceToNumber(item.price) * item.quantity)}`;
@@ -77,6 +160,7 @@ function buildOrderMessage(items: CartItem[], customer: CustomerProfile | null) 
 
   return [
     "New order request",
+    `Order no: ${orderNo || "Pending"}`,
     ...lines,
     `Total: ${formatLak(total)}`,
     `Name: ${customer?.name || "-"}`,
@@ -129,9 +213,15 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
   const [paymentMode, setPaymentMode] = useState<"pay" | "contact">("pay");
   const [slips, setSlips] = useState<SlipPreview[]>([]);
   const [slipError, setSlipError] = useState(false);
+  const [orderResult, setOrderResult] = useState<StorefrontOrder | null>(null);
+  const [orderError, setOrderError] = useState("");
+  const [proofResult, setProofResult] = useState<AttachedSlipsResult | null>(null);
+  const [proofError, setProofError] = useState("");
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const [isUploadingProof, setIsUploadingProof] = useState(false);
   const slipsRef = useRef<SlipPreview[]>([]);
   const total = useMemo(() => items.reduce((sum, item) => sum + priceToNumber(item.price) * item.quantity, 0), [items]);
-  const orderMessage = useMemo(() => buildOrderMessage(items, customer), [items, customer]);
+  const orderMessage = useMemo(() => buildOrderMessage(items, customer, orderResult?.order_no), [items, customer, orderResult?.order_no]);
   const encodedMessage = encodeURIComponent(orderMessage);
   const canOrder = items.length > 0 && Boolean(customer);
   const canSendOrder = canOrder && slips.length > 0;
@@ -160,6 +250,13 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
   }, [slips]);
 
   useEffect(() => {
+    setOrderResult(null);
+    setOrderError("");
+    setProofResult(null);
+    setProofError("");
+  }, [items, customer]);
+
+  useEffect(() => {
     return () => {
       slipsRef.current.forEach((slip) => URL.revokeObjectURL(slip.url));
     };
@@ -169,8 +266,8 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
     const safeQuantity = Number.isFinite(nextQuantity) ? Math.max(0, Math.min(99, Math.floor(nextQuantity))) : targetItem.quantity;
     const nextItems =
       safeQuantity === 0
-        ? items.filter((item) => !(item.slug === targetItem.slug && item.size === targetItem.size))
-        : items.map((item) => (item.slug === targetItem.slug && item.size === targetItem.size ? { ...item, quantity: safeQuantity } : item));
+        ? items.filter((item) => !(item.slug === targetItem.slug && item.size === targetItem.size && item.color === targetItem.color))
+        : items.map((item) => (item.slug === targetItem.slug && item.size === targetItem.size && item.color === targetItem.color ? { ...item, quantity: safeQuantity } : item));
 
     setItems(nextItems);
     saveCartItems(nextItems);
@@ -187,13 +284,122 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
 
     const nextSlips = Array.from(fileList)
       .filter((file) => file.type.startsWith("image/"))
-      .map((file) => ({ name: file.name, url: URL.createObjectURL(file) }));
+      .map((file) => ({ name: file.name, url: URL.createObjectURL(file), file }));
 
     setSlips((currentSlips) => [...currentSlips, ...nextSlips]);
     setSlipError(false);
+    setProofError("");
+    setProofResult(null);
   };
 
-  const sendPaymentProof = () => {
+  const createOrder = async () => {
+    if (!canOrder) {
+      openAccount();
+      return null;
+    }
+
+    if (orderResult) {
+      return orderResult;
+    }
+
+    setIsCreatingOrder(true);
+    setOrderError("");
+
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { data, error } = await supabase.rpc("create_storefront_order", {
+        order_payload: {
+          customer,
+          items: items.map((item) => ({
+            slug: item.slug,
+            name: item.name,
+            color: item.color,
+            size: item.size,
+            quantity: item.quantity,
+            unit_price: priceToNumber(item.price),
+            image: item.image,
+          })),
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      const nextOrder = data as StorefrontOrder;
+      setOrderResult(nextOrder);
+      rememberOrder(nextOrder);
+      return nextOrder;
+    } catch (error) {
+      setOrderError(getOrderErrorMessage(error));
+      return null;
+    } finally {
+      setIsCreatingOrder(false);
+    }
+  };
+
+  const uploadPaymentProof = async (createdOrder: StorefrontOrder) => {
+    setIsUploadingProof(true);
+    setProofError("");
+
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const uploadedSlips = [];
+
+      for (const [index, slip] of slips.entries()) {
+        if (slip.uploadedPath) {
+          uploadedSlips.push({
+            path: slip.uploadedPath,
+            name: slip.name,
+            mime_type: slip.file.type,
+            size: slip.file.size,
+          });
+          continue;
+        }
+
+        const path = `storefront/${createdOrder.order_no}/${Date.now()}-${index + 1}-${cleanFileName(slip.name)}`;
+        const { error: uploadError } = await supabase.storage.from("payment-slips").upload(path, slip.file, {
+          cacheControl: "3600",
+          contentType: slip.file.type,
+          upsert: false,
+        });
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        uploadedSlips.push({
+          path,
+          name: slip.name,
+          mime_type: slip.file.type,
+          size: slip.file.size,
+        });
+
+        setSlips((currentSlips) => currentSlips.map((currentSlip) => (currentSlip.url === slip.url ? { ...currentSlip, uploadedPath: path } : currentSlip)));
+      }
+
+      const { data, error } = await supabase.rpc("attach_storefront_payment_slips", {
+        target_order_id: createdOrder.order_id,
+        target_payment_id: createdOrder.payment_id,
+        slip_payload: uploadedSlips,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      const nextProofResult = data as AttachedSlipsResult;
+      setProofResult(nextProofResult);
+      return nextProofResult;
+    } catch (error) {
+      setProofError(getSlipErrorMessage(error));
+      return null;
+    } finally {
+      setIsUploadingProof(false);
+    }
+  };
+
+  const sendPaymentProof = async () => {
     if (!canOrder) {
       openAccount();
       return;
@@ -204,7 +410,19 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
       return;
     }
 
-    window.dispatchEvent(new CustomEvent("showoff-checkout-ready", { detail: { items, customer, slips: slips.map((slip) => slip.name), total: formatLak(total) } }));
+    const createdOrder = await createOrder();
+
+    if (!createdOrder) {
+      return;
+    }
+
+    const attachedProof = await uploadPaymentProof(createdOrder);
+
+    if (!attachedProof) {
+      return;
+    }
+
+    window.dispatchEvent(new CustomEvent("showoff-checkout-ready", { detail: { items, customer, order: createdOrder, proof: attachedProof, slips: slips.map((slip) => slip.name), total: formatLak(total) } }));
   };
 
   const requireSlipBeforeContact = (event: MouseEvent<HTMLAnchorElement>) => {
@@ -313,6 +531,18 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
 
           {paymentMode === "pay" ? (
             <div className="checkout-pay-panel">
+              {orderResult || orderError ? (
+                <div className={`checkout-order-state${orderResult ? " is-ready" : " is-error"}`} role="status">
+                  <span>{orderResult ? "Order saved" : "Order not saved"}</span>
+                  <strong>{orderResult ? orderResult.order_no : orderError}</strong>
+                </div>
+              ) : null}
+              {proofResult || proofError ? (
+                <div className={`checkout-order-state${proofResult ? " is-ready" : " is-error"}`} role="status">
+                  <span>{proofResult ? "Payment proof uploaded" : "Payment proof not uploaded"}</span>
+                  <strong>{proofResult ? `${proofResult.slip_count} slip image${proofResult.slip_count === 1 ? "" : "s"} sent to admin review` : proofError}</strong>
+                </div>
+              ) : null}
               <div className="checkout-qr">
                 <QrMark />
                 <div>
@@ -339,13 +569,25 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
                 </div>
               ) : null}
               {slipError ? <p className="slip-error">Attach at least one transfer slip before sending.</p> : null}
-              <button className="checkout-send-button" type="button" onClick={sendPaymentProof} disabled={!canSendOrder}>
-                Send payment proof
+              <button className="checkout-send-button" type="button" onClick={sendPaymentProof} disabled={!canSendOrder || isCreatingOrder || isUploadingProof || Boolean(proofResult)}>
+                {isCreatingOrder ? "Creating order..." : isUploadingProof ? "Uploading proof..." : proofResult ? "Payment proof sent" : orderResult ? "Send payment proof again" : "Send payment proof"}
               </button>
-              <p>{customer ? "Slip checking will connect to the admin system later." : "Create an account before uploading payment proof."}</p>
+              <p>{customer ? "Sending proof creates a real order and uploads the slip for admin review." : "Create an account before uploading payment proof."}</p>
             </div>
           ) : (
             <div className="checkout-contact-panel">
+              {orderResult || orderError ? (
+                <div className={`checkout-order-state${orderResult ? " is-ready" : " is-error"}`} role="status">
+                  <span>{orderResult ? "Order saved" : "Order not saved"}</span>
+                  <strong>{orderResult ? orderResult.order_no : orderError}</strong>
+                </div>
+              ) : null}
+              {proofResult || proofError ? (
+                <div className={`checkout-order-state${proofResult ? " is-ready" : " is-error"}`} role="status">
+                  <span>{proofResult ? "Payment proof uploaded" : "Payment proof not uploaded"}</span>
+                  <strong>{proofResult ? `${proofResult.slip_count} slip image${proofResult.slip_count === 1 ? "" : "s"} sent to admin review` : proofError}</strong>
+                </div>
+              ) : null}
               <p>The message includes product codes, quantity, total, delivery details, and slip names.</p>
               {slipError ? <p className="slip-error">Attach at least one transfer slip before sending.</p> : null}
               <a className={`contact-app-button contact-whatsapp${!canSendOrder ? " is-disabled" : ""}`} href={canSendOrder ? `https://wa.me/8562099999999?text=${encodedMessage}` : "#slip"} target={canSendOrder ? "_blank" : undefined} rel={canSendOrder ? "noreferrer" : undefined} onClick={requireSlipBeforeContact}>

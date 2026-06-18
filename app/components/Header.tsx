@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, MouseEvent } from "react";
 import type { Dictionary, Locale } from "../lib/i18n";
 import { shopCategories, slugify } from "../lib/shop";
+import { createSupabaseBrowserClient } from "../lib/supabase/client";
 import type { SavedItem } from "./SaveProductButton";
 
 type MenuItemStyle = CSSProperties & { "--item-index": number };
 const cartStorageKey = "show-off-cart";
 const savedStorageKey = "show-off-saved";
 const customerStorageKey = "show-off-customer";
+const orderRefsStorageKey = "show-off-order-refs";
 
 type CartItem = {
   slug: string;
@@ -26,6 +28,24 @@ type CustomerProfile = {
   email: string;
   phone: string;
   address: string;
+};
+
+type AccountOrder = {
+  id: string;
+  order_no: string;
+  final_amount: number;
+  total_amount: number;
+  created_at: string;
+  shipping_status: string | null;
+  fulfillment_status: string | null;
+  order_items: Array<{
+    id: string;
+    product_name_snapshot: string;
+    variant_label_snapshot: string | null;
+    quantity: number;
+    unit_price: number;
+    line_total: number;
+  }>;
 };
 
 function BellIcon() {
@@ -51,6 +71,24 @@ function EditIcon() {
     <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
       <path d="m4.5 16.8-.7 3.4 3.4-.7L18.7 8 16 5.3 4.5 16.8Z" />
       <path d="m14.5 6.8 2.7 2.7" />
+    </svg>
+  );
+}
+
+function LocationIcon() {
+  return (
+    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
+      <path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z" />
+      <circle cx="12" cy="10" r="2.1" />
+    </svg>
+  );
+}
+
+function OrderIcon() {
+  return (
+    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
+      <path d="M7 4.5h10l2 3.5v11.5H5V8l2-3.5Z" />
+      <path d="M5.5 8h13M9 11.5h6" />
     </svg>
   );
 }
@@ -92,6 +130,20 @@ function readCustomerProfile() {
   }
 }
 
+function readOrderIds() {
+  try {
+    const stored = window.localStorage.getItem(orderRefsStorageKey);
+    const refs = stored ? (JSON.parse(stored) as Array<{ id?: unknown }>) : [];
+    return refs.flatMap((item) => (typeof item.id === "string" ? [item.id] : []));
+  } catch {
+    return [];
+  }
+}
+
+function formatAccountPrice(value: number) {
+  return `฿${Math.round(value).toLocaleString("en-US")}`;
+}
+
 export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: Dictionary; locale: Locale; tone?: "overlay" | "solid" | "clear" }) {
   const lastYRef = useRef(0);
   const tickingRef = useRef(false);
@@ -106,6 +158,8 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
   const [accountDraft, setAccountDraft] = useState<CustomerProfile>({ name: "", email: "", phone: "", address: "" });
   const [profileEditing, setProfileEditing] = useState(false);
+  const [accountOrders, setAccountOrders] = useState<AccountOrder[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
   const nextLocale = locale === "en" ? "lo" : "en";
   const overlayOpen = menuOpen || activePanel !== null;
   const cartQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -250,6 +304,50 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
     };
   }, []);
 
+  useEffect(() => {
+    if (!customer || activePanel !== "account" || accountMode !== "profile") {
+      return;
+    }
+
+    let active = true;
+
+    const loadOrders = async () => {
+      const orderIds = readOrderIds();
+      if (orderIds.length === 0) {
+        setAccountOrders([]);
+        return;
+      }
+
+      setOrdersLoading(true);
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data, error } = await supabase.rpc("get_storefront_order_history", { target_order_ids: orderIds });
+        if (error) {
+          throw error;
+        }
+        if (active) {
+          setAccountOrders(Array.isArray(data) ? (data as AccountOrder[]) : []);
+        }
+      } catch {
+        if (active) {
+          setAccountOrders([]);
+        }
+      } finally {
+        if (active) {
+          setOrdersLoading(false);
+        }
+      }
+    };
+
+    void loadOrders();
+    window.addEventListener("showoff-orders-updated", loadOrders);
+
+    return () => {
+      active = false;
+      window.removeEventListener("showoff-orders-updated", loadOrders);
+    };
+  }, [accountMode, activePanel, customer]);
+
   const visitCollection = (href: string) => (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     setMenuOpen(false);
@@ -385,22 +483,12 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
             <a className="icon-link alerts nav-alerts" href="#alerts" aria-label="Alerts">
               <BellIcon />
             </a>
-            <a href="#shop">{dictionary.nav.shop}</a>
-            <a href="#247">247</a>
           </div>
           <a className="logo logo-mark" href={`/${locale}`} aria-label="Represent home">
             <span className="logo-r">R</span>
             <span className="logo-full">REPRESENT</span>
           </a>
           <div className="header-actions" aria-label="Shop actions">
-            {[dictionary.nav.retail, dictionary.nav.vault, dictionary.nav.prestige, dictionary.nav.currency].map((link) => (
-              <a href={`#${link.toLowerCase().replaceAll(" ", "-").replace("/", "")}`} key={link}>
-                {link}
-              </a>
-            ))}
-            <a className="language-link" href={`/${nextLocale}`} aria-label={`Switch to ${nextLocale}`}>
-              {dictionary.switchLabel}
-            </a>
             <button className="icon-link account" type="button" aria-label="Open account" aria-expanded={activePanel === "account"} onClick={() => openPanel("account")} />
             <button className="icon-link bag" type="button" aria-label="Open cart" aria-expanded={activePanel === "cart"} onClick={() => openPanel("cart")}>
               {cartQuantity > 0 ? <span className="cart-count">{cartQuantity}</span> : null}
@@ -476,16 +564,12 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
               <div className="profile-head">
                 <div>
                   <span>Signed in</span>
-                  <button className="profile-edit-button" type="button" aria-expanded={profileEditing} onClick={() => setProfileEditing((editing) => !editing)}>
-                    <EditIcon />
-                    {profileEditing ? "Close edit" : "Edit"}
-                  </button>
                 </div>
                 <h2>{customer.name || "SHOW OFF Member"}</h2>
                 <p>{customer.email || customer.phone}</p>
               </div>
 
-              <div className="profile-actions">
+              <div className="profile-actions" hidden>
                 <button type="button" onClick={switchLanguage}>
                   <span>Language</span>
                   <strong>{`${locale === "en" ? "English" : "ລາວ"} -> ${nextLocale === "en" ? "English" : "ລາວ"}`}</strong>
@@ -496,7 +580,7 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
                 </button>
               </div>
 
-              <div className="profile-summary" aria-label="Profile details">
+              <div className="profile-summary" aria-label="Profile details" hidden>
                 <dl>
                   <div>
                     <dt>Full name</dt>
@@ -517,7 +601,7 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
                 </dl>
               </div>
 
-              <form className={`account-form profile-form${profileEditing ? " is-open" : ""}`} aria-hidden={!profileEditing}>
+              <form className="account-form profile-form" hidden>
                 <label>
                   Phone number
                   <input type="tel" autoComplete="tel" placeholder="020..." value={accountDraft.phone} onChange={(event) => setAccountDraft({ ...accountDraft, phone: event.target.value })} />
@@ -531,8 +615,81 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
                 </button>
               </form>
 
+              <section className="account-profile-section account-address-section" aria-labelledby="delivery-address-title">
+                <div className="account-profile-section-head">
+                  <span className="account-profile-section-icon"><LocationIcon /></span>
+                  <div>
+                    <h3 id="delivery-address-title">Delivery address</h3>
+                    <p>Used for every checkout</p>
+                  </div>
+                  <button className="profile-edit-button" type="button" aria-expanded={profileEditing} onClick={() => setProfileEditing((editing) => !editing)}>
+                    <EditIcon />
+                    {profileEditing ? "Cancel" : "Edit"}
+                  </button>
+                </div>
+
+                <div className="account-address-preview" hidden={profileEditing}>
+                  <strong>{customer.address || "Add delivery address"}</strong>
+                  <span>{customer.phone || "Add phone number"}</span>
+                </div>
+
+                <form className={`account-form profile-form${profileEditing ? " is-open" : ""}`} aria-hidden={!profileEditing}>
+                  <label>
+                    Phone number
+                    <input type="tel" autoComplete="tel" placeholder="020..." value={accountDraft.phone} onChange={(event) => setAccountDraft({ ...accountDraft, phone: event.target.value })} />
+                  </label>
+                  <label>
+                    Delivery address
+                    <textarea autoComplete="street-address" placeholder="Village, district, province" rows={3} value={accountDraft.address} onChange={(event) => setAccountDraft({ ...accountDraft, address: event.target.value })} />
+                  </label>
+                  <button type="button" onClick={saveCustomerProfile}>Save address</button>
+                </form>
+              </section>
+
+              <section className="account-profile-section account-orders-section" aria-labelledby="order-history-title">
+                <div className="account-profile-section-head">
+                  <span className="account-profile-section-icon"><OrderIcon /></span>
+                  <div>
+                    <h3 id="order-history-title">Order history</h3>
+                    <p>Approved payments only</p>
+                  </div>
+                  <span className="account-orders-count">{accountOrders.length}</span>
+                </div>
+
+                {ordersLoading ? (
+                  <div className="account-orders-loading" aria-live="polite"><span /><span /></div>
+                ) : accountOrders.length > 0 ? (
+                  <div className="account-order-list">
+                    {accountOrders.map((order) => (
+                      <article className="account-order-item" key={order.id}>
+                        <div className="account-order-meta">
+                          <div>
+                            <strong>{order.order_no}</strong>
+                            <time dateTime={order.created_at}>{new Intl.DateTimeFormat(locale === "lo" ? "lo-LA" : "en-GB", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(order.created_at))}</time>
+                          </div>
+                          <span>Approved</span>
+                        </div>
+                        <ul>
+                          {order.order_items.map((item) => (
+                            <li key={item.id}>
+                              <div><strong>{item.product_name_snapshot}</strong><span>{item.variant_label_snapshot || "Standard"}</span></div>
+                              <span>Qty {item.quantity}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="account-order-total"><span>Total</span><strong>{formatAccountPrice(order.final_amount || order.total_amount)}</strong></div>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="account-orders-empty">
+                    <strong>No approved orders yet</strong>
+                    <p>Orders appear here after the store approves your payment slip.</p>
+                  </div>
+                )}
+              </section>
+
               <div className="profile-foot">
-                <p>Checkout will use this phone number and delivery address.</p>
                 <button className="profile-logout-button" type="button" onClick={logoutCustomer}>
                   <LogoutIcon />
                   Log out

@@ -3,15 +3,15 @@ export default function AdminSettingsPage() {
     <main className="admin-page">
       <div className="admin-page-heading">
         <div>
-          <span>Backoffice</span>
-          <h1>Settings</h1>
+          <span>ຫຼັງບ້ານ</span>
+          <h1>ຕັ້ງຄ່າ</h1>
         </div>
-        <p>Manage shop details, bank account, minimum stock, and admin configuration.</p>
+        <p>ຕັ້ງຄ່າຂໍ້ມູນຮ້ານ, ບັນຊີຮັບເງິນ, ສະຕ໊ອກຂັ້ນຕ່ຳ ແລະສິດແອດມິນ.</p>
       </div>
       <section className="admin-panel">
         <div className="admin-empty-state">
-          <strong>Settings are owner-only</strong>
-          <p>These controls will be connected after the admin role model is confirmed.</p>
+          <strong>ການຕັ້ງຄ່າສຳລັບເຈົ້າຂອງຮ້ານ</strong>
+          <p>ປຸ່ມຄວບຄຸມເຫຼົ່ານີ້ຈະເຊື່ອມຕໍ່ຫຼັງຈາກຢືນຢັນລະບົບສິດຜູ້ໃຊ້ແລ້ວ.</p>
         </div>
       </section>
     </main>
