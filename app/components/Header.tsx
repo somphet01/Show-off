@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, MouseEvent } from "react";
 import type { Dictionary, Locale } from "../lib/i18n";
 import { shopCategories, slugify } from "../lib/shop";
@@ -12,6 +12,7 @@ const cartStorageKey = "show-off-cart";
 const savedStorageKey = "show-off-saved";
 const customerStorageKey = "show-off-customer";
 const orderRefsStorageKey = "show-off-order-refs";
+const alertsSeenStorageKey = "show-off-alerts-seen-v1";
 
 type CartItem = {
   slug: string;
@@ -47,6 +48,28 @@ type AccountOrder = {
     line_total: number;
   }>;
 };
+
+type StoreAlert = {
+  id: string;
+  title: string;
+  body: string;
+  meta: string;
+  tone: "progress" | "success";
+};
+
+function formatStoredThbPrice(price: string) {
+  if (!/LAK/i.test(price)) return price;
+  const amount = Number(price.replace(/[^\d]/g, "")) || 0;
+  return `฿${Math.round(amount / 650).toLocaleString("en-US")}`;
+}
+
+function formatCartLinePrice(item: CartItem) {
+  const unitPrice = /LAK/i.test(item.price)
+    ? (Number(item.price.replace(/[^\d]/g, "")) || 0) / 650
+    : Number(item.price.replace(/[^\d]/g, "")) || 0;
+
+  return `฿${Math.round(unitPrice * item.quantity).toLocaleString("en-US")}`;
+}
 
 function BellIcon() {
   return (
@@ -103,6 +126,18 @@ function LogoutIcon() {
   );
 }
 
+function ClearCartIcon() {
+  return (
+    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
+      <path d="M6.5 7.5h11" />
+      <path d="M9 7.5V5h6v2.5" />
+      <path d="M8.3 10.5 9 19h6l.7-8.5" />
+      <path d="M10.5 11.2 13.5 16" />
+      <path d="M13.5 11.2 10.5 16" />
+    </svg>
+  );
+}
+
 function readCartItems() {
   try {
     const stored = window.localStorage.getItem(cartStorageKey);
@@ -140,8 +175,71 @@ function readOrderIds() {
   }
 }
 
+function readSeenAlerts() {
+  try {
+    const stored = window.localStorage.getItem(alertsSeenStorageKey);
+    return stored ? (JSON.parse(stored) as string[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeSeenAlerts(ids: string[]) {
+  window.localStorage.setItem(alertsSeenStorageKey, JSON.stringify(Array.from(new Set(ids))));
+}
+
 function formatAccountPrice(value: number) {
   return `฿${Math.round(value).toLocaleString("en-US")}`;
+}
+
+function formatAlertDate(value: string, locale: Locale) {
+  return new Intl.DateTimeFormat(locale === "lo" ? "lo-LA" : "en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
+function buildOrderAlerts(orders: AccountOrder[], locale: Locale): StoreAlert[] {
+  const rank = (order: AccountOrder) => {
+    if (order.shipping_status === "delivered") return 0;
+    if (order.shipping_status === "shipping") return 1;
+    return 2;
+  };
+
+  return [...orders]
+    .sort((left, right) => {
+      const priorityGap = rank(left) - rank(right);
+      if (priorityGap !== 0) return priorityGap;
+      return new Date(right.created_at).getTime() - new Date(left.created_at).getTime();
+    })
+    .map((order) => {
+      const status = order.shipping_status ?? "not_shipped";
+      const fulfillment = order.fulfillment_status ?? "not_ready";
+      let title = "Payment approved";
+      let body = `Admin confirmed ${order.order_no}. We will post shipping progress here next.`;
+      let tone: StoreAlert["tone"] = "progress";
+
+      if (status === "shipping") {
+        title = "Order on the way";
+        body = `${order.order_no} is now in shipping. Check back here for delivery confirmation.`;
+      } else if (status === "delivered") {
+        title = "Delivered";
+        body = `${order.order_no} was marked as delivered.`;
+        tone = "success";
+      } else if (fulfillment === "ready_to_ship") {
+        title = "Preparing shipment";
+        body = `${order.order_no} is approved and being prepared for dispatch.`;
+      }
+
+      return {
+        id: `${order.id}:${status}:${fulfillment}`,
+        title,
+        body,
+        meta: `Order ${order.order_no} · ${formatAlertDate(order.created_at, locale)}`,
+        tone,
+      };
+    });
 }
 
 export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: Dictionary; locale: Locale; tone?: "overlay" | "solid" | "clear" }) {
@@ -150,9 +248,9 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
   const transitionRef = useRef<number | null>(null);
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activePanel, setActivePanel] = useState<"account" | "cart" | "saved" | null>(null);
+  const [activePanel, setActivePanel] = useState<"account" | "alerts" | "cart" | "saved" | null>(null);
   const [accountMode, setAccountMode] = useState<"login" | "register" | "profile">("login");
-  const [openCategory, setOpenCategory] = useState("Clothing");
+  const [openCategory, setOpenCategory] = useState("");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
@@ -160,10 +258,16 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
   const [profileEditing, setProfileEditing] = useState(false);
   const [accountOrders, setAccountOrders] = useState<AccountOrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [seenAlertIds, setSeenAlertIds] = useState<string[]>([]);
   const nextLocale = locale === "en" ? "lo" : "en";
   const overlayOpen = menuOpen || activePanel !== null;
   const cartQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
   const savedQuantity = savedItems.length;
+  const orderAlerts = useMemo(() => buildOrderAlerts(accountOrders, locale), [accountOrders, locale]);
+  const unreadAlertCount = useMemo(() => {
+    const seen = new Set(seenAlertIds);
+    return orderAlerts.filter((alert) => !seen.has(alert.id)).length;
+  }, [orderAlerts, seenAlertIds]);
 
   useEffect(() => {
     lastYRef.current = window.scrollY;
@@ -305,7 +409,9 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
   }, []);
 
   useEffect(() => {
-    if (!customer || activePanel !== "account" || accountMode !== "profile") {
+    const shouldLoadOrders = activePanel === "alerts" || (activePanel === "account" && accountMode === "profile");
+
+    if (!shouldLoadOrders) {
       return;
     }
 
@@ -348,6 +454,29 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
     };
   }, [accountMode, activePanel, customer]);
 
+  useEffect(() => {
+    setSeenAlertIds(readSeenAlerts());
+
+    const syncSeenAlerts = () => setSeenAlertIds(readSeenAlerts());
+    window.addEventListener("storage", syncSeenAlerts);
+
+    return () => {
+      window.removeEventListener("storage", syncSeenAlerts);
+    };
+  }, []);
+
+  const markAlertsAsSeen = (alertIds: string[] = orderAlerts.map((alert) => alert.id)) => {
+    const nextIds = [...new Set([...readSeenAlerts(), ...alertIds])];
+    writeSeenAlerts(nextIds);
+    setSeenAlertIds(nextIds);
+  };
+
+  useEffect(() => {
+    if (activePanel === "alerts" && orderAlerts.length > 0) {
+      markAlertsAsSeen();
+    }
+  }, [activePanel, orderAlerts]);
+
   const visitCollection = (href: string) => (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     setMenuOpen(false);
@@ -356,13 +485,16 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
 
     transitionRef.current = window.setTimeout(() => {
       window.location.href = href;
-    }, 420);
+    }, 520);
   };
 
-  const openPanel = (panel: "account" | "cart" | "saved") => {
+  const openPanel = (panel: "account" | "alerts" | "cart" | "saved") => {
     setMenuOpen(false);
     if (panel === "account") {
       setAccountMode(customer ? "profile" : "login");
+    }
+    if (panel === "alerts") {
+      markAlertsAsSeen();
     }
     setActivePanel(panel);
   };
@@ -381,7 +513,7 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
 
     transitionRef.current = window.setTimeout(() => {
       window.location.href = `/${locale}/checkout`;
-    }, 420);
+    }, 520);
   };
 
   const closeOverlays = () => {
@@ -452,7 +584,7 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
     transitionRef.current = window.setTimeout(() => {
       const nextPath = window.location.pathname.replace(/^\/(en|lo)(?=\/|$)/, `/${nextLocale}`);
       window.location.href = nextPath + window.location.search + window.location.hash;
-    }, 420);
+    }, 520);
   };
 
   const saveSavedItems = (items: SavedItem[]) => {
@@ -476,17 +608,28 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
         <div className="navline">
           <div className="nav-left">
             <button className="hamburger" type="button" aria-label="Open menu" aria-expanded={menuOpen} aria-controls="site-menu" onClick={() => setMenuOpen(true)}>
-              <span />
-              <span />
+              <span className="hamburger-line hamburger-line-top" />
+              <span className="hamburger-line hamburger-line-bottom" />
               {savedQuantity > 0 ? <b className="menu-count">{savedQuantity}</b> : null}
             </button>
-            <a className="icon-link alerts nav-alerts" href="#alerts" aria-label="Alerts">
+            <button
+              className={`icon-link alerts nav-alerts${unreadAlertCount > 0 ? " has-unread" : ""}`}
+              type="button"
+              aria-label={unreadAlertCount > 0 ? `Open alerts, ${unreadAlertCount} unread` : "Open alerts"}
+              aria-expanded={activePanel === "alerts"}
+              onClick={() => openPanel("alerts")}
+            >
               <BellIcon />
-            </a>
+              {unreadAlertCount > 0 ? <span className="alerts-count">{unreadAlertCount > 9 ? "9+" : unreadAlertCount}</span> : null}
+            </button>
           </div>
-          <a className="logo logo-mark" href={`/${locale}`} aria-label="Represent home">
-            <span className="logo-r">R</span>
-            <span className="logo-full">REPRESENT</span>
+          <a className="logo logo-mark" href={`/${locale}`} aria-label="SHOW OFF home">
+            <span className="show-off-logo-stack" aria-hidden="true">
+              <img className="show-off-logo show-off-logo-symbol show-off-logo-light" src="/assets/show-off-symbol-white.png" alt="" />
+              <img className="show-off-logo show-off-logo-symbol show-off-logo-dark" src="/assets/show-off-symbol-black.png" alt="" />
+              <img className="show-off-logo show-off-logo-wordmark show-off-logo-light" src="/assets/show-off-wordmark-white.png" alt="" />
+              <img className="show-off-logo show-off-logo-wordmark show-off-logo-dark" src="/assets/show-off-wordmark-black.png" alt="" />
+            </span>
           </a>
           <div className="header-actions" aria-label="Shop actions">
             <button className="icon-link account" type="button" aria-label="Open account" aria-expanded={activePanel === "account"} onClick={() => openPanel("account")} />
@@ -548,6 +691,48 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
               );
             })}
           </div>
+        </div>
+      </aside>
+
+      <aside className={`action-panel alerts-panel${activePanel === "alerts" ? " is-open" : ""}`} aria-hidden={activePanel !== "alerts"} aria-label="Order alerts">
+        <div className="action-panel-top">
+          <p>Alerts</p>
+          <button type="button" onClick={() => setActivePanel(null)}>
+            Close
+          </button>
+        </div>
+        <div className="alerts-panel-body">
+          {orderAlerts.length > 0 ? (
+            <>
+              <div className="cart-summary">
+                <h2>Order updates</h2>
+                <p>{unreadAlertCount > 0 ? `${unreadAlertCount} new update${unreadAlertCount === 1 ? "" : "s"} from the back office.` : "Your latest shipping and delivery updates are here."}</p>
+              </div>
+              <div className="alerts-list" aria-label="Order notifications">
+                {orderAlerts.map((alert) => {
+                  const isUnread = !seenAlertIds.includes(alert.id);
+
+                  return (
+                    <article className={`alert-line-item is-${alert.tone}${isUnread ? " is-unread" : ""}`} key={alert.id}>
+                      <div className="alert-line-marker" aria-hidden="true" />
+                      <div className="alert-line-copy">
+                        <div>
+                          <strong>{alert.title}</strong>
+                          <small>{alert.meta}</small>
+                        </div>
+                        <p>{alert.body}</p>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div className="alerts-empty">
+              <strong>No alerts yet</strong>
+              <p>Your payment approvals, shipping updates, and delivery confirmations will show here once an order moves in the back office.</p>
+            </div>
+          )}
         </div>
       </aside>
 
@@ -626,11 +811,6 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
                     <EditIcon />
                     {profileEditing ? "Cancel" : "Edit"}
                   </button>
-                </div>
-
-                <div className="account-address-preview" hidden={profileEditing}>
-                  <strong>{customer.address || "Add delivery address"}</strong>
-                  <span>{customer.phone || "Add phone number"}</span>
                 </div>
 
                 <form className={`account-form profile-form${profileEditing ? " is-open" : ""}`} aria-hidden={!profileEditing}>
@@ -803,9 +983,8 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
                       </div>
                     </div>
                     <div className="cart-line-side">
-                      <em>{item.price}</em>
+                      <em>{formatCartLinePrice(item)}</em>
                       <div className="cart-line-actions" aria-label={`Actions for ${item.name}`}>
-                        <button className="cart-save" type="button" aria-label={`Save ${item.name} for later`} />
                         <button className="cart-remove" type="button" aria-label={`Remove ${item.name}`} onClick={() => removeCartItem(item)} />
                       </div>
                     </div>
@@ -813,11 +992,11 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
                 ))}
               </div>
               <div className="cart-actions">
-                <button type="button" onClick={goToCheckout}>
-                  Checkout
+                <button className="cart-checkout-action" type="button" aria-label="Go to checkout" onClick={goToCheckout}>
+                  <span>Express checkout</span>
                 </button>
-                <button type="button" onClick={clearCart}>
-                  Clear cart
+                <button className="cart-clear-action" type="button" aria-label="Clear cart" onClick={clearCart}>
+                  <ClearCartIcon />
                 </button>
               </div>
             </>
@@ -860,7 +1039,7 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
                         <small>{item.color}</small>
                       </span>
                     </a>
-                    <em>{item.price}</em>
+                    <em>{formatStoredThbPrice(item.price)}</em>
                     <button type="button" aria-label={`Remove ${item.name} from saved items`} onClick={() => removeSavedItem(item)} />
                   </div>
                 ))}

@@ -55,10 +55,19 @@ function ChevronIcon() {
   );
 }
 
+function CartIcon() {
+  return (
+    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
+      <path d="M5.5 6.5h2l1.4 9h8.4l1.2-6.2H8.4" />
+      <path d="M9.5 19.3h.1M16.5 19.3h.1" />
+    </svg>
+  );
+}
+
 export function ProductPurchasePanel({ product, locale }: { product: CollectionProduct; locale: string }) {
-  const colourOptions = useMemo(() => productColourOptions(product.color, product.colors), [product.color, product.colors]);
+  const colourOptions = useMemo(() => productColourOptions(product.color, product.colors, product.colourImages), [product.color, product.colors, product.colourImages]);
   const visibleColourOptions = colourOptions.slice(0, 4);
-  const needsColourSelection = product.colors > 1;
+  const needsColourSelection = colourOptions.length > 1;
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColour, setSelectedColour] = useState<string | null>(product.color);
   const [sizeError, setSizeError] = useState(false);
@@ -68,6 +77,16 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
   const [colourSheetOpen, setColourSheetOpen] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
   const sizeSectionRef = useRef<HTMLDivElement>(null);
+  const availableSizes = useMemo(() => {
+    const colour = selectedColour ?? product.color;
+    return product.variantSizes?.[colour] ?? sizes;
+  }, [product.color, product.variantSizes, selectedColour]);
+
+  useEffect(() => {
+    if (selectedSize && !availableSizes.includes(selectedSize)) {
+      setSelectedSize(null);
+    }
+  }, [availableSizes, selectedSize]);
 
   useEffect(() => {
     const syncSaved = () => {
@@ -127,13 +146,14 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
       return false;
     }
 
+    const colour = selectedColour ?? product.color;
     const nextItem: CartItem = {
       slug: product.slug,
       name: product.name,
-      color: selectedColour ?? product.color,
+      color: colour,
       size: selectedSize,
       price: product.price,
-      image: product.image,
+      image: productColourImage(colour, product.image, product.colourImages),
       quantity: 1,
     };
 
@@ -185,7 +205,7 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
       document.body.classList.add("route-exit");
       window.setTimeout(() => {
         window.location.href = `/${locale}/checkout`;
-      }, 420);
+      }, 520);
     }
   };
 
@@ -212,7 +232,7 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
     const alreadySaved = savedItems.some((item) => item.slug === product.slug && item.color === colour);
     const nextItems = alreadySaved
       ? savedItems.filter((item) => !(item.slug === product.slug && item.color === colour))
-      : [{ slug: product.slug, name: product.name, color: colour, price: product.price, image: product.image }, ...savedItems.filter((item) => !(item.slug === product.slug && item.color === colour))];
+      : [{ slug: product.slug, name: product.name, color: colour, price: product.price, image: productColourImage(colour, product.image, product.colourImages) }, ...savedItems.filter((item) => !(item.slug === product.slug && item.color === colour))];
 
     setIsSaved(!alreadySaved);
     saveSavedItems(nextItems);
@@ -234,7 +254,7 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
         <div className="product-option-row">
           <div>
             <b>
-              Colour<sup>{product.colors}</sup>
+              Colour<sup>{colourOptions.length}</sup>
             </b>
             <span>{selectedColour ?? "Select colour"}</span>
           </div>
@@ -253,7 +273,7 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
               onClick={() => selectColour(colour)}
               key={colour}
             >
-              <img src={productColourImage(colour, product.image)} alt={`${colour} swatch`} />
+              <img src={productColourImage(colour, product.image, product.colourImages)} alt={`${colour} swatch`} />
               <span>{colour}</span>
             </button>
           ))}
@@ -276,7 +296,7 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
         </div>
 
         <div className="size-grid" role="radiogroup" aria-label="Select size">
-          {sizes.map((size) => (
+          {availableSizes.map((size) => (
             <button className={size === selectedSize ? "is-selected" : ""} type="button" role="radio" aria-checked={size === selectedSize} onClick={() => selectSize(size)} key={size}>
               {size}
               {size === selectedSize ? <span aria-hidden="true" /> : null}
@@ -287,6 +307,7 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
 
         <div className="product-actions" ref={actionsRef}>
           <button type="button" onClick={() => addToCart()}>
+            <CartIcon />
             {selectedSize ? `Add size ${selectedSize} to cart` : "Select a size"}
           </button>
           <button className="shop-pay" type="button" onClick={checkoutNow}>
@@ -319,7 +340,7 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
               onClick={() => selectColour(colour)}
               key={colour}
             >
-              <img src={productColourImage(colour, product.image)} alt={`${colour} colour`} />
+              <img src={productColourImage(colour, product.image, product.colourImages)} alt={`${colour} colour`} />
               <span>{colour}</span>
             </button>
           ))}

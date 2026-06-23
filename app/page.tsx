@@ -17,10 +17,16 @@ type ProductRowItem = {
   colorName?: string;
   colors?: number;
   swatches?: string[];
+  colourImages?: Record<string, string[]>;
+  variantSizes?: Record<string, string[]>;
   image?: string;
   tone?: string;
   badge?: string;
 };
+
+function usesCoverMaster(image: string) {
+  return image.includes("-card.") || image.includes("real-retro-");
+}
 
 const championProductsBase = [
   {
@@ -82,7 +88,21 @@ const championProductsBase = [
 
 const productRowsBase: ProductRowItem[][] = [
   [
-    { slug: "represent-x-beach-boys-americas-band-sweater-ice-grey-marl", name: "247 Fused Shorts", price: "\u0e3f78", colorName: "Black", colors: 3, swatches: ["black", "deep-brown", "navy"], image: "/assets/ref-247-shorts.png", badge: "SALE" },
+    {
+      slug: "retro-patchwork-striped-color-block-short",
+      name: "Retro Patchwork Striped Color Block Short",
+      price: "\u0e3f1,300",
+      colorName: "Red",
+      colors: 2,
+      swatches: ["red", "black"],
+      colourImages: {
+        Red: ["/assets/real-retro-red-front.jpg", "/assets/real-retro-red-model.jpg"],
+        Black: ["/assets/real-retro-black-front.jpg", "/assets/real-retro-black-model.jpg"],
+      },
+      variantSizes: { Red: ["L", "XL", "XXL"], Black: ["M", "L", "XL"] },
+      image: "/assets/real-retro-red-front.jpg",
+      badge: "SALE",
+    },
     { slug: "pegasus-zip-through-hoodie-indigo", name: "Team 247 Oversized T-Shirt", price: "\u0e3f60", colorName: "Black", colors: 6, swatches: ["black", "black", "white", "cream", "grey"], image: "/assets/ref-247-black-tee.png", badge: "SALE" },
     { slug: "british-cowboys-hoodie-stained-black", name: "247 Oversized Tank", price: "\u0e3f59", colorName: "Jet Black", colors: 2, swatches: ["black", "white"], image: "/assets/ref-247-black-tank.png", badge: "SALE" },
     { slug: "owners-club-hoodie-washed-black", name: "Team 247 Oversized T-Shirt", price: "\u0e3f63", colorName: "Jet Black", colors: 6, swatches: ["black", "white", "black", "cream", "grey"], image: "/assets/ref-247-black-tee-2.png", badge: "Restocked" },
@@ -141,7 +161,6 @@ function Campaign({
           <a href={href}>{cta}</a>
         )}
       </div>
-      <button className="float-dot" type="button" aria-label={`Open ${title}`} />
     </section>
   );
 }
@@ -163,9 +182,9 @@ function ChampionProductCard({
   const href = `/${locale}/products/${product.slug}`;
 
   return (
-    <TransitionLink className="product-card champion-card" href={href} aria-label={`View ${name}`}>
+    <TransitionLink className="product-card champion-card" href={href} aria-label={`View ${name}`} draggable={false}>
       <div className="product-media">
-        <img src={product.image} alt={product.alt} />
+        <img src={product.image} alt={product.alt} draggable={false} />
         <QuickAddButton item={{ slug: product.slug, name, color: colorName, price: product.price, image: product.image }} swatches={product.colors} />
       </div>
       <div className="product-info">
@@ -200,19 +219,23 @@ function SimpleProductCard({
   index: number;
 }) {
   const image = product.image ?? "/assets/products-grid.png";
+  const isCoverMaster = usesCoverMaster(image);
   const slug = product.slug ?? slugify(name);
   const href = `/${locale}/products/${slug}`;
   const colorName = product.colorName ?? (product.colorKey ? dictionary.products.colours[product.colorKey] : "Black");
   const colourCount = product.colors ?? 1;
   const swatches = product.swatches ?? ["black"];
   const displayName = product.name ?? name;
+  const imageByColor = product.colourImages
+    ? Object.fromEntries(Object.entries(product.colourImages).map(([colour, images]) => [colour, images[0] ?? image]))
+    : undefined;
 
   return (
-    <TransitionLink className={`product-card simple-card crop-${(index % 5) + 1}`} href={href} aria-label={`View ${displayName}`}>
-      <div className={`product-media ${product.tone ?? ""}`}>
+    <TransitionLink className={`product-card simple-card crop-${(index % 5) + 1}`} href={href} aria-label={`View ${displayName}`} draggable={false}>
+      <div className={`product-media ${product.tone ?? ""}${isCoverMaster ? " is-cover-master" : ""}`}>
         {product.badge ? <span className={`product-badge is-${product.badge.toLowerCase().replaceAll(" ", "-")}`}>{product.badge}</span> : null}
-        <img src={image} alt={displayName} />
-        <QuickAddButton item={{ slug, name: displayName, color: colorName, price: product.price, image }} swatches={swatches} />
+        <img src={image} alt={displayName} draggable={false} />
+        <QuickAddButton item={{ slug, name: displayName, color: colorName, price: product.price, image }} swatches={swatches} sizeOptionsByColor={product.variantSizes} imageByColor={imageByColor} />
       </div>
       <div className="product-info">
         <div className="product-title-row">
@@ -222,7 +245,7 @@ function SimpleProductCard({
         <span>{colorName}</span>
         <small>
           {swatches.slice(0, 3).map((swatch, swatchIndex) => (
-            <i className={swatch === "black" ? undefined : swatch} key={`${slug}-${swatch}-${swatchIndex}`} />
+            <i className={swatch} key={`${slug}-${swatch}-${swatchIndex}`} />
           ))}
           <span className="colour-count-text">{colourCount > 3 ? `+${colourCount} Colours` : colourCount === 1 ? dictionary.products.oneColour : `${colourCount} Colours`}</span>
         </small>

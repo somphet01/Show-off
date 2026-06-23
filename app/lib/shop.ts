@@ -9,8 +9,11 @@ export type CollectionProduct = {
   color: string;
   price: string;
   colors: number;
+  swatches?: string[];
   image: string;
   gallery?: string[];
+  colourImages?: Record<string, string[]>;
+  variantSizes?: Record<string, string[]>;
   badge?: string;
 };
 
@@ -43,14 +46,22 @@ export const shopCategories: ShopCategory[] = [
 
 export const collectionProducts: CollectionProduct[] = [
   {
-    slug: "represent-x-beach-boys-americas-band-sweater-ice-grey-marl",
-    name: "247 Fused Shorts",
-    color: "Black",
-    
-    price: "฿78",
-    colors: 3,
-    image: "/assets/ref-247-shorts.png",
-    gallery: ["/assets/ref-247-shorts.png", "/assets/ref-247-black-tee.png", "/assets/ref-247-black-tank.png"],
+    slug: "retro-patchwork-striped-color-block-short",
+    name: "Retro Patchwork Striped Color Block Short",
+    color: "Red",
+    price: "฿1,300",
+    colors: 2,
+    swatches: ["red", "black"],
+    image: "/assets/real-retro-red-front.jpg",
+    gallery: ["/assets/real-retro-red-front.jpg", "/assets/real-retro-red-model.jpg"],
+    colourImages: {
+      Red: ["/assets/real-retro-red-front.jpg", "/assets/real-retro-red-model.jpg"],
+      Black: ["/assets/real-retro-black-front.jpg", "/assets/real-retro-black-model.jpg"],
+    },
+    variantSizes: {
+      Red: ["L", "XL", "XXL"],
+      Black: ["M", "L", "XL"],
+    },
     badge: "SALE",
   },
   { slug: "pegasus-zip-through-hoodie-indigo", name: "Team 247 Oversized T-Shirt", color: "Black", price: "฿60", colors: 6, image: "/assets/ref-247-black-tee.png", badge: "SALE" },

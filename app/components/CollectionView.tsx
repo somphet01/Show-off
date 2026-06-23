@@ -11,6 +11,8 @@ type ViewMode = "one" | "two" | "dense";
 type ProductStyle = CSSProperties & { "--product-index": number };
 
 const viewStorageKey = "show-off-collection-view";
+const initialVisibleProducts = 12;
+const visibleProductStep = 8;
 const viewModes: { id: ViewMode; label: string }[] = [
   { id: "one", label: "Single view" },
   { id: "two", label: "Two column view" },
@@ -29,10 +31,17 @@ function readViewMode() {
 
 export function CollectionView({ locale, products, title, showFilter = true }: { locale: string; products: CollectionProduct[]; title: string; showFilter?: boolean }) {
   const [viewMode, setViewMode] = useState<ViewMode>("two");
+  const [visibleCount, setVisibleCount] = useState(initialVisibleProducts);
+  const visibleProducts = products.slice(0, visibleCount);
+  const hasMoreProducts = visibleCount < products.length;
 
   useEffect(() => {
     setViewMode(readViewMode());
   }, []);
+
+  useEffect(() => {
+    setVisibleCount(initialVisibleProducts);
+  }, [products]);
 
   const selectView = (nextView: ViewMode) => {
     setViewMode(nextView);
@@ -61,38 +70,53 @@ export function CollectionView({ locale, products, title, showFilter = true }: {
       </div>
 
       <section className={`collection-grid collection-grid-${viewMode}`} id="collection-grid" aria-label={`${title} products`}>
-        {products.map((product, index) => (
-          <TransitionLink className="collection-card" href={`/${locale}/products/${product.slug}`} key={`${product.name}-${index}`} style={{ "--product-index": index } as ProductStyle}>
-            <div className="collection-media">
-              {product.badge ? <span className={`collection-badge is-${product.badge.toLowerCase().replaceAll(" ", "-")}`}>{product.badge}</span> : null}
-              <img src={product.image} alt={product.name} />
-              <QuickAddButton item={{ slug: product.slug, name: product.name, color: product.color, price: product.price, image: product.image }} swatches={swatchClasses.slice(0, Math.max(1, product.colors))} />
-            </div>
-            <div className="collection-info">
-              <div className="product-title-row">
-                <strong>{product.name}</strong>
-                <SaveProductButton item={{ slug: product.slug, name: product.name, color: product.color, price: product.price, image: product.image }} />
+        {visibleProducts.map((product, index) => {
+          const isCoverMaster = product.image.includes("-card.") || product.image.includes("real-retro-");
+          const productSwatches = product.swatches ?? swatchClasses.slice(0, Math.max(1, product.colors));
+          const imageByColor = product.colourImages
+            ? Object.fromEntries(Object.entries(product.colourImages).map(([colour, images]) => [colour, images[0] ?? product.image]))
+            : undefined;
+
+          return (
+            <TransitionLink className="collection-card" href={`/${locale}/products/${product.slug}`} key={`${product.name}-${index}`} style={{ "--product-index": index } as ProductStyle}>
+              <div className={`collection-media${isCoverMaster ? " is-cover-master" : ""}`}>
+                {product.badge ? <span className={`collection-badge is-${product.badge.toLowerCase().replaceAll(" ", "-")}`}>{product.badge}</span> : null}
+                <img src={product.image} alt={product.name} />
+                <QuickAddButton item={{ slug: product.slug, name: product.name, color: product.color, price: product.price, image: product.image }} swatches={productSwatches} sizeOptionsByColor={product.variantSizes} imageByColor={imageByColor} />
               </div>
-              <div className="collection-meta">
-                <span>{product.color}</span>
-                <div>
-                  <small>
-                    {swatchClasses.slice(0, Math.min(product.colors, 3)).map((swatch) => (
-                      <i className={swatch} key={`${product.slug}-${swatch}`} />
-                    ))}
-                    <span className="colour-count-text">
-                      {product.colors > 3 ? `+${product.colors} Colours` : `${product.colors} ${product.colors === 1 ? "Colour" : "Colours"}`}
-                    </span>
-                  </small>
+              <div className="collection-info">
+                <div className="product-title-row">
+                  <strong>{product.name}</strong>
+                  <SaveProductButton item={{ slug: product.slug, name: product.name, color: product.color, price: product.price, image: product.image }} />
                 </div>
+                <div className="collection-meta">
+                  <span>{product.color}</span>
+                  <div>
+                    <small>
+                      {productSwatches.slice(0, Math.min(product.colors, 3)).map((swatch) => (
+                        <i className={swatch} key={`${product.slug}-${swatch}`} />
+                      ))}
+                      <span className="colour-count-text">
+                        {product.colors > 3 ? `+${product.colors} Colours` : `${product.colors} ${product.colors === 1 ? "Colour" : "Colours"}`}
+                      </span>
+                    </small>
+                  </div>
+                </div>
+                <em>
+                  <span>{product.price}</span>
+                </em>
               </div>
-              <em>
-                <span>{product.price}</span>
-              </em>
-            </div>
-          </TransitionLink>
-        ))}
+            </TransitionLink>
+          );
+        })}
       </section>
+      {hasMoreProducts ? (
+        <div className="collection-load-more-wrap">
+          <button className="collection-load-more-button" type="button" onClick={() => setVisibleCount((count) => Math.min(count + visibleProductStep, products.length))}>
+            View more
+          </button>
+        </div>
+      ) : null}
     </>
   );
 }

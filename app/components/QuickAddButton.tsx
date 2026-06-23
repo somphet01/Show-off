@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 
 const cartStorageKey = "show-off-cart";
-const sizes = ["XS", "S", "M", "L", "XL"];
+const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
 
 type CartItem = {
   slug: string;
@@ -50,7 +50,17 @@ function swatchLabel(swatch: string) {
     .join(" ");
 }
 
-export function QuickAddButton({ item, swatches = ["black"] }: { item: QuickAddItem; swatches?: string[] }) {
+export function QuickAddButton({
+  item,
+  swatches = ["black"],
+  sizeOptionsByColor,
+  imageByColor,
+}: {
+  item: QuickAddItem;
+  swatches?: string[];
+  sizeOptionsByColor?: Record<string, string[]>;
+  imageByColor?: Record<string, string>;
+}) {
   const visibleSwatches = swatches.length > 0 ? swatches : ["black"];
   const quickAddId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -58,6 +68,8 @@ export function QuickAddButton({ item, swatches = ["black"] }: { item: QuickAddI
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
+  const activeColorLabel = selectedColor ? swatchLabel(selectedColor) : item.color;
+  const activeSizes = sizeOptionsByColor?.[activeColorLabel] ?? sizes;
 
   const closeQuickAdd = () => {
     setOpen(false);
@@ -92,6 +104,7 @@ export function QuickAddButton({ item, swatches = ["black"] }: { item: QuickAddI
     const nextItem: CartItem = {
       ...item,
       color,
+      image: imageByColor?.[color] ?? item.image,
       size,
       quantity: 1,
     };
@@ -118,6 +131,12 @@ export function QuickAddButton({ item, swatches = ["black"] }: { item: QuickAddI
 
   const chooseColor = (color: string) => {
     setSelectedColor(color);
+    const nextColorLabel = swatchLabel(color) || item.color;
+    if (selectedSize && sizeOptionsByColor?.[nextColorLabel] && !sizeOptionsByColor[nextColorLabel].includes(selectedSize)) {
+      setSelectedSize(null);
+      return;
+    }
+
     if (selectedSize) {
       addToCart(selectedSize, color);
     }
@@ -135,7 +154,7 @@ export function QuickAddButton({ item, swatches = ["black"] }: { item: QuickAddI
       {open ? (
         <div className="quick-add-panel" aria-label={`Quick add ${item.name}`}>
           <div className="quick-add-sizes" aria-label="Choose size">
-            {sizes.map((size) => (
+            {activeSizes.map((size) => (
               <button className={size === selectedSize ? "is-selected" : ""} type="button" onClick={() => chooseSize(size)} key={`${item.slug}-${size}`}>
                 {size}
               </button>
@@ -145,7 +164,7 @@ export function QuickAddButton({ item, swatches = ["black"] }: { item: QuickAddI
             <div className="quick-add-swatches" aria-label="Choose colour">
             {visibleSwatches.map((swatch, index) => (
               <button className={swatch === selectedColor ? "is-selected" : ""} type="button" aria-label={`Choose ${swatchLabel(swatch)}`} onClick={() => chooseColor(swatch)} key={`${item.slug}-${swatch}-${index}`}>
-                <i className={swatch === "black" ? undefined : swatch} />
+                <i className={swatch} />
               </button>
             ))}
             </div>

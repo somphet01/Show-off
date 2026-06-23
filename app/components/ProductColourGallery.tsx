@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 const fallbackColours = ["Jet Black", "Flat White", "Washed Black", "Ice Grey Marl", "Indigo", "Powder Blue"];
 
@@ -22,17 +23,29 @@ function colourFamily(colour: string) {
   return "neutral";
 }
 
-export function productColourOptions(baseColour: string, colorCount: number) {
-  const minimumCount = colorCount > 1 ? Math.max(colorCount, 6) : 1;
+export function productColourOptions(baseColour: string, colorCount: number, colourImages?: Record<string, string[]>) {
+  if (colourImages && Object.keys(colourImages).length > 0) {
+    return [baseColour, ...Object.keys(colourImages).filter((colour) => colour !== baseColour)];
+  }
 
-  return [baseColour, ...fallbackColours.filter((colour) => colour !== baseColour)].slice(0, minimumCount);
+  const optionCount = Math.max(1, Math.min(Math.trunc(colorCount) || 1, fallbackColours.length + 1));
+
+  return [baseColour, ...fallbackColours.filter((colour) => colour !== baseColour)].slice(0, optionCount);
 }
 
-export function productColourImage(colour: string, fallbackImage: string) {
+export function productColourImage(colour: string, fallbackImage: string, colourImages?: Record<string, string[]>) {
+  if (colourImages?.[colour]?.[0]) {
+    return colourImages[colour][0];
+  }
+
   return colourImageGroups[colourFamily(colour)]?.[0] ?? fallbackImage;
 }
 
-export function productGalleryForColour(colour: string, baseColour: string, baseGallery: string[]) {
+export function productGalleryForColour(colour: string, baseColour: string, baseGallery: string[], colourImages?: Record<string, string[]>) {
+  if (colourImages?.[colour]?.length) {
+    return colourImages[colour];
+  }
+
   if (colour === baseColour) {
     return baseGallery;
   }
@@ -40,12 +53,24 @@ export function productGalleryForColour(colour: string, baseColour: string, base
   return colourImageGroups[colourFamily(colour)] ?? baseGallery;
 }
 
-export function ProductColourGallery({ baseColour, colorCount, gallery, productName }: { baseColour: string; colorCount: number; gallery: string[]; productName: string }) {
+export function ProductColourGallery({
+  baseColour,
+  colorCount,
+  gallery,
+  productName,
+  colourImages,
+}: {
+  baseColour: string;
+  colorCount: number;
+  gallery: string[];
+  productName: string;
+  colourImages?: Record<string, string[]>;
+}) {
   const galleryRef = useRef<HTMLDivElement>(null);
-  const colours = useMemo(() => productColourOptions(baseColour, colorCount), [baseColour, colorCount]);
+  const colours = useMemo(() => productColourOptions(baseColour, colorCount, colourImages), [baseColour, colorCount, colourImages]);
   const [selectedColour, setSelectedColour] = useState(baseColour);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const activeImages = useMemo(() => productGalleryForColour(selectedColour, baseColour, gallery), [baseColour, gallery, selectedColour]);
+  const activeImages = useMemo(() => productGalleryForColour(selectedColour, baseColour, gallery, colourImages), [baseColour, colourImages, gallery, selectedColour]);
   const currentLightboxImage = lightboxIndex === null ? null : activeImages[lightboxIndex];
 
   useEffect(() => {
@@ -116,7 +141,7 @@ export function ProductColourGallery({ baseColour, colorCount, gallery, productN
     <section className="product-showcase" aria-label={`${productName} gallery in ${selectedColour}`}>
       <div className="product-gallery" ref={galleryRef}>
         {activeImages.map((image, index) => (
-          <figure className="product-frame" key={`${selectedColour}-${image}-${index}`}>
+          <figure className={`product-frame${image.includes("-card.") || image.includes("real-retro-") ? " is-cover-master" : ""}`} key={`${selectedColour}-${image}-${index}`}>
             <button type="button" aria-label={`View ${productName} ${selectedColour} image ${index + 1}`} onClick={() => setLightboxIndex(index)}>
               <img src={image} alt={`${productName} ${selectedColour} view ${index + 1}`} />
             </button>
@@ -130,21 +155,26 @@ export function ProductColourGallery({ baseColour, colorCount, gallery, productN
           <i aria-hidden="true" />
         </button>
       </div>
-      <div className={`product-lightbox${currentLightboxImage ? " is-open" : ""}`} aria-hidden={!currentLightboxImage} role="dialog" aria-label={`${productName} image viewer`}>
-        <button className="product-lightbox-close" type="button" aria-label="Close image viewer" onClick={() => setLightboxIndex(null)}>
-          Close
-        </button>
-        <button className="product-lightbox-nav product-lightbox-prev" type="button" aria-label="Previous image" onClick={showPreviousImage}>
-          <span aria-hidden="true">{"<"}</span>
-        </button>
-        {currentLightboxImage ? <img src={currentLightboxImage} alt={`${productName} ${selectedColour} enlarged view ${(lightboxIndex ?? 0) + 1}`} /> : null}
-        <button className="product-lightbox-nav product-lightbox-next" type="button" aria-label="Next image" onClick={showNextImage}>
-          <span aria-hidden="true">{">"}</span>
-        </button>
-        <p>
-          {(lightboxIndex ?? 0) + 1} / {activeImages.length}
-        </p>
-      </div>
+      {currentLightboxImage
+        ? createPortal(
+            <div className="product-lightbox is-open" role="dialog" aria-modal="true" aria-label={`${productName} image viewer`}>
+              <button className="product-lightbox-close" type="button" aria-label="Close image viewer" onClick={() => setLightboxIndex(null)}>
+                Close
+              </button>
+              <button className="product-lightbox-nav product-lightbox-prev" type="button" aria-label="Previous image" onClick={showPreviousImage}>
+                <span aria-hidden="true">{"<"}</span>
+              </button>
+              <img src={currentLightboxImage} alt={`${productName} ${selectedColour} enlarged view ${(lightboxIndex ?? 0) + 1}`} />
+              <button className="product-lightbox-nav product-lightbox-next" type="button" aria-label="Next image" onClick={showNextImage}>
+                <span aria-hidden="true">{">"}</span>
+              </button>
+              <p>
+                {(lightboxIndex ?? 0) + 1} / {activeImages.length}
+              </p>
+            </div>,
+            document.body,
+          )
+        : null}
     </section>
   );
 }

@@ -10,6 +10,42 @@ export type AdminLoginState = {
 };
 
 const ordersPath = "/admin/orders";
+const settingsPath = "/admin/settings";
+
+export async function updatePaymentSettings(formData: FormData) {
+  const session = await requireAdminSession();
+
+  if (session.role !== "owner") {
+    redirect(`${settingsPath}?payment=forbidden`);
+  }
+
+  const thbToLakRate = Number(formData.get("thbToLakRate"));
+  const qrThbUrl = String(formData.get("qrThbUrl") ?? "").trim();
+  const qrLakUrl = String(formData.get("qrLakUrl") ?? "").trim();
+
+  if (!Number.isFinite(thbToLakRate) || thbToLakRate <= 0) {
+    redirect(`${settingsPath}?payment=invalid-rate`);
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("storefront_payment_settings")
+    .update({
+      thb_to_lak_rate: thbToLakRate,
+      qr_thb_url: qrThbUrl || null,
+      qr_lak_url: qrLakUrl || null,
+    })
+    .eq("id", "main");
+
+  if (error) {
+    redirect(`${settingsPath}?payment=failed`);
+  }
+
+  revalidatePath(settingsPath);
+  revalidatePath("/en/checkout");
+  revalidatePath("/lo/checkout");
+  redirect(`${settingsPath}?payment=saved`);
+}
 
 export async function signInAdmin(_state: AdminLoginState, formData: FormData): Promise<AdminLoginState> {
   const email = String(formData.get("email") ?? "").trim();

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Noto_Sans_Lao } from "next/font/google";
+import { FloatingContactButton } from "./components/FloatingContactButton";
+import { IntroOverlay } from "./components/IntroOverlay";
 import { PressMotion } from "./components/PressMotion";
 import { ScrollMotion } from "./components/ScrollMotion";
 import { ScrollRestorationReset } from "./components/ScrollRestorationReset";
@@ -20,8 +22,8 @@ const notoSansLao = Noto_Sans_Lao({
 });
 
 export const metadata: Metadata = {
-  title: "REPRESENT Storefront",
-  description: "Luxury fashion ecommerce storefront built with Next.js.",
+  title: "SHOW OFF",
+  description: "SHOW OFF premium streetwear storefront.",
 };
 
 export default function RootLayout({
@@ -33,7 +35,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${notoSansLao.variable}`}>
         <ScrollRestorationReset />
+        <IntroOverlay />
         {children}
+        <FloatingContactButton />
         <PressMotion />
         <ScrollMotion />
       </body>

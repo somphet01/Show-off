@@ -8,7 +8,8 @@ type HomeAutoRailProps = {
 };
 
 const speedPxPerSecond = 20;
-const horizontalIntentThreshold = 6;
+const horizontalIntentThreshold = 12;
+const noRailDragSelector = "a.product-card, button, input, select, textarea, [role='button'], .quick-add, .save-product-button";
 
 export function HomeAutoRail({ children, direction }: HomeAutoRailProps) {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -41,6 +42,8 @@ export function HomeAutoRail({ children, direction }: HomeAutoRailProps) {
     let pausedByUser = false;
     let currentScroll = track.scrollLeft;
     let pointerStart: { id: number; x: number; y: number; type: string } | null = null;
+    let dragState: { id: number; x: number; y: number; scrollLeft: number; active: boolean } | null = null;
+    let suppressClickUntil = 0;
 
     const loopWidth = () => track.scrollWidth / 2;
     const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth);
@@ -100,6 +103,15 @@ export function HomeAutoRail({ children, direction }: HomeAutoRailProps) {
     };
 
     const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target instanceof Element ? event.target : null;
+
+      if (target?.closest(noRailDragSelector)) {
+        pauseForUser();
+        pointerStart = null;
+        dragState = null;
+        return;
+      }
+
       pointerStart = {
         id: event.pointerId,
         x: event.clientX,
@@ -109,10 +121,39 @@ export function HomeAutoRail({ children, direction }: HomeAutoRailProps) {
 
       if (event.pointerType !== "touch") {
         pauseForUser();
+        if (event.button === 0) {
+          dragState = {
+            id: event.pointerId,
+            x: event.clientX,
+            y: event.clientY,
+            scrollLeft: track.scrollLeft,
+            active: false,
+          };
+        }
       }
     };
 
     const handlePointerMove = (event: PointerEvent) => {
+      if (dragState?.id === event.pointerId) {
+        const deltaX = event.clientX - dragState.x;
+        const deltaY = event.clientY - dragState.y;
+
+        if (!dragState.active && Math.abs(deltaX) >= horizontalIntentThreshold && Math.abs(deltaX) > Math.abs(deltaY) * 1.25) {
+          dragState.active = true;
+          suppressClickUntil = performance.now() + 350;
+          track.classList.add("is-dragging");
+          track.setPointerCapture(event.pointerId);
+        }
+
+        if (dragState.active) {
+          event.preventDefault();
+          track.scrollLeft = dragState.scrollLeft - deltaX;
+          currentScroll = track.scrollLeft;
+        }
+
+        return;
+      }
+
       if (!pointerStart || pointerStart.id !== event.pointerId || pointerStart.type !== "touch") {
         return;
       }
@@ -129,6 +170,16 @@ export function HomeAutoRail({ children, direction }: HomeAutoRailProps) {
     };
 
     const handlePointerUp = (event: PointerEvent) => {
+      if (dragState?.id === event.pointerId) {
+        if (track.hasPointerCapture(event.pointerId)) {
+          track.releasePointerCapture(event.pointerId);
+        }
+
+        currentScroll = track.scrollLeft;
+        dragState = null;
+        track.classList.remove("is-dragging");
+      }
+
       if (pointerStart?.id === event.pointerId && pointerStart.type === "touch") {
         pauseForUser();
       }
@@ -136,16 +187,41 @@ export function HomeAutoRail({ children, direction }: HomeAutoRailProps) {
     };
 
     const handleWheel = (event: WheelEvent) => {
-      if (Math.abs(event.deltaX) > Math.abs(event.deltaY) || event.shiftKey) {
+      if (event.shiftKey && Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
+        event.preventDefault();
         pauseForUser();
+        track.scrollLeft += event.deltaY;
+        currentScroll = track.scrollLeft;
+        return;
+      }
+
+      if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+        pauseForUser();
+        currentScroll = track.scrollLeft;
       }
     };
 
+    const handleClick = (event: MouseEvent) => {
+      if (performance.now() > suppressClickUntil) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      suppressClickUntil = 0;
+    };
+
+    const handleDragStart = (event: DragEvent) => {
+      event.preventDefault();
+    };
+
     track.addEventListener("pointerdown", handlePointerDown, { passive: true });
-    track.addEventListener("pointermove", handlePointerMove, { passive: true });
+    track.addEventListener("pointermove", handlePointerMove, { passive: false });
     track.addEventListener("pointerup", handlePointerUp, { passive: true });
     track.addEventListener("pointercancel", handlePointerUp, { passive: true });
-    track.addEventListener("wheel", handleWheel, { passive: true });
+    track.addEventListener("wheel", handleWheel, { passive: false });
+    track.addEventListener("click", handleClick, true);
+    track.addEventListener("dragstart", handleDragStart);
     track.addEventListener("focusin", pauseForUser);
     animationFrame = window.requestAnimationFrame(animate);
 
@@ -157,6 +233,8 @@ export function HomeAutoRail({ children, direction }: HomeAutoRailProps) {
       track.removeEventListener("pointerup", handlePointerUp);
       track.removeEventListener("pointercancel", handlePointerUp);
       track.removeEventListener("wheel", handleWheel);
+      track.removeEventListener("click", handleClick, true);
+      track.removeEventListener("dragstart", handleDragStart);
       track.removeEventListener("focusin", pauseForUser);
     };
   }, [direction]);

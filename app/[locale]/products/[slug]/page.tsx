@@ -25,7 +25,7 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
   }
 
   const dictionary = dictionaries[locale as Locale];
-  const gallery = product.gallery ?? [product.image, product.image, "/assets/products-grid.png"];
+  const gallery = product.gallery?.length ? product.gallery : [product.image];
   const detailImages = gallery.length > 1 ? gallery.slice(1, 3) : [product.image];
   const relatedProducts = collectionProducts.filter((item) => item.slug !== product.slug).slice(0, 6);
 
@@ -34,7 +34,7 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
       <Header dictionary={dictionary} locale={locale as Locale} tone="clear" />
       <main className="product-page">
         <div className="product-top">
-          <ProductColourGallery baseColour={product.color} colorCount={product.colors} gallery={gallery} productName={product.name} />
+          <ProductColourGallery baseColour={product.color} colorCount={product.colors} gallery={gallery} productName={product.name} colourImages={product.colourImages} />
           <ProductPurchasePanel product={product} locale={locale} />
         </div>
 

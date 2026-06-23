@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { MouseEvent } from "react";
 import type { Locale } from "../lib/i18n";
 import { createSupabaseBrowserClient } from "../lib/supabase/client";
 
 const cartStorageKey = "show-off-cart";
 const customerStorageKey = "show-off-customer";
 const orderRefsStorageKey = "show-off-order-refs";
+const defaultThbQrUrl = "/assets/qr-thb.png";
+const defaultLakQrUrl = "/assets/qr-lak.png";
 
 type CartItem = {
   slug: string;
@@ -39,6 +40,18 @@ type StorefrontOrder = {
   payment_id: string;
   total_amount: number;
   item_count: number;
+  base_currency: "THB";
+  payment_currency: Currency;
+  exchange_rate: number;
+  payment_amount: number;
+};
+
+type Currency = "THB" | "LAK";
+
+type PaymentSettings = {
+  thb_to_lak_rate: number;
+  qr_thb_url: string | null;
+  qr_lak_url: string | null;
 };
 
 type AttachedSlipsResult = {
@@ -51,6 +64,12 @@ type StoredOrderRef = {
   id: string;
   orderNo: string;
   createdAt: string;
+};
+
+type CheckoutFeedback = {
+  type: "success" | "error";
+  title: string;
+  message: string;
 };
 
 function rememberOrder(order: StorefrontOrder) {
@@ -76,6 +95,10 @@ function getOrderErrorMessage(error: unknown) {
 
   if (error && typeof error === "object") {
     const maybeError = error as { code?: string; message?: string; details?: string; hint?: string };
+    if (maybeError.code === "PGRST202" && maybeError.message?.includes("create_storefront_order_v2")) {
+      return "Currency checkout is not installed yet. Apply the currency payment settings migration, then try again.";
+    }
+
     if (maybeError.code === "PGRST202" && maybeError.message?.includes("create_storefront_order")) {
       return "Database checkout function is not installed yet. Apply migration 0005_storefront_checkout_order_rpc.sql in Supabase, then try again.";
     }
@@ -132,12 +155,43 @@ function saveCartItems(items: CartItem[]) {
   window.dispatchEvent(new CustomEvent("showoff-cart-updated", { detail: items }));
 }
 
-function priceToNumber(price: string) {
-  return Number(price.replace(/[^\d]/g, "")) || 0;
+function priceToThb(price: string, thbToLakRate = 650) {
+  const numericPrice = Number(price.replace(/[^\d]/g, "")) || 0;
+  return /LAK/i.test(price) ? numericPrice / Math.max(thbToLakRate, 1) : numericPrice;
 }
 
-function formatLak(value: number) {
-  return `฿${Math.round(value).toLocaleString("en-US")}`;
+function formatCurrency(value: number, currency: Currency) {
+  const amount = Math.round(value).toLocaleString("en-US");
+  return currency === "THB" ? `฿${amount}` : `${amount} LAK`;
+}
+
+function playFeedbackTone(type: CheckoutFeedback["type"]) {
+  try {
+    const AudioContextClass =
+      window.AudioContext ??
+      (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+
+    if (!AudioContextClass) return;
+
+    const context = new AudioContextClass();
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const now = context.currentTime;
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(type === "success" ? 620 : 220, now);
+    oscillator.frequency.exponentialRampToValueAtTime(type === "success" ? 880 : 150, now + 0.16);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.14, now + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.34);
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start(now);
+    oscillator.stop(now + 0.36);
+    oscillator.addEventListener("ended", () => void context.close());
+  } catch {
+    // Audio feedback is a progressive enhancement.
+  }
 }
 
 function cleanFileName(name: string) {
@@ -152,17 +206,19 @@ function buildOrderCode(index: number, item: CartItem) {
   return `RPS-${item.slug.slice(0, 4).toUpperCase()}-${item.size}-${String(index + 1).padStart(2, "0")}`;
 }
 
-function buildOrderMessage(items: CartItem[], customer: CustomerProfile | null, orderNo?: string) {
-  const total = items.reduce((sum, item) => sum + priceToNumber(item.price) * item.quantity, 0);
+function buildOrderMessage(items: CartItem[], customer: CustomerProfile | null, currency: Currency, rate: number, orderNo?: string) {
+  const multiplier = currency === "LAK" ? rate : 1;
+  const total = items.reduce((sum, item) => sum + priceToThb(item.price, rate) * item.quantity, 0) * multiplier;
   const lines = items.map((item, index) => {
-    return `${buildOrderCode(index, item)} | ${item.name} | ${item.color} | Size ${item.size} | Qty ${item.quantity} | ${formatLak(priceToNumber(item.price) * item.quantity)}`;
+    return `${buildOrderCode(index, item)} | ${item.name} | ${item.color} | Size ${item.size} | Qty ${item.quantity} | ${formatCurrency(priceToThb(item.price, rate) * item.quantity * multiplier, currency)}`;
   });
 
   return [
     "New order request",
     `Order no: ${orderNo || "Pending"}`,
     ...lines,
-    `Total: ${formatLak(total)}`,
+    `Total: ${formatCurrency(total, currency)}`,
+    ...(currency === "LAK" ? [`Exchange rate: 1 THB = ${rate.toLocaleString("en-US")} LAK`] : []),
     `Name: ${customer?.name || "-"}`,
     `Phone: ${customer?.phone || "-"}`,
     `Address: ${customer?.address || "-"}`,
@@ -191,6 +247,26 @@ function DownloadIcon() {
   );
 }
 
+function InboxPayIcon() {
+  return (
+    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
+      <path d="M5 7.5h14v9H8.8L5 19.5v-12Z" />
+      <path d="M8 10.2h8" />
+      <path d="M8 13.2h5.8" />
+    </svg>
+  );
+}
+
+function CreditCardIcon() {
+  return (
+    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24">
+      <rect x="3.5" y="6" width="17" height="12" rx="1.8" />
+      <path d="M3.5 10h17" />
+      <path d="M7 14.2h3.2" />
+    </svg>
+  );
+}
+
 function WhatsAppIcon() {
   return (
     <svg aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
@@ -210,7 +286,8 @@ function MessengerIcon() {
 export function CheckoutClient({ locale }: { locale: Locale }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
-  const [paymentMode, setPaymentMode] = useState<"pay" | "contact">("pay");
+  const [sheetMode, setSheetMode] = useState<"pay" | "inbox" | null>(null);
+  const [feedback, setFeedback] = useState<CheckoutFeedback | null>(null);
   const [slips, setSlips] = useState<SlipPreview[]>([]);
   const [slipError, setSlipError] = useState(false);
   const [orderResult, setOrderResult] = useState<StorefrontOrder | null>(null);
@@ -219,12 +296,32 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
   const [proofError, setProofError] = useState("");
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const [isUploadingProof, setIsUploadingProof] = useState(false);
+  const [currency, setCurrency] = useState<Currency>("THB");
+  const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>({
+    thb_to_lak_rate: 650,
+    qr_thb_url: defaultThbQrUrl,
+    qr_lak_url: defaultLakQrUrl,
+  });
   const slipsRef = useRef<SlipPreview[]>([]);
-  const total = useMemo(() => items.reduce((sum, item) => sum + priceToNumber(item.price) * item.quantity, 0), [items]);
-  const orderMessage = useMemo(() => buildOrderMessage(items, customer, orderResult?.order_no), [items, customer, orderResult?.order_no]);
+  const total = useMemo(
+    () => items.reduce((sum, item) => sum + priceToThb(item.price, paymentSettings.thb_to_lak_rate) * item.quantity, 0),
+    [items, paymentSettings.thb_to_lak_rate],
+  );
+  const exchangeRate = currency === "LAK" ? paymentSettings.thb_to_lak_rate : 1;
+  const paymentTotal = Math.round(total * exchangeRate);
+  const selectedQrUrl = currency === "LAK" ? paymentSettings.qr_lak_url : paymentSettings.qr_thb_url;
+  const orderMessage = useMemo(
+    () => buildOrderMessage(items, customer, currency, paymentSettings.thb_to_lak_rate, orderResult?.order_no),
+    [items, customer, currency, paymentSettings.thb_to_lak_rate, orderResult?.order_no],
+  );
   const encodedMessage = encodeURIComponent(orderMessage);
   const canOrder = items.length > 0 && Boolean(customer);
   const canSendOrder = canOrder && slips.length > 0;
+
+  const showFeedback = (nextFeedback: CheckoutFeedback) => {
+    setFeedback(nextFeedback);
+    playFeedbackTone(nextFeedback.type);
+  };
 
   useEffect(() => {
     setItems(readCartItems());
@@ -246,15 +343,54 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
   }, []);
 
   useEffect(() => {
+    let active = true;
+
+    const loadPaymentSettings = async () => {
+      const supabase = createSupabaseBrowserClient();
+      const { data } = await supabase
+        .from("storefront_payment_settings")
+        .select("thb_to_lak_rate, qr_thb_url, qr_lak_url")
+        .eq("id", "main")
+        .maybeSingle();
+
+      if (!active || !data) return;
+
+      const rate = Number(data.thb_to_lak_rate);
+      setPaymentSettings({
+        thb_to_lak_rate: Number.isFinite(rate) && rate > 0 ? rate : 650,
+        qr_thb_url: data.qr_thb_url || defaultThbQrUrl,
+        qr_lak_url: data.qr_lak_url || defaultLakQrUrl,
+      });
+    };
+
+    void loadPaymentSettings();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     slipsRef.current = slips;
   }, [slips]);
+
+  useEffect(() => {
+    document.body.classList.toggle("checkout-sheet-open", Boolean(sheetMode));
+    return () => document.body.classList.remove("checkout-sheet-open");
+  }, [sheetMode]);
+
+  useEffect(() => {
+    if (!feedback) return;
+
+    const timeout = window.setTimeout(() => setFeedback(null), 4200);
+    return () => window.clearTimeout(timeout);
+  }, [feedback]);
 
   useEffect(() => {
     setOrderResult(null);
     setOrderError("");
     setProofResult(null);
     setProofError("");
-  }, [items, customer]);
+  }, [items, customer, currency]);
 
   useEffect(() => {
     return () => {
@@ -292,6 +428,16 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
     setProofResult(null);
   };
 
+  const removeSlip = (targetIndex: number) => {
+    setSlips((currentSlips) => {
+      const target = currentSlips[targetIndex];
+      if (target) URL.revokeObjectURL(target.url);
+      return currentSlips.filter((_, index) => index !== targetIndex);
+    });
+    setProofResult(null);
+    setSlipError(false);
+  };
+
   const createOrder = async () => {
     if (!canOrder) {
       openAccount();
@@ -307,16 +453,17 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
 
     try {
       const supabase = createSupabaseBrowserClient();
-      const { data, error } = await supabase.rpc("create_storefront_order", {
+      const { data, error } = await supabase.rpc("create_storefront_order_v2", {
         order_payload: {
           customer,
+          payment_currency: currency,
           items: items.map((item) => ({
             slug: item.slug,
             name: item.name,
             color: item.color,
             size: item.size,
             quantity: item.quantity,
-            unit_price: priceToNumber(item.price),
+            unit_price: priceToThb(item.price, paymentSettings.thb_to_lak_rate),
             image: item.image,
           })),
         },
@@ -327,6 +474,9 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
       }
 
       const nextOrder = data as StorefrontOrder;
+      if (nextOrder.payment_currency === "LAK" && Number(nextOrder.exchange_rate) > 0) {
+        setPaymentSettings((current) => ({ ...current, thb_to_lak_rate: Number(nextOrder.exchange_rate) }));
+      }
       setOrderResult(nextOrder);
       rememberOrder(nextOrder);
       return nextOrder;
@@ -407,33 +557,27 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
 
     if (slips.length === 0) {
       setSlipError(true);
+      showFeedback({ type: "error", title: "Slip required", message: "Attach at least one transfer slip before saving." });
       return;
     }
 
     const createdOrder = await createOrder();
 
     if (!createdOrder) {
+      showFeedback({ type: "error", title: "Order not saved", message: "Please check your connection and try again." });
       return;
     }
 
     const attachedProof = await uploadPaymentProof(createdOrder);
 
     if (!attachedProof) {
+      showFeedback({ type: "error", title: "Upload failed", message: "Your order was saved, but the slip could not be uploaded." });
       return;
     }
 
-    window.dispatchEvent(new CustomEvent("showoff-checkout-ready", { detail: { items, customer, order: createdOrder, proof: attachedProof, slips: slips.map((slip) => slip.name), total: formatLak(total) } }));
-  };
-
-  const requireSlipBeforeContact = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (!canSendOrder) {
-      event.preventDefault();
-      if (!canOrder) {
-        openAccount();
-      } else {
-        setSlipError(true);
-      }
-    }
+    window.dispatchEvent(new CustomEvent("showoff-checkout-ready", { detail: { items, customer, order: createdOrder, proof: attachedProof, slips: slips.map((slip) => slip.name), total: formatCurrency(createdOrder.payment_amount, createdOrder.payment_currency) } }));
+    setSheetMode(null);
+    showFeedback({ type: "success", title: "Payment proof sent", message: `${attachedProof.slip_count} slip image${attachedProof.slip_count === 1 ? "" : "s"} sent for review.` });
   };
 
   const saveQr = () => {
@@ -442,53 +586,61 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
       return;
     }
 
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="520" height="520" viewBox="0 0 520 520"><rect width="520" height="520" fill="white"/><text x="260" y="62" text-anchor="middle" font-family="Arial" font-size="24" font-weight="700">REPRESENT PAYMENT</text><rect x="92" y="92" width="336" height="336" fill="none" stroke="black" stroke-width="18"/><path d="M128 128h72v72h-72zM320 128h72v72h-72zM128 320h72v72h-72zM236 128h36v36h-36zM272 200h36v36h-36zM236 272h108v36H236zM308 344h36v36h-36z" fill="black"/><text x="260" y="470" text-anchor="middle" font-family="Arial" font-size="20">${formatLak(total)}</text></svg>`;
+    if (selectedQrUrl) {
+      const link = document.createElement("a");
+      link.href = selectedQrUrl;
+      link.download = `show-off-${currency.toLowerCase()}-payment-qr`;
+      link.target = "_blank";
+      link.click();
+      return;
+    }
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="520" height="520" viewBox="0 0 520 520"><rect width="520" height="520" fill="white"/><text x="260" y="62" text-anchor="middle" font-family="Arial" font-size="24" font-weight="700">SHOW OFF ${currency} PAYMENT</text><rect x="92" y="92" width="336" height="336" fill="none" stroke="black" stroke-width="18"/><path d="M128 128h72v72h-72zM320 128h72v72h-72zM128 320h72v72h-72zM236 128h36v36h-36zM272 200h36v36h-36zM236 272h108v36H236zM308 344h36v36h-36z" fill="black"/><text x="260" y="470" text-anchor="middle" font-family="Arial" font-size="20">${formatCurrency(paymentTotal, currency)}</text></svg>`;
     const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
     const link = document.createElement("a");
     link.href = url;
-    link.download = "represent-payment-qr.svg";
+    link.download = `show-off-${currency.toLowerCase()}-payment-qr.svg`;
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const openSheet = (mode: "pay" | "inbox") => {
+    if (!canOrder) {
+      openAccount();
+      return;
+    }
+    setSheetMode(mode);
   };
 
   return (
     <main className="checkout-page">
       <section className="checkout-hero" aria-labelledby="checkout-title">
         <p>Checkout</p>
-        <h1 id="checkout-title">Confirm your order</h1>
-        <span>{items.length > 0 ? `${items.length} style${items.length === 1 ? "" : "s"} ready` : "Your cart is empty"}</span>
+        <h1 id="checkout-title">Order summary</h1>
+        <span>{items.length > 0 ? `${items.reduce((sum, item) => sum + item.quantity, 0)} items ready` : "Your cart is empty"}</span>
       </section>
 
       <section className="checkout-layout">
         <div className="checkout-order">
-          <div className="checkout-section-title">
-            <h2>Order pieces</h2>
-            <strong>{formatLak(total)}</strong>
-          </div>
-
           {items.length > 0 ? (
             <div className="checkout-items">
-              {items.map((item, index) => (
-                <article className="checkout-item" key={`${item.slug}-${item.size}`}>
-                  <img src={item.image} alt={item.name} />
-                  <div>
-                    <span>{buildOrderCode(index, item)}</span>
+              {items.map((item) => (
+                <article className="checkout-item" key={`${item.slug}-${item.size}-${item.color}`}>
+                  <div className="checkout-item-image">
+                    <img src={item.image} alt={item.name} />
+                    <span>{item.quantity}</span>
+                  </div>
+                  <div className="checkout-item-copy">
                     <h3>{item.name}</h3>
-                    <p>
-                      {item.color} / Size {item.size}
-                    </p>
+                    <p>Size {item.size} / {item.color}</p>
                     <div className="cart-quantity checkout-quantity" aria-label={`Quantity for ${item.name}`}>
-                      <button type="button" aria-label={`Remove one ${item.name}`} onClick={() => updateCartQuantity(item, item.quantity - 1)}>
-                        -
-                      </button>
+                      <button type="button" aria-label={`Remove one ${item.name}`} onClick={() => updateCartQuantity(item, item.quantity - 1)}>-</button>
                       <input aria-label={`Quantity for ${item.name}`} inputMode="numeric" min="1" max="99" type="number" value={item.quantity} onChange={(event) => updateCartQuantity(item, Number(event.target.value))} />
-                      <button type="button" aria-label={`Add one ${item.name}`} onClick={() => updateCartQuantity(item, item.quantity + 1)}>
-                        +
-                      </button>
+                      <button type="button" aria-label={`Add one ${item.name}`} onClick={() => updateCartQuantity(item, item.quantity + 1)}>+</button>
                     </div>
                   </div>
                   <div className="checkout-item-side">
-                    <strong>{formatLak(priceToNumber(item.price) * item.quantity)}</strong>
+                    <strong>{formatCurrency(priceToThb(item.price, paymentSettings.thb_to_lak_rate) * item.quantity * exchangeRate, currency)}</strong>
                     <button type="button" aria-label={`Remove ${item.name}`} onClick={() => updateCartQuantity(item, 0)} />
                   </div>
                 </article>
@@ -501,108 +653,103 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
             </div>
           )}
 
+          {items.length > 0 ? (
+            <div className="checkout-totals">
+              <div className="checkout-currency-switch">
+                <span>Pay in</span>
+                <div className="checkout-currency-options" role="group" aria-label="Payment currency">
+                  <button className={currency === "THB" ? "is-active" : ""} type="button" aria-pressed={currency === "THB"} onClick={() => setCurrency("THB")}>THB</button>
+                  <button className={currency === "LAK" ? "is-active" : ""} type="button" aria-pressed={currency === "LAK"} onClick={() => setCurrency("LAK")}>LAK</button>
+                </div>
+              </div>
+              {currency === "LAK" ? <p className="checkout-rate-note">1 THB = {paymentSettings.thb_to_lak_rate.toLocaleString("en-US")} LAK</p> : null}
+              <div><span>Subtotal</span><strong>{formatCurrency(paymentTotal, currency)}</strong></div>
+              <div><span>Delivery</span><strong>Confirmed by store</strong></div>
+              <div className="checkout-grand-total"><span>Total</span><strong>{formatCurrency(paymentTotal, currency)}</strong></div>
+            </div>
+          ) : null}
+
           {customer ? (
             <div className="checkout-customer">
-              <span>Delivery profile</span>
+              <span>Deliver to</span>
               <strong>{customer.name}</strong>
-              <p>{customer.phone}</p>
-              <p>{customer.address}</p>
+              <p>{customer.phone} / {customer.address}</p>
             </div>
           ) : (
             <div className="checkout-account-lock">
               <h2>Sign in before ordering</h2>
-              <p>Create an account with your phone number and delivery address before payment.</p>
-              <button type="button" onClick={openAccount}>
-                Create account
-              </button>
+              <p>Add your phone number and delivery address before payment.</p>
+              <button type="button" onClick={openAccount}>Create account</button>
             </div>
           )}
-        </div>
 
-        <aside className="checkout-payment" aria-label="Payment options">
-          <div className="checkout-tabs">
-            <button className={paymentMode === "pay" ? "is-active" : ""} type="button" onClick={() => setPaymentMode("pay")}>
-              Pay now
-            </button>
-            <button className={paymentMode === "contact" ? "is-active" : ""} type="button" onClick={() => setPaymentMode("contact")}>
-              Contact store
+          <div className="checkout-primary-actions" aria-label="Payment options">
+            <button className="checkout-pay-action" type="button" disabled={items.length === 0} onClick={() => openSheet("pay")}><CreditCardIcon />PAY NOW</button>
+            <button className="checkout-inbox-action" type="button" disabled={items.length === 0} onClick={() => openSheet("inbox")}><InboxPayIcon />Pay by inbox</button>
+          </div>
+        </div>
+      </section>
+
+      <div className={`checkout-sheet-scrim${sheetMode ? " is-open" : ""}`} aria-hidden="true" onClick={() => setSheetMode(null)} />
+      <section className={`checkout-bottom-sheet${sheetMode ? " is-open" : ""}`} role="dialog" aria-modal="true" aria-hidden={!sheetMode} aria-labelledby="checkout-sheet-title">
+        <div className="checkout-sheet-handle" />
+        <header className="checkout-sheet-header">
+          <div>
+            <span>{sheetMode === "inbox" ? "Store assistance" : "Bank transfer"}</span>
+            <h2 id="checkout-sheet-title">{sheetMode === "inbox" ? "Pay by inbox" : "Pay now"}</h2>
+          </div>
+          <button type="button" aria-label="Close payment panel" onClick={() => setSheetMode(null)}>×</button>
+        </header>
+
+        {sheetMode === "pay" ? (
+          <div className="checkout-pay-panel">
+            <div className="checkout-qr">
+              {selectedQrUrl ? <img className="checkout-bank-qr" src={selectedQrUrl} alt={`${currency} payment QR code`} /> : <QrMark />}
+              <div><span>Amount to transfer</span><strong>{formatCurrency(paymentTotal, currency)}</strong><small>SHOW OFF {currency} account</small></div>
+              <button className="qr-download-button" type="button" onClick={saveQr} aria-label="Save QR code"><DownloadIcon /></button>
+            </div>
+
+            <label className={`checkout-slip-dropzone${slipError ? " has-error" : ""}`}>
+              <input type="file" accept="image/*" capture="environment" multiple disabled={!canOrder} onChange={(event) => addSlips(event.target.files)} />
+              <span className="checkout-slip-plus">+</span>
+              <strong>{slips.length > 0 ? "Add more slips" : "Attach transfer slips"}</strong>
+              <small>JPG or PNG, multiple images allowed</small>
+            </label>
+
+            {slips.length > 0 ? (
+              <div className="slip-preview-grid" aria-label="Uploaded transfer slips">
+                {slips.map((slip, index) => (
+                  <figure key={`${slip.name}-${index}`}>
+                    <a href={slip.url} target="_blank" rel="noreferrer"><img src={slip.url} alt={`Transfer slip ${index + 1}`} /></a>
+                    <figcaption>{slip.name}</figcaption>
+                    <button type="button" aria-label={`Remove transfer slip ${index + 1}`} onClick={() => removeSlip(index)}>×</button>
+                  </figure>
+                ))}
+              </div>
+            ) : null}
+
+            {orderError || proofError ? <p className="slip-error">{proofError || orderError}</p> : null}
+            <button className="checkout-send-button" type="button" onClick={sendPaymentProof} disabled={!canSendOrder || isCreatingOrder || isUploadingProof || Boolean(proofResult)}>
+              {isCreatingOrder ? "Creating order..." : isUploadingProof ? "Uploading slips..." : proofResult ? "Payment proof sent" : "Save payment proof"}
             </button>
           </div>
-
-          {paymentMode === "pay" ? (
-            <div className="checkout-pay-panel">
-              {orderResult || orderError ? (
-                <div className={`checkout-order-state${orderResult ? " is-ready" : " is-error"}`} role="status">
-                  <span>{orderResult ? "Order saved" : "Order not saved"}</span>
-                  <strong>{orderResult ? orderResult.order_no : orderError}</strong>
-                </div>
-              ) : null}
-              {proofResult || proofError ? (
-                <div className={`checkout-order-state${proofResult ? " is-ready" : " is-error"}`} role="status">
-                  <span>{proofResult ? "Payment proof uploaded" : "Payment proof not uploaded"}</span>
-                  <strong>{proofResult ? `${proofResult.slip_count} slip image${proofResult.slip_count === 1 ? "" : "s"} sent to admin review` : proofError}</strong>
-                </div>
-              ) : null}
-              <div className="checkout-qr">
-                <QrMark />
-                <div>
-                  <span>Store QR</span>
-                  <strong>{formatLak(total)}</strong>
-                </div>
-                <button className="qr-download-button" type="button" onClick={saveQr} aria-label="Save QR code">
-                  <DownloadIcon />
-                </button>
-              </div>
-              <label className="slip-upload">
-                Upload transfer slip
-                <input type="file" accept="image/*" capture="environment" multiple disabled={!canOrder} onChange={(event) => addSlips(event.target.files)} />
-                <span>{slips.length > 0 ? "Add more slip images" : "Take photo or choose images"}</span>
-              </label>
-              {slips.length > 0 ? (
-                <div className="slip-preview-grid" aria-label="Uploaded transfer slips">
-                  {slips.map((slip, index) => (
-                    <a href={slip.url} target="_blank" rel="noreferrer" key={`${slip.name}-${index}`}>
-                      <img src={slip.url} alt={`Transfer slip ${index + 1}`} />
-                      <span>{slip.name}</span>
-                    </a>
-                  ))}
-                </div>
-              ) : null}
-              {slipError ? <p className="slip-error">Attach at least one transfer slip before sending.</p> : null}
-              <button className="checkout-send-button" type="button" onClick={sendPaymentProof} disabled={!canSendOrder || isCreatingOrder || isUploadingProof || Boolean(proofResult)}>
-                {isCreatingOrder ? "Creating order..." : isUploadingProof ? "Uploading proof..." : proofResult ? "Payment proof sent" : orderResult ? "Send payment proof again" : "Send payment proof"}
-              </button>
-              <p>{customer ? "Sending proof creates a real order and uploads the slip for admin review." : "Create an account before uploading payment proof."}</p>
-            </div>
-          ) : (
-            <div className="checkout-contact-panel">
-              {orderResult || orderError ? (
-                <div className={`checkout-order-state${orderResult ? " is-ready" : " is-error"}`} role="status">
-                  <span>{orderResult ? "Order saved" : "Order not saved"}</span>
-                  <strong>{orderResult ? orderResult.order_no : orderError}</strong>
-                </div>
-              ) : null}
-              {proofResult || proofError ? (
-                <div className={`checkout-order-state${proofResult ? " is-ready" : " is-error"}`} role="status">
-                  <span>{proofResult ? "Payment proof uploaded" : "Payment proof not uploaded"}</span>
-                  <strong>{proofResult ? `${proofResult.slip_count} slip image${proofResult.slip_count === 1 ? "" : "s"} sent to admin review` : proofError}</strong>
-                </div>
-              ) : null}
-              <p>The message includes product codes, quantity, total, delivery details, and slip names.</p>
-              {slipError ? <p className="slip-error">Attach at least one transfer slip before sending.</p> : null}
-              <a className={`contact-app-button contact-whatsapp${!canSendOrder ? " is-disabled" : ""}`} href={canSendOrder ? `https://wa.me/8562099999999?text=${encodedMessage}` : "#slip"} target={canSendOrder ? "_blank" : undefined} rel={canSendOrder ? "noreferrer" : undefined} onClick={requireSlipBeforeContact}>
-                <WhatsAppIcon />
-                Contact on WhatsApp
-              </a>
-              <a className={`contact-app-button contact-messenger${!canSendOrder ? " is-disabled" : ""}`} href={canSendOrder ? `https://m.me/representlao?ref=${encodedMessage}` : "#slip"} target={canSendOrder ? "_blank" : undefined} rel={canSendOrder ? "noreferrer" : undefined} onClick={requireSlipBeforeContact}>
-                <MessengerIcon />
-                Contact on Messenger
-              </a>
-              <textarea readOnly value={orderMessage} rows={9} aria-label="Order message preview" />
-            </div>
-          )}
-        </aside>
+        ) : (
+          <div className="checkout-contact-panel">
+            <p>Send your order details directly to SHOW OFF. The message includes every item, size, total, and delivery address.</p>
+            <a className="contact-app-button contact-whatsapp" href={`https://wa.me/8562056320988?text=${encodedMessage}`} target="_blank" rel="noreferrer"><WhatsAppIcon />Continue with WhatsApp</a>
+            <a className="contact-app-button contact-messenger" href="https://www.facebook.com/profile.php?id=100089116444087" target="_blank" rel="noreferrer"><MessengerIcon />Continue with Messenger</a>
+            <div className="checkout-message-preview"><span>Message preview</span><pre>{orderMessage}</pre></div>
+          </div>
+        )}
       </section>
+
+      {feedback ? (
+        <div className={`checkout-feedback is-${feedback.type}`} role="status" aria-live="polite">
+          <i aria-hidden="true">{feedback.type === "success" ? "✓" : "×"}</i>
+          <div><strong>{feedback.title}</strong><span>{feedback.message}</span></div>
+          <button type="button" aria-label="Dismiss notification" onClick={() => setFeedback(null)}>×</button>
+        </div>
+      ) : null}
     </main>
   );
 }

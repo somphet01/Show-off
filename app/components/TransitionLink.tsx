@@ -20,7 +20,7 @@ export function TransitionLink({ href, children, onClick, ...props }: Transition
 
     window.setTimeout(() => {
       window.location.href = href;
-    }, 420);
+    }, 520);
   };
 
   return (

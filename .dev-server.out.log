@@ -1,0 +1,78 @@
+
+> show-off-storefront@0.1.0 dev
+> next dev --hostname 127.0.0.1 --port 3000
+
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+- Environments: .env.local
+✓ Ready in 1766ms
+
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 4.8s (next.js: 1915ms, proxy.ts: 1852ms, generate-params: 1603ms, application-code: 1010ms)
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 327ms (next.js: 34ms, proxy.ts: 13ms, generate-params: 15ms, application-code: 279ms)
+ GET /en/collections/vault 200 in 1982ms (next.js: 1655ms, proxy.ts: 13ms, generate-params: 1554ms, application-code: 314ms)
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 155ms (next.js: 19ms, proxy.ts: 7ms, generate-params: 9ms, application-code: 128ms)
+ GET /en 200 in 3.2s (next.js: 1870ms, proxy.ts: 536ms, generate-params: 1758ms, application-code: 754ms)
+ GET /en 200 in 1213ms (next.js: 41ms, proxy.ts: 334ms, generate-params: 17ms, application-code: 838ms)
+ GET /en/collections/t-shirts 200 in 606ms (next.js: 35ms, proxy.ts: 314ms, generate-params: 17ms, application-code: 257ms)
+ GET /en/products/british-cowboys-hoodie-stained-black 200 in 754ms (next.js: 34ms, proxy.ts: 292ms, generate-params: 17ms, application-code: 429ms)
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 667ms (next.js: 39ms, proxy.ts: 313ms, generate-params: 18ms, application-code: 314ms)
+✓ Compiled in 358ms
+ GET /en/checkout 200 in 4.4s (next.js: 3.9s, proxy.ts: 285ms, generate-params: 3.6s, application-code: 241ms)
+✓ Compiled in 646ms
+ GET /en/checkout 200 in 1498ms (next.js: 191ms, proxy.ts: 1172ms, generate-params: 14ms, application-code: 135ms)
+ GET /en 200 in 1490ms (next.js: 92ms, proxy.ts: 400ms, generate-params: 27ms, application-code: 997ms)
+ GET /en/products/pegasus-zip-through-hoodie-indigo 200 in 572ms (next.js: 66ms, proxy.ts: 267ms, generate-params: 14ms, application-code: 239ms)
+ GET /en 200 in 992ms (next.js: 40ms, proxy.ts: 296ms, generate-params: 17ms, application-code: 656ms)
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 451ms (next.js: 40ms, proxy.ts: 106ms, generate-params: 18ms, application-code: 305ms)
+ GET /en 200 in 1043ms (next.js: 34ms, proxy.ts: 299ms, generate-params: 16ms, application-code: 709ms)
+ GET /en 200 in 956ms (next.js: 45ms, proxy.ts: 287ms, generate-params: 22ms, application-code: 624ms)
+ GET /en/products/pegasus-zip-through-hoodie-indigo 200 in 558ms (next.js: 33ms, proxy.ts: 292ms, generate-params: 15ms, application-code: 233ms)
+ GET /en 200 in 921ms (next.js: 37ms, proxy.ts: 295ms, generate-params: 18ms, application-code: 589ms)
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 414ms (next.js: 43ms, proxy.ts: 118ms, generate-params: 19ms, application-code: 253ms)
+✓ Compiled in 491ms
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 1576ms (next.js: 234ms, proxy.ts: 1048ms, generate-params: 17ms, application-code: 293ms)
+✓ Compiled in 337ms
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 1088ms (next.js: 341ms, proxy.ts: 183ms, generate-params: 81µs, application-code: 564ms)
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 790ms (next.js: 208ms, proxy.ts: 359ms, generate-params: 159µs, application-code: 224ms)
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 351ms (next.js: 44ms, proxy.ts: 132ms, generate-params: 19ms, application-code: 176ms)
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 300ms (next.js: 26ms, proxy.ts: 110ms, generate-params: 64µs, application-code: 165ms)
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 257ms (next.js: 19ms, proxy.ts: 115ms, generate-params: 61µs, application-code: 123ms)
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 254ms (next.js: 21ms, proxy.ts: 121ms, generate-params: 62µs, application-code: 112ms)
+✓ Compiled in 133ms
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 447ms (next.js: 127ms, proxy.ts: 237ms, generate-params: 44µs, application-code: 84ms)
+✓ Compiled in 168ms
+ GET /en/products/initial-jersey-hoodie-jet-black 200 in 1174ms (next.js: 34ms, proxy.ts: 664ms, generate-params: 14ms, application-code: 476ms)
+ GET /en/checkout 200 in 1219ms (next.js: 194ms, proxy.ts: 607ms, generate-params: 13ms, application-code: 418ms)
+ GET /en/collections/t-shirts 200 in 1099ms (next.js: 199ms, proxy.ts: 320ms, generate-params: 15ms, application-code: 580ms)
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 380ms (next.js: 37ms, proxy.ts: 118ms, generate-params: 14ms, application-code: 225ms)
+ GET /en/products/pegasus-zip-through-hoodie-indigo 200 in 558ms (next.js: 32ms, proxy.ts: 277ms, generate-params: 13ms, application-code: 249ms)
+ GET /en/products/pegasus-zip-through-hoodie-indigo 200 in 545ms (next.js: 30ms, proxy.ts: 266ms, generate-params: 14ms, application-code: 249ms)
+ GET /en/checkout 200 in 551ms (next.js: 44ms, proxy.ts: 267ms, generate-params: 16ms, application-code: 240ms)
+✓ Compiled in 274ms
+ GET /en 200 in 1717ms (next.js: 284ms, proxy.ts: 347ms, generate-params: 17ms, application-code: 1086ms)
+ GET /en/products/pegasus-zip-through-hoodie-indigo 200 in 537ms (next.js: 35ms, proxy.ts: 279ms, generate-params: 13ms, application-code: 223ms)
+ GET /en/products/british-cowboys-hoodie-stained-black 200 in 490ms (next.js: 32ms, proxy.ts: 255ms, generate-params: 15ms, application-code: 203ms)
+ GET /en 200 in 491ms (next.js: 33ms, proxy.ts: 10ms, generate-params: 13ms, application-code: 448ms)
+ GET /favicon.ico 404 in 238ms (next.js: 13ms, generate-params: 57µs, application-code: 225ms)
+ GET /en/collections/vault 200 in 319ms (next.js: 41ms, proxy.ts: 11ms, generate-params: 17ms, application-code: 267ms)
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 327ms (next.js: 49ms, proxy.ts: 14ms, generate-params: 17ms, application-code: 263ms)
+ GET /en/collections/vault 200 in 122ms (next.js: 18ms, proxy.ts: 6ms, generate-params: 8ms, application-code: 99ms)
+ GET /en/products/retro-patchwork-striped-color-block-short 200 in 88ms (next.js: 14ms, proxy.ts: 3ms, generate-params: 6ms, application-code: 71ms)
+ GET /en/products/british-cowboys-hoodie-stained-black 200 in 922ms (next.js: 15ms, proxy.ts: 829ms, generate-params: 6ms, application-code: 79ms)
+ GET /en 200 in 343ms (next.js: 14ms, proxy.ts: 146ms, generate-params: 6ms, application-code: 183ms)
+ GET /en/products/british-cowboys-hoodie-stained-black 200 in 184ms (next.js: 16ms, proxy.ts: 81ms, generate-params: 7ms, application-code: 87ms)
+ GET /en/products/owners-club-hoodie-washed-black 200 in 329ms (next.js: 14ms, proxy.ts: 236ms, generate-params: 7ms, application-code: 79ms)
+ GET /en/products/british-cowboys-hoodie-stained-black 200 in 255ms (next.js: 20ms, proxy.ts: 114ms, generate-params: 8ms, application-code: 121ms)
+ GET /en/products/pegasus-zip-through-hoodie-indigo 200 in 188ms (next.js: 15ms, proxy.ts: 95ms, generate-params: 6ms, application-code: 79ms)
+ GET /en/products/owners-club-hoodie-washed-black 200 in 182ms (next.js: 15ms, proxy.ts: 83ms, generate-params: 6ms, application-code: 84ms)
+ GET /en 200 in 450ms (next.js: 20ms, proxy.ts: 240ms, generate-params: 6ms, application-code: 190ms)
+ GET /en 200 in 428ms (next.js: 15ms, proxy.ts: 246ms, generate-params: 7ms, application-code: 167ms)
+ GET /en 200 in 426ms (next.js: 15ms, proxy.ts: 239ms, generate-params: 6ms, application-code: 172ms)
+ GET /en 200 in 431ms (next.js: 14ms, proxy.ts: 229ms, generate-params: 6ms, application-code: 188ms)
+ GET /favicon.ico 404 in 116ms (next.js: 26ms, generate-params: 11ms, application-code: 90ms)
+ GET /en 200 in 448ms (next.js: 17ms, proxy.ts: 240ms, generate-params: 7ms, application-code: 190ms)
+ GET /en 200 in 408ms (next.js: 17ms, proxy.ts: 210ms, generate-params: 7ms, application-code: 181ms)
+ GET /en 200 in 442ms (next.js: 18ms, proxy.ts: 235ms, generate-params: 9ms, application-code: 189ms)
+ GET /en 200 in 419ms (next.js: 16ms, proxy.ts: 207ms, generate-params: 7ms, application-code: 196ms)
+ GET /en 200 in 3.8s (next.js: 1270ms, proxy.ts: 1697ms, generate-params: 1231ms, application-code: 832ms)
