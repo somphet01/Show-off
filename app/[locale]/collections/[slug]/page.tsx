@@ -3,7 +3,7 @@ import { CollectionView } from "../../../components/CollectionView";
 import { Footer } from "../../../components/Footer";
 import { Header } from "../../../components/Header";
 import { dictionaries, isLocale, locales, type Locale } from "../../../lib/i18n";
-import { collectionProducts, shopCategories, slugify, titleFromSlug } from "../../../lib/shop";
+import { productsForCollectionSlug, shopCategories, slugify, titleFromSlug } from "../../../lib/shop";
 
 export function generateStaticParams() {
   const slugs = [shopCategories.map((category) => category.title), shopCategories.flatMap((category) => category.items)].flat().map(slugify);
@@ -37,6 +37,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ loc
   const dictionary = dictionaries[locale as Locale];
   const title = collectionTitle(slug);
   const description = collectionDescription(slug);
+  const products = productsForCollectionSlug(slug);
 
   return (
     <div className={`locale-shell locale-${locale}`} lang={locale}>
@@ -52,7 +53,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ loc
           </p>
         </section>
 
-        <CollectionView locale={locale} products={collectionProducts} title={title} />
+        <CollectionView locale={locale} products={products} title={title} />
       </main>
       <Footer dictionary={dictionary} locale={locale as Locale} />
     </div>

@@ -1308,16 +1308,19 @@ img {
 }
 
 .category-group button {
+  position: relative;
   display: flex;
   width: 100%;
   min-height: 48px;
   align-items: center;
   justify-content: space-between;
-  padding: 0;
+  padding: 0 2px 0 0;
   border: 0;
   background: transparent;
   color: #111;
   text-align: left;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   cursor: pointer;
 }
 
@@ -1329,16 +1332,21 @@ img {
 
 .category-group button i {
   position: relative;
-  width: 13px;
-  height: 13px;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  margin-right: -15px;
+  place-items: center;
+  pointer-events: none;
 }
 
 .category-group button i::before,
 .category-group button i::after {
   content: "";
   position: absolute;
-  top: 6px;
-  left: 0;
+  top: 21px;
+  left: 15px;
   width: 13px;
   height: 1px;
   background: #111;
@@ -17899,18 +17907,47 @@ html.intro-boot-pending .intro-overlay.is-boot-overlay {
   right: 18px;
   bottom: max(18px, env(safe-area-inset-bottom));
   z-index: 3;
-  min-height: 42px;
-  padding: 0 14px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
   background: rgba(8, 8, 8, 0.72);
   color: #fff;
   font: inherit;
-  font-size: 11px;
+  font-size: 0;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   cursor: pointer;
   backdrop-filter: blur(10px);
+}
+
+.intro-sound-button::before {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  width: 8px;
+  height: 12px;
+  content: "";
+  background: #fff;
+  clip-path: polygon(0 32%, 38% 32%, 100% 0, 100% 100%, 38% 68%, 0 68%);
+  transform: translateY(-50%);
+}
+
+.intro-sound-button::after {
+  position: absolute;
+  top: 50%;
+  left: 24px;
+  width: 10px;
+  height: 16px;
+  content: "";
+  border: 1.7px solid rgba(255, 255, 255, 0.92);
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-left: 0;
+  border-radius: 0 999px 999px 0;
+  transform: translateY(-50%);
 }
 
 @keyframes introOverlayPulse {
@@ -18090,7 +18127,9 @@ html.intro-boot-pending .intro-overlay.is-boot-overlay {
   .intro-sound-button {
     right: 14px;
     bottom: max(14px, env(safe-area-inset-bottom));
-    min-height: 40px;
-    padding-inline: 12px;
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    min-height: 42px;
   }
 }

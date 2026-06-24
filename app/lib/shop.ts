@@ -115,3 +115,35 @@ export function titleFromSlug(slug: string) {
 export function productFromSlug(slug: string) {
   return collectionProducts.find((product) => product.slug === slug);
 }
+
+const collectionKeywordMap: Record<string, string[]> = {
+  jackets: ["jacket", "storm shell", "moto"],
+  jeans: ["jean", "pant", "sweatpant", "cargo"],
+  "baggy-jeans": ["jean", "pant", "sweatpant", "cargo"],
+  pants: ["pant", "sweatpant", "cargo"],
+  shorts: ["short"],
+  hoodies: ["hoodie"],
+  sweaters: ["sweater"],
+  "t-shirts": ["t-shirt"],
+  "oversized-t-shirts": ["oversized t-shirt"],
+  shirts: ["shirt", "jersey"],
+  "long-sleeve": ["long sleeve"],
+  polos: ["polo"],
+  "hats-and-caps": ["cap", "hat", "beanie"],
+  "baseball-caps": ["cap"],
+};
+
+export function productsForCollectionSlug(slug: string) {
+  const keywords = collectionKeywordMap[slug];
+
+  if (!keywords) {
+    return collectionProducts;
+  }
+
+  const matchedProducts = collectionProducts.filter((product) => {
+    const haystack = `${product.name} ${product.slug}`.toLowerCase();
+    return keywords.some((keyword) => haystack.includes(keyword));
+  });
+
+  return matchedProducts.length > 0 ? matchedProducts : collectionProducts;
+}
