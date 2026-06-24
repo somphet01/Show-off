@@ -1504,6 +1504,102 @@ img {
   opacity: 1;
 }
 
+.account-form .account-field {
+  position: relative;
+}
+
+.account-form .account-field input {
+  padding-right: 46px;
+}
+
+.account-field-icon {
+  position: absolute;
+  right: 11px;
+  bottom: 12px;
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 999px;
+  background: #eee;
+  color: transparent;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1;
+  opacity: 0;
+  transform: scale(0.88);
+  transition: opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.account-field.is-valid .account-field-icon,
+.account-field.is-invalid .account-field-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.account-field.is-valid .account-field-icon {
+  background: #159651;
+  color: #fff;
+}
+
+.account-field.is-invalid .account-field-icon {
+  background: #cf3131;
+  color: #fff;
+}
+
+.account-status-note {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 11px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #111;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  animation: checkout-feedback-in 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.account-status-note > i {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 999px;
+  background: #159651;
+  color: #fff;
+  font-size: 19px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.account-status-note.is-error > i {
+  background: #cf3131;
+}
+
+.account-status-note > div {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.account-status-note strong {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.account-status-note span {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
 .account-saved-note {
   margin: 0;
   color: #4d4d49;
@@ -16991,6 +17087,11 @@ body:has(.admin-shell) .floating-contact {
   display: none;
 }
 
+body:has(.action-panel.is-open) .floating-contact {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .floating-contact > button,
 .floating-contact-menu a {
   display: inline-flex;
@@ -17142,9 +17243,9 @@ body:has(.admin-shell) .floating-contact {
   --storefront-card-width-desktop: 25vw;
   --storefront-card-width-mobile: 50vw;
   --home-card-width-desktop: 18.75vw;
-  --home-card-width-mobile: 49vw;
+  --home-card-width-mobile: 50vw;
   --storefront-card-ratio: 3 / 4;
-  --storefront-card-gap: 1px;
+  --storefront-card-gap: 0px;
 }
 
 .locale-shell .rail,
@@ -17191,6 +17292,7 @@ body:has(.admin-shell) .floating-contact {
   height: auto !important;
   aspect-ratio: var(--storefront-card-ratio) !important;
   overflow: hidden !important;
+  border-right: 0 !important;
   background: #f4f4f4 !important;
 }
 
@@ -17440,6 +17542,30 @@ body.intro-playing {
   overflow: hidden;
 }
 
+html.intro-boot-pending,
+html.intro-boot-pending body {
+  overflow: hidden;
+  background: #000;
+}
+
+html.intro-boot-pending body::before {
+  position: fixed;
+  inset: 0;
+  z-index: 2147482999;
+  display: block;
+  content: "";
+  background: #000;
+  pointer-events: none;
+}
+
+.intro-overlay.is-boot-overlay {
+  visibility: hidden;
+}
+
+html.intro-boot-pending .intro-overlay.is-boot-overlay {
+  visibility: visible;
+}
+
 .intro-overlay {
   position: fixed;
   inset: 0;
@@ -17447,7 +17573,7 @@ body.intro-playing {
   overflow: hidden;
   background: #000;
   opacity: 1;
-  transition: opacity 920ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 420ms cubic-bezier(0.22, 1, 0.36, 1);
   isolation: isolate;
 }
 

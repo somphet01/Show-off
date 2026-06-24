@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, MouseEvent } from "react";
+import { playFeedbackTone } from "../lib/feedback-tone";
 import type { Dictionary, Locale } from "../lib/i18n";
+import { silenceIntroAudio } from "../lib/intro-audio";
 import { shopCategories, slugify } from "../lib/shop";
 import { createSupabaseBrowserClient } from "../lib/supabase/client";
 import type { SavedItem } from "./SaveProductButton";
@@ -11,6 +13,8 @@ type MenuItemStyle = CSSProperties & { "--item-index": number };
 const cartStorageKey = "show-off-cart";
 const savedStorageKey = "show-off-saved";
 const customerStorageKey = "show-off-customer";
+const accountProfileStorageKey = "show-off-account-profile";
+const accountPasswordStorageKey = "show-off-account-password";
 const orderRefsStorageKey = "show-off-order-refs";
 const alertsSeenStorageKey = "show-off-alerts-seen-v1";
 
@@ -29,6 +33,15 @@ type CustomerProfile = {
   email: string;
   phone: string;
   address: string;
+};
+
+type AccountMode = "login" | "register" | "forgot" | "profile";
+
+type AccountNotice = {
+  type: "success" | "error";
+  title: string;
+  message: string;
+  field?: string;
 };
 
 type AccountOrder = {
@@ -165,6 +178,48 @@ function readCustomerProfile() {
   }
 }
 
+function readAccountProfile() {
+  try {
+    const stored = window.localStorage.getItem(accountProfileStorageKey);
+    return stored ? (JSON.parse(stored) as CustomerProfile) : readCustomerProfile();
+  } catch {
+    return readCustomerProfile();
+  }
+}
+
+function readAccountPassword() {
+  try {
+    return window.localStorage.getItem(accountPasswordStorageKey) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function normalizeContact(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
+function isValidPhone(value: string) {
+  return value.replace(/\D/g, "").length >= 6;
+}
+
+function isValidContact(value: string) {
+  return isValidEmail(value) || isValidPhone(value);
+}
+
+function isValidPassword(value: string) {
+  return value.trim().length >= 6;
+}
+
+function matchesCustomerContact(profile: CustomerProfile, contact: string) {
+  const target = normalizeContact(contact);
+  return normalizeContact(profile.email) === target || normalizeContact(profile.phone) === target;
+}
+
 function readOrderIds() {
   try {
     const stored = window.localStorage.getItem(orderRefsStorageKey);
@@ -249,12 +304,15 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<"account" | "alerts" | "cart" | "saved" | null>(null);
-  const [accountMode, setAccountMode] = useState<"login" | "register" | "profile">("login");
+  const [accountMode, setAccountMode] = useState<AccountMode>("login");
   const [openCategory, setOpenCategory] = useState("");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
   const [accountDraft, setAccountDraft] = useState<CustomerProfile>({ name: "", email: "", phone: "", address: "" });
+  const [accountPassword, setAccountPassword] = useState("");
+  const [accountTouched, setAccountTouched] = useState<Record<string, boolean>>({});
+  const [accountNotice, setAccountNotice] = useState<AccountNotice | null>(null);
   const [profileEditing, setProfileEditing] = useState(false);
   const [accountOrders, setAccountOrders] = useState<AccountOrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
@@ -268,6 +326,9 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
     const seen = new Set(seenAlertIds);
     return orderAlerts.filter((alert) => !seen.has(alert.id)).length;
   }, [orderAlerts, seenAlertIds]);
+  const successProfileNotice = accountNotice?.type === "success" && (accountNotice.title === "Signed in" || accountNotice.title === "Account created");
+  const activeAccountCustomer = customer ?? (successProfileNotice ? accountDraft : null);
+  const showAccountProfile = Boolean(activeAccountCustomer && (accountMode === "profile" || successProfileNotice));
 
   useEffect(() => {
     lastYRef.current = window.scrollY;
@@ -359,14 +420,28 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
       setCustomer(profile);
       if (profile) {
         setAccountDraft(profile);
-        setAccountMode((mode) => (mode === "login" ? "profile" : mode));
+        setAccountMode("profile");
         setProfileEditing(false);
       }
     };
 
     const openAccount = () => {
+      const profile = readCustomerProfile();
+
       setMenuOpen(false);
-      setAccountMode("register");
+      setAccountTouched({});
+      setAccountNotice(null);
+      setAccountPassword("");
+
+      if (profile) {
+        setCustomer(profile);
+        setAccountDraft(profile);
+        setAccountMode("profile");
+        setProfileEditing(false);
+      } else {
+        setAccountMode("register");
+      }
+
       setActivePanel("account");
     };
 
@@ -477,8 +552,52 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
     }
   }, [activePanel, orderAlerts]);
 
+  useEffect(() => {
+    if (!accountNotice) return;
+
+    const noticeTimer = window.setTimeout(
+      () => setAccountNotice(null),
+      accountNotice.type === "success" ? 800 : 1200,
+    );
+
+    return () => window.clearTimeout(noticeTimer);
+  }, [accountNotice]);
+
+  const markAccountField = (field: string) => {
+    setAccountTouched((current) => ({ ...current, [field]: true }));
+  };
+
+  const showAccountNotice = (notice: AccountNotice) => {
+    setAccountNotice(notice);
+    playFeedbackTone(notice.type);
+  };
+
+  const resetAccountFeedback = () => {
+    setAccountTouched({});
+    setAccountNotice(null);
+    setAccountPassword("");
+  };
+
+  const changeAccountMode = (mode: AccountMode) => {
+    resetAccountFeedback();
+    setAccountMode(mode);
+  };
+
+  const accountFieldClass = (field: string, valid: boolean) => {
+    const shouldShow = Boolean(accountTouched[field] || accountNotice?.field === field || accountNotice?.type === "success");
+    if (!shouldShow) return "account-field";
+    const forcedError = accountNotice?.type === "error" && accountNotice.field === field;
+    return `account-field ${valid && !forcedError ? "is-valid" : "is-invalid"}`;
+  };
+
+  const updateAccountDraft = (nextDraft: CustomerProfile) => {
+    setAccountDraft(nextDraft);
+    setAccountNotice(null);
+  };
+
   const visitCollection = (href: string) => (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
+    silenceIntroAudio();
     setMenuOpen(false);
     document.body.classList.remove("menu-lock");
     document.body.classList.add("route-exit");
@@ -491,7 +610,7 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
   const openPanel = (panel: "account" | "alerts" | "cart" | "saved") => {
     setMenuOpen(false);
     if (panel === "account") {
-      setAccountMode(customer ? "profile" : "login");
+      changeAccountMode(customer ? "profile" : "login");
     }
     if (panel === "alerts") {
       markAlertsAsSeen();
@@ -502,11 +621,12 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
   const goToCheckout = () => {
     if (!customer) {
       setMenuOpen(false);
-      setAccountMode("register");
+      changeAccountMode("register");
       setActivePanel("account");
       return;
     }
 
+    silenceIntroAudio();
     setActivePanel(null);
     document.body.classList.remove("menu-lock");
     document.body.classList.add("route-exit");
@@ -558,26 +678,194 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
     };
 
     if (!nextProfile.name || !nextProfile.phone || !nextProfile.address) {
+      showAccountNotice({
+        type: "error",
+        title: "Check your details",
+        message: "Phone number and delivery address are required before saving.",
+      });
       return;
     }
 
     window.localStorage.setItem(customerStorageKey, JSON.stringify(nextProfile));
+    window.localStorage.setItem(accountProfileStorageKey, JSON.stringify(nextProfile));
     setCustomer(nextProfile);
     setAccountMode("profile");
     setProfileEditing(false);
+    showAccountNotice({
+      type: "success",
+      title: "Saved",
+      message: "Your delivery details are ready for checkout.",
+    });
     window.dispatchEvent(new CustomEvent("showoff-account-updated", { detail: nextProfile }));
+  };
+
+  const handleLogin = () => {
+    const contact = accountDraft.email.trim();
+    const password = accountPassword.trim();
+    const storedProfile = readAccountProfile();
+    const storedPassword = readAccountPassword();
+
+    setAccountTouched({ "login-contact": true, "login-password": true });
+
+    if (!isValidContact(contact)) {
+      showAccountNotice({
+        type: "error",
+        title: "Check email or phone",
+        message: "Enter the same email or phone number used on your account.",
+        field: "login-contact",
+      });
+      return;
+    }
+
+    if (!isValidPassword(password)) {
+      showAccountNotice({
+        type: "error",
+        title: "Check password",
+        message: "Password must be at least 6 characters.",
+        field: "login-password",
+      });
+      return;
+    }
+
+    if (!storedProfile || !matchesCustomerContact(storedProfile, contact)) {
+      showAccountNotice({
+        type: "error",
+        title: "Account not found",
+        message: "Create an account first, or use the contact saved on this device.",
+        field: "login-contact",
+      });
+      return;
+    }
+
+    if (storedPassword && storedPassword !== password) {
+      showAccountNotice({
+        type: "error",
+        title: "Wrong password",
+        message: "The password does not match this account.",
+        field: "login-password",
+      });
+      return;
+    }
+
+    if (!storedPassword) {
+      window.localStorage.setItem(accountPasswordStorageKey, password);
+    }
+
+    window.localStorage.setItem(customerStorageKey, JSON.stringify(storedProfile));
+    setCustomer(storedProfile);
+    setAccountDraft(storedProfile);
+    setAccountMode("profile");
+    setProfileEditing(false);
+    showAccountNotice({
+      type: "success",
+      title: "Signed in",
+      message: "Your account is ready for orders and checkout.",
+    });
+    window.dispatchEvent(new CustomEvent("showoff-account-updated", { detail: storedProfile }));
+  };
+
+  const handleRegister = () => {
+    const nextProfile = {
+      name: accountDraft.name.trim(),
+      email: accountDraft.email.trim(),
+      phone: accountDraft.phone.trim(),
+      address: accountDraft.address.trim(),
+    };
+    const password = accountPassword.trim();
+
+    setAccountTouched({
+      "register-name": true,
+      "register-email": true,
+      "register-password": true,
+      "register-phone": true,
+      "register-address": true,
+    });
+
+    if (!nextProfile.name) {
+      showAccountNotice({ type: "error", title: "Add your name", message: "Full name is required for your account.", field: "register-name" });
+      return;
+    }
+
+    if (!isValidEmail(nextProfile.email)) {
+      showAccountNotice({ type: "error", title: "Check email", message: "Use a valid email address for order updates.", field: "register-email" });
+      return;
+    }
+
+    if (!isValidPassword(password)) {
+      showAccountNotice({ type: "error", title: "Check password", message: "Password must be at least 6 characters.", field: "register-password" });
+      return;
+    }
+
+    if (!isValidPhone(nextProfile.phone)) {
+      showAccountNotice({ type: "error", title: "Check phone number", message: "Phone number must include at least 6 digits.", field: "register-phone" });
+      return;
+    }
+
+    if (!nextProfile.address) {
+      showAccountNotice({ type: "error", title: "Add delivery address", message: "Delivery address is required before checkout.", field: "register-address" });
+      return;
+    }
+
+    window.localStorage.setItem(customerStorageKey, JSON.stringify(nextProfile));
+    window.localStorage.setItem(accountProfileStorageKey, JSON.stringify(nextProfile));
+    window.localStorage.setItem(accountPasswordStorageKey, password);
+    setCustomer(nextProfile);
+    setAccountDraft(nextProfile);
+    setAccountMode("profile");
+    setProfileEditing(false);
+    showAccountNotice({
+      type: "success",
+      title: "Account created",
+      message: "Your details passed and are saved for checkout.",
+    });
+    window.dispatchEvent(new CustomEvent("showoff-account-updated", { detail: nextProfile }));
+  };
+
+  const handleForgotPassword = () => {
+    const contact = accountDraft.email.trim();
+    const storedProfile = readAccountProfile();
+
+    setAccountTouched({ "forgot-contact": true });
+
+    if (!isValidContact(contact)) {
+      showAccountNotice({
+        type: "error",
+        title: "Check email or phone",
+        message: "Enter the email or phone number saved on your account.",
+        field: "forgot-contact",
+      });
+      return;
+    }
+
+    if (!storedProfile || !matchesCustomerContact(storedProfile, contact)) {
+      showAccountNotice({
+        type: "error",
+        title: "Account not found",
+        message: "No saved account matches that email or phone number.",
+        field: "forgot-contact",
+      });
+      return;
+    }
+
+    showAccountNotice({
+      type: "success",
+      title: "Account found",
+      message: "This contact matches your saved SHOW OFF account.",
+      field: "forgot-contact",
+    });
   };
 
   const logoutCustomer = () => {
     window.localStorage.removeItem(customerStorageKey);
     setCustomer(null);
     setAccountDraft({ name: "", email: "", phone: "", address: "" });
-    setAccountMode("login");
+    changeAccountMode("login");
     setProfileEditing(false);
     window.dispatchEvent(new CustomEvent("showoff-account-updated", { detail: null }));
   };
 
   const switchLanguage = () => {
+    silenceIntroAudio();
     document.body.classList.remove("menu-lock");
     document.body.classList.add("route-exit");
 
@@ -623,7 +911,7 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
               {unreadAlertCount > 0 ? <span className="alerts-count">{unreadAlertCount > 9 ? "9+" : unreadAlertCount}</span> : null}
             </button>
           </div>
-          <a className="logo logo-mark" href={`/${locale}`} aria-label="SHOW OFF home">
+          <a className="logo logo-mark" href={`/${locale}`} aria-label="SHOW OFF home" onClick={visitCollection(`/${locale}`)}>
             <span className="show-off-logo-stack" aria-hidden="true">
               <img className="show-off-logo show-off-logo-symbol show-off-logo-light" src="/assets/show-off-symbol-white.png" alt="" />
               <img className="show-off-logo show-off-logo-symbol show-off-logo-dark" src="/assets/show-off-symbol-black.png" alt="" />
@@ -744,14 +1032,23 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
           </button>
         </div>
         <div className="account-panel-body">
-          {customer && accountMode === "profile" ? (
+          {accountNotice ? (
+            <div className={`account-status-note is-${accountNotice.type}`} role="status" aria-live="polite">
+              <i aria-hidden="true">{accountNotice.type === "success" ? "✓" : "×"}</i>
+              <div>
+                <strong>{accountNotice.title}</strong>
+                <span>{accountNotice.message}</span>
+              </div>
+            </div>
+          ) : null}
+          {activeAccountCustomer && showAccountProfile ? (
             <>
               <div className="profile-head">
                 <div>
                   <span>Signed in</span>
                 </div>
-                <h2>{customer.name || "SHOW OFF Member"}</h2>
-                <p>{customer.email || customer.phone}</p>
+                <h2>{activeAccountCustomer.name || "SHOW OFF Member"}</h2>
+                <p>{activeAccountCustomer.email || activeAccountCustomer.phone}</p>
               </div>
 
               <div className="profile-actions" hidden>
@@ -769,19 +1066,19 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
                 <dl>
                   <div>
                     <dt>Full name</dt>
-                    <dd>{customer.name || "Not set"}</dd>
+                    <dd>{activeAccountCustomer.name || "Not set"}</dd>
                   </div>
                   <div>
                     <dt>Email</dt>
-                    <dd>{customer.email || "Not set"}</dd>
+                    <dd>{activeAccountCustomer.email || "Not set"}</dd>
                   </div>
                   <div>
                     <dt>Phone number</dt>
-                    <dd>{customer.phone || "Add phone number"}</dd>
+                    <dd>{activeAccountCustomer.phone || "Add phone number"}</dd>
                   </div>
                   <div>
                     <dt>Delivery address</dt>
-                    <dd>{customer.address || "Add delivery address"}</dd>
+                    <dd>{activeAccountCustomer.address || "Add delivery address"}</dd>
                   </div>
                 </dl>
               </div>
@@ -789,11 +1086,11 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
               <form className="account-form profile-form" hidden>
                 <label>
                   Phone number
-                  <input type="tel" autoComplete="tel" placeholder="020..." value={accountDraft.phone} onChange={(event) => setAccountDraft({ ...accountDraft, phone: event.target.value })} />
+                  <input type="tel" autoComplete="tel" placeholder="020..." value={accountDraft.phone} onChange={(event) => updateAccountDraft({ ...accountDraft, phone: event.target.value })} />
                 </label>
                 <label>
                   Delivery address
-                  <input type="text" autoComplete="street-address" placeholder="Village, district, province" value={accountDraft.address} onChange={(event) => setAccountDraft({ ...accountDraft, address: event.target.value })} />
+                  <input type="text" autoComplete="street-address" placeholder="Village, district, province" value={accountDraft.address} onChange={(event) => updateAccountDraft({ ...accountDraft, address: event.target.value })} />
                 </label>
                 <button type="button" onClick={saveCustomerProfile}>
                   Save delivery profile
@@ -816,11 +1113,11 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
                 <form className={`account-form profile-form${profileEditing ? " is-open" : ""}`} aria-hidden={!profileEditing}>
                   <label>
                     Phone number
-                    <input type="tel" autoComplete="tel" placeholder="020..." value={accountDraft.phone} onChange={(event) => setAccountDraft({ ...accountDraft, phone: event.target.value })} />
+                    <input type="tel" autoComplete="tel" placeholder="020..." value={accountDraft.phone} onChange={(event) => updateAccountDraft({ ...accountDraft, phone: event.target.value })} />
                   </label>
                   <label>
                     Delivery address
-                    <textarea autoComplete="street-address" placeholder="Village, district, province" rows={3} value={accountDraft.address} onChange={(event) => setAccountDraft({ ...accountDraft, address: event.target.value })} />
+                    <textarea autoComplete="street-address" placeholder="Village, district, province" rows={3} value={accountDraft.address} onChange={(event) => updateAccountDraft({ ...accountDraft, address: event.target.value })} />
                   </label>
                   <button type="button" onClick={saveCustomerProfile}>Save address</button>
                 </form>
@@ -881,24 +1178,44 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
               <h2>Sign in</h2>
               <p>Access orders, saved pieces, and private drops with your email or phone number.</p>
               <form className="account-form">
-                <label>
+                <label className={accountFieldClass("login-contact", isValidContact(accountDraft.email))}>
                   Email or phone number
-                  <input type="text" autoComplete="username" placeholder="name@email.com" value={accountDraft.email || accountDraft.phone} onChange={(event) => setAccountDraft({ ...accountDraft, email: event.target.value })} />
+                  <input type="text" autoComplete="username" placeholder="name@email.com" value={accountDraft.email} onBlur={() => markAccountField("login-contact")} onChange={(event) => updateAccountDraft({ ...accountDraft, email: event.target.value })} />
+                  <span className="account-field-icon" aria-hidden="true">{accountFieldClass("login-contact", isValidContact(accountDraft.email)).includes("is-valid") ? "✓" : "×"}</span>
                 </label>
-                <label>
+                <label className={accountFieldClass("login-password", isValidPassword(accountPassword))}>
                   Password
-                  <input type="password" autoComplete="current-password" placeholder="Password" />
+                  <input type="password" autoComplete="current-password" placeholder="Password" value={accountPassword} onBlur={() => markAccountField("login-password")} onChange={(event) => { setAccountPassword(event.target.value); setAccountNotice(null); }} />
+                  <span className="account-field-icon" aria-hidden="true">{accountFieldClass("login-password", isValidPassword(accountPassword)).includes("is-valid") ? "✓" : "×"}</span>
                 </label>
-                <button type="button" onClick={saveCustomerProfile}>
+                <button type="button" onClick={handleLogin}>
                   Sign in
                 </button>
               </form>
-              {customer ? <p className="account-saved-note">Delivery profile saved for checkout.</p> : null}
               <div className="account-switch">
-                <button type="button">Forgot password?</button>
-                <button type="button" onClick={() => setAccountMode("register")}>
+                <button type="button" onClick={() => changeAccountMode("forgot")}>Forgot password?</button>
+                <button type="button" onClick={() => changeAccountMode("register")}>
                   Create account
                 </button>
+              </div>
+            </>
+          ) : accountMode === "forgot" ? (
+            <>
+              <h2>Forgot password</h2>
+              <p>Check the email or phone number saved on your SHOW OFF account.</p>
+              <form className="account-form">
+                <label className={accountFieldClass("forgot-contact", isValidContact(accountDraft.email))}>
+                  Email or phone number
+                  <input type="text" autoComplete="username" placeholder="name@email.com" value={accountDraft.email} onBlur={() => markAccountField("forgot-contact")} onChange={(event) => updateAccountDraft({ ...accountDraft, email: event.target.value })} />
+                  <span className="account-field-icon" aria-hidden="true">{accountFieldClass("forgot-contact", isValidContact(accountDraft.email)).includes("is-valid") ? "✓" : "×"}</span>
+                </label>
+                <button type="button" onClick={handleForgotPassword}>
+                  Check account
+                </button>
+              </form>
+              <div className="account-switch">
+                <button type="button" onClick={() => changeAccountMode("login")}>Back to sign in</button>
+                <button type="button" onClick={() => changeAccountMode("register")}>Create account</button>
               </div>
             </>
           ) : (
@@ -906,33 +1223,38 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
               <h2>Create account</h2>
               <p>Start with the essentials. Shipping details can be added when you checkout.</p>
               <form className="account-form">
-                <label>
+                <label className={accountFieldClass("register-name", accountDraft.name.trim().length > 0)}>
                   Full name
-                  <input type="text" autoComplete="name" placeholder="Your name" value={accountDraft.name} onChange={(event) => setAccountDraft({ ...accountDraft, name: event.target.value })} />
+                  <input type="text" autoComplete="name" placeholder="Your name" value={accountDraft.name} onBlur={() => markAccountField("register-name")} onChange={(event) => updateAccountDraft({ ...accountDraft, name: event.target.value })} />
+                  <span className="account-field-icon" aria-hidden="true">{accountFieldClass("register-name", accountDraft.name.trim().length > 0).includes("is-valid") ? "✓" : "×"}</span>
                 </label>
-                <label>
+                <label className={accountFieldClass("register-email", isValidEmail(accountDraft.email))}>
                   Email
-                  <input type="email" autoComplete="email" placeholder="name@email.com" value={accountDraft.email} onChange={(event) => setAccountDraft({ ...accountDraft, email: event.target.value })} />
+                  <input type="email" autoComplete="email" placeholder="name@email.com" value={accountDraft.email} onBlur={() => markAccountField("register-email")} onChange={(event) => updateAccountDraft({ ...accountDraft, email: event.target.value })} />
+                  <span className="account-field-icon" aria-hidden="true">{accountFieldClass("register-email", isValidEmail(accountDraft.email)).includes("is-valid") ? "✓" : "×"}</span>
                 </label>
-                <label>
+                <label className={accountFieldClass("register-password", isValidPassword(accountPassword))}>
                   Password
-                  <input type="password" autoComplete="new-password" placeholder="Create password" />
+                  <input type="password" autoComplete="new-password" placeholder="Create password" value={accountPassword} onBlur={() => markAccountField("register-password")} onChange={(event) => { setAccountPassword(event.target.value); setAccountNotice(null); }} />
+                  <span className="account-field-icon" aria-hidden="true">{accountFieldClass("register-password", isValidPassword(accountPassword)).includes("is-valid") ? "✓" : "×"}</span>
                 </label>
-                <label>
+                <label className={accountFieldClass("register-phone", isValidPhone(accountDraft.phone))}>
                   Phone number
-                  <input type="tel" autoComplete="tel" placeholder="020..." value={accountDraft.phone} onChange={(event) => setAccountDraft({ ...accountDraft, phone: event.target.value })} />
+                  <input type="tel" autoComplete="tel" placeholder="020..." value={accountDraft.phone} onBlur={() => markAccountField("register-phone")} onChange={(event) => updateAccountDraft({ ...accountDraft, phone: event.target.value })} />
+                  <span className="account-field-icon" aria-hidden="true">{accountFieldClass("register-phone", isValidPhone(accountDraft.phone)).includes("is-valid") ? "✓" : "×"}</span>
                 </label>
-                <label>
+                <label className={accountFieldClass("register-address", accountDraft.address.trim().length > 0)}>
                   Delivery address
-                  <input type="text" autoComplete="street-address" placeholder="Village, district, province" value={accountDraft.address} onChange={(event) => setAccountDraft({ ...accountDraft, address: event.target.value })} />
+                  <input type="text" autoComplete="street-address" placeholder="Village, district, province" value={accountDraft.address} onBlur={() => markAccountField("register-address")} onChange={(event) => updateAccountDraft({ ...accountDraft, address: event.target.value })} />
+                  <span className="account-field-icon" aria-hidden="true">{accountFieldClass("register-address", accountDraft.address.trim().length > 0).includes("is-valid") ? "✓" : "×"}</span>
                 </label>
-                <button type="button" onClick={saveCustomerProfile}>
+                <button type="button" onClick={handleRegister}>
                   Create account
                 </button>
               </form>
               <div className="account-switch">
                 <span>Already have an account?</span>
-                <button type="button" onClick={() => setAccountMode("login")}>
+                <button type="button" onClick={() => changeAccountMode("login")}>
                   Sign in
                 </button>
               </div>

@@ -1,4 +1,6 @@
 import { updatePaymentSettings } from "../../../admin/actions";
+import { FeedbackTone } from "../../../components/FeedbackTone";
+import type { FeedbackToneType } from "../../../lib/feedback-tone";
 import { createSupabaseServerClient } from "../../../lib/supabase/server";
 
 type AdminSettingsPageProps = {
@@ -14,7 +16,7 @@ export default async function AdminSettingsPage({ searchParams }: AdminSettingsP
     .eq("id", "main")
     .maybeSingle();
 
-  const notice =
+  const notice: { type: FeedbackToneType; text: string } | null =
     query.payment === "saved"
       ? { type: "success", text: "ບັນທຶກອັດຕາແລກປ່ຽນ ແລະ QR ຮັບເງິນແລ້ວ." }
       : query.payment === "invalid-rate"
@@ -35,7 +37,12 @@ export default async function AdminSettingsPage({ searchParams }: AdminSettingsP
         <p>ກຳນົດອັດຕາແລກປ່ຽນ ແລະ QR ຮັບເງິນຂອງຮ້ານ.</p>
       </div>
 
-      {notice ? <div className={`admin-settings-notice is-${notice.type}`} role="status">{notice.text}</div> : null}
+      {notice ? (
+        <>
+          <FeedbackTone type={notice.type} />
+          <div className={`admin-settings-notice is-${notice.type}`} role="status">{notice.text}</div>
+        </>
+      ) : null}
 
       <section className="admin-panel admin-settings-form-panel">
         <header>

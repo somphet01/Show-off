@@ -1,4 +1,5 @@
 import { AdminOrdersMock } from "../../../admin/AdminOrdersMock";
+import { FeedbackTone } from "../../../components/FeedbackTone";
 import { getAdminOrders } from "../../../lib/admin/data";
 
 export default async function AdminOrdersPage({ searchParams }: { searchParams: Promise<{ review?: string; shipping?: string }> }) {
@@ -29,14 +30,20 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
         <p>ກວດອໍເດີຈາກເວັບ ແລະແຊັດ, ອະນຸມັດສະລິບ, ເພີ່ມເລກຕິດຕາມ ແລະຈັດການການສົ່ງ.</p>
       </div>
       {reviewMessage ? (
-        <div className="admin-review-notice" role="status">
-          {reviewMessage}
-        </div>
+        <>
+          <FeedbackTone type="success" />
+          <div className="admin-review-notice" role="status">
+            {reviewMessage}
+          </div>
+        </>
       ) : null}
       {shippingMessage ? (
-        <div className={`admin-review-notice${params.shipping === "failed" ? " is-error" : ""}`} role="status">
-          {shippingMessage}
-        </div>
+        <>
+          <FeedbackTone type={params.shipping === "failed" ? "error" : "success"} />
+          <div className={`admin-review-notice${params.shipping === "failed" ? " is-error" : ""}`} role="status">
+            {shippingMessage}
+          </div>
+        </>
       ) : null}
       <section className="admin-panel admin-orders-panel">
         <div className="admin-panel-heading">

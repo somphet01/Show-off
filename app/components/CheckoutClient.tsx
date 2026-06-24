@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { playFeedbackTone } from "../lib/feedback-tone";
 import type { Locale } from "../lib/i18n";
 import { createSupabaseBrowserClient } from "../lib/supabase/client";
 
@@ -165,35 +166,6 @@ function formatCurrency(value: number, currency: Currency) {
   return currency === "THB" ? `฿${amount}` : `${amount} LAK`;
 }
 
-function playFeedbackTone(type: CheckoutFeedback["type"]) {
-  try {
-    const AudioContextClass =
-      window.AudioContext ??
-      (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-
-    if (!AudioContextClass) return;
-
-    const context = new AudioContextClass();
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    const now = context.currentTime;
-
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(type === "success" ? 620 : 220, now);
-    oscillator.frequency.exponentialRampToValueAtTime(type === "success" ? 880 : 150, now + 0.16);
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.14, now + 0.025);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.34);
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-    oscillator.start(now);
-    oscillator.stop(now + 0.36);
-    oscillator.addEventListener("ended", () => void context.close());
-  } catch {
-    // Audio feedback is a progressive enhancement.
-  }
-}
-
 function cleanFileName(name: string) {
   const extension = name.includes(".") ? name.split(".").pop() : "jpg";
   const baseName = name.replace(/\.[^/.]+$/, "");
@@ -284,6 +256,7 @@ function MessengerIcon() {
 }
 
 export function CheckoutClient({ locale }: { locale: Locale }) {
+  const [isStorageReady, setIsStorageReady] = useState(false);
   const [items, setItems] = useState<CartItem[]>([]);
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
   const [sheetMode, setSheetMode] = useState<"pay" | "inbox" | null>(null);
@@ -317,6 +290,7 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
   const encodedMessage = encodeURIComponent(orderMessage);
   const canOrder = items.length > 0 && Boolean(customer);
   const canSendOrder = canOrder && slips.length > 0;
+  const itemQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const showFeedback = (nextFeedback: CheckoutFeedback) => {
     setFeedback(nextFeedback);
@@ -326,8 +300,12 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
   useEffect(() => {
     setItems(readCartItems());
     setCustomer(readCustomerProfile());
+    setIsStorageReady(true);
 
-    const onStorage = () => setItems(readCartItems());
+    const onStorage = () => {
+      setItems(readCartItems());
+      setCustomer(readCustomerProfile());
+    };
     const onCartUpdated = () => setItems(readCartItems());
     const onAccountUpdated = () => setCustomer(readCustomerProfile());
 
@@ -613,16 +591,18 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
   };
 
   return (
-    <main className="checkout-page">
+    <main className="checkout-page" aria-busy={!isStorageReady}>
       <section className="checkout-hero" aria-labelledby="checkout-title">
         <p>Checkout</p>
         <h1 id="checkout-title">Order summary</h1>
-        <span>{items.length > 0 ? `${items.reduce((sum, item) => sum + item.quantity, 0)} items ready` : "Your cart is empty"}</span>
+        {isStorageReady ? <span>{items.length > 0 ? `${itemQuantity} items ready` : "Your cart is empty"}</span> : null}
       </section>
 
       <section className="checkout-layout">
         <div className="checkout-order">
-          {items.length > 0 ? (
+          {!isStorageReady ? (
+            <div className="checkout-loading" aria-hidden="true" />
+          ) : items.length > 0 ? (
             <div className="checkout-items">
               {items.map((item) => (
                 <article className="checkout-item" key={`${item.slug}-${item.size}-${item.color}`}>
@@ -653,7 +633,7 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
             </div>
           )}
 
-          {items.length > 0 ? (
+          {isStorageReady && items.length > 0 ? (
             <div className="checkout-totals">
               <div className="checkout-currency-switch">
                 <span>Pay in</span>
@@ -669,7 +649,7 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
             </div>
           ) : null}
 
-          {customer ? (
+          {!isStorageReady ? null : customer ? (
             <div className="checkout-customer">
               <span>Deliver to</span>
               <strong>{customer.name}</strong>
@@ -683,10 +663,12 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
             </div>
           )}
 
-          <div className="checkout-primary-actions" aria-label="Payment options">
-            <button className="checkout-pay-action" type="button" disabled={items.length === 0} onClick={() => openSheet("pay")}><CreditCardIcon />PAY NOW</button>
-            <button className="checkout-inbox-action" type="button" disabled={items.length === 0} onClick={() => openSheet("inbox")}><InboxPayIcon />Pay by inbox</button>
-          </div>
+          {isStorageReady ? (
+            <div className="checkout-primary-actions" aria-label="Payment options">
+              <button className="checkout-pay-action" type="button" disabled={items.length === 0} onClick={() => openSheet("pay")}><CreditCardIcon />PAY NOW</button>
+              <button className="checkout-inbox-action" type="button" disabled={items.length === 0} onClick={() => openSheet("inbox")}><InboxPayIcon />Pay by inbox</button>
+            </div>
+          ) : null}
         </div>
       </section>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { silenceIntroAudio } from "../lib/intro-audio";
 import type { CollectionProduct } from "../lib/shop";
 import { productColourImage, productColourOptions } from "./ProductColourGallery";
 import type { SavedItem } from "./SaveProductButton";
@@ -202,6 +203,7 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
     }
 
     if (addToCart(false)) {
+      silenceIntroAudio();
       document.body.classList.add("route-exit");
       window.setTimeout(() => {
         window.location.href = `/${locale}/checkout`;

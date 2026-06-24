@@ -1,6 +1,7 @@
 "use client";
 
 import type { AnchorHTMLAttributes, MouseEvent, ReactNode } from "react";
+import { silenceIntroAudio } from "../lib/intro-audio";
 
 type TransitionLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   href: string;
@@ -16,6 +17,7 @@ export function TransitionLink({ href, children, onClick, ...props }: Transition
     }
 
     event.preventDefault();
+    silenceIntroAudio();
     document.body.classList.add("route-exit");
 
     window.setTimeout(() => {

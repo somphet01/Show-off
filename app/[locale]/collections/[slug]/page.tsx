@@ -24,7 +24,7 @@ function collectionDescription(slug: string) {
     return "Explore our range of premium hoodies. Styled for streetwear, daily rotation, and late-night layers.";
   }
 
-  return `Explore ${titleFromSlug(slug).toLowerCase()} selected for the current REPRESENT edit.`;
+  return `Explore ${titleFromSlug(slug).toLowerCase()} selected for the current SHOW OFF edit.`;
 }
 
 export default async function CollectionPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {

@@ -1,12 +1,19 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { playFeedbackTone } from "../lib/feedback-tone";
 import { signInAdmin, type AdminLoginState } from "./actions";
 
 const initialState: AdminLoginState = {};
 
 export function AdminLoginForm() {
   const [state, formAction, pending] = useActionState(signInAdmin, initialState);
+
+  useEffect(() => {
+    if (state.error) {
+      playFeedbackTone("error");
+    }
+  }, [state.error]);
 
   return (
     <form className="admin-login-form" action={formAction}>
