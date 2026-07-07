@@ -1,63 +1,82 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Inter, Noto_Sans_Lao } from "next/font/google";
+import { cookies } from "next/headers";
+import Script from "next/script";
 import { FloatingContactButton } from "./components/FloatingContactButton";
 import { IntroOverlay } from "./components/IntroOverlay";
 import { PressMotion } from "./components/PressMotion";
 import { ScrollMotion } from "./components/ScrollMotion";
 import { ScrollRestorationReset } from "./components/ScrollRestorationReset";
+import { getSiteContentSettings, type IntroSettings } from "./lib/site-content";
 import "./globals.css";
 
-const introBootScript = `
+function createIntroBootScript(intro: IntroSettings) {
+  const enabled = JSON.stringify(intro.enabled);
+  const showOnce = JSON.stringify(intro.showOncePerVisit);
+
+  return `
 (() => {
+  const root = document.documentElement;
+  const markIntroSessionSeen = () => {
+    document.cookie = "show-off-intro-seen-v4=1; path=/; SameSite=Lax";
+  };
+  const clearIntroBoot = () => {
+    root.removeAttribute("data-intro-boot");
+    root.removeAttribute("data-intro-ready");
+  };
+
   try {
     const isStorefront = !window.location.pathname.startsWith("/admin");
     const forceIntro = new URLSearchParams(window.location.search).get("intro") === "1";
-    const shouldShowIntro = isStorefront && (forceIntro || window.sessionStorage.getItem("show-off-intro-seen-v4") !== "1");
+    const hasBootedStorefront = window.sessionStorage.getItem("show-off-storefront-booted-v1") === "1";
+    const introEnabled = ${enabled};
+    const showOncePerVisit = ${showOnce};
+    const shouldShowIntro = isStorefront && introEnabled && (
+      forceIntro ||
+      !showOncePerVisit ||
+      (!hasBootedStorefront && window.sessionStorage.getItem("show-off-intro-seen-v4") !== "1")
+    );
+
     if (shouldShowIntro) {
-      document.documentElement.classList.add("intro-boot-pending");
+      root.setAttribute("data-intro-boot", "pending");
+      root.setAttribute("data-intro-ready", "1");
+      window.sessionStorage.setItem("show-off-intro-seen-v4", "1");
+      window.sessionStorage.setItem("show-off-storefront-booted-v1", "1");
+      markIntroSessionSeen();
     } else {
-      document.documentElement.classList.remove("intro-boot-pending");
+      if (isStorefront) {
+        window.sessionStorage.setItem("show-off-storefront-booted-v1", "1");
+      }
+      clearIntroBoot();
     }
   } catch {
-    document.documentElement.classList.add("intro-boot-pending");
+    clearIntroBoot();
   }
 })();
 `;
+}
 
-const introCriticalStyle = `
-html.intro-boot-pending,
-html.intro-boot-pending body {
-  overflow: hidden !important;
+const introBootStyle = `
+html[data-intro-boot="pending"],
+html[data-intro-boot="pending"] body {
   background: #000 !important;
+  overflow: hidden !important;
 }
 
-html.intro-boot-pending body > * {
+html[data-intro-boot="pending"] body > :not(.intro-overlay) {
   visibility: hidden !important;
 }
 
-html.intro-boot-pending .intro-overlay,
-html.intro-boot-pending .intro-overlay * {
+html[data-intro-ready="1"] .intro-overlay {
+  opacity: 1 !important;
   visibility: visible !important;
+  pointer-events: auto !important;
 }
 
-.intro-overlay.is-boot-overlay {
+.intro-overlay.is-hidden {
+  opacity: 0 !important;
   visibility: hidden !important;
-}
-
-html.intro-boot-pending .intro-overlay.is-boot-overlay {
-  visibility: visible !important;
-}
-
-html.intro-boot-pending body::before {
-  position: fixed;
-  inset: 0;
-  z-index: 2147482999;
-  display: block;
-  content: "";
-  background: #000;
-  pointer-events: none;
-  visibility: visible !important;
+  pointer-events: none !important;
 }
 `;
 
@@ -80,23 +99,28 @@ export const metadata: Metadata = {
   description: "SHOW OFF premium streetwear storefront.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { intro } = await getSiteContentSettings();
+  const cookieStore = await cookies();
+  const hasSeenIntroThisSession = cookieStore.get("show-off-intro-seen-v4")?.value === "1";
+  const shouldPrebootIntro = intro.enabled && (!intro.showOncePerVisit || !hasSeenIntroThisSession);
+  const introBootAttributes = shouldPrebootIntro
+    ? { "data-intro-boot": "pending", "data-intro-ready": "1" }
+    : {};
+
   return (
-    <html lang="en" className="intro-boot-pending" suppressHydrationWarning>
+    <html lang="en" {...introBootAttributes} suppressHydrationWarning>
       <head>
-        <Script id="intro-boot" strategy="beforeInteractive">
-          {introBootScript}
-        </Script>
-        <style dangerouslySetInnerHTML={{ __html: introCriticalStyle }} />
+        <Script id="show-off-intro-boot" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: createIntroBootScript(intro) }} />
+        <style dangerouslySetInnerHTML={{ __html: introBootStyle }} />
       </head>
       <body className={`${inter.variable} ${notoSansLao.variable}`}>
-        <style dangerouslySetInnerHTML={{ __html: introCriticalStyle }} />
         <ScrollRestorationReset />
-        <IntroOverlay />
+        <IntroOverlay settings={intro} />
         {children}
         <FloatingContactButton />
         <PressMotion />

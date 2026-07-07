@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SHOW OFF | Inventory Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Geist:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#b2cad6",
+                        "on-primary": "#2b3400",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "surface": "#131313",
+                        "deep-charcoal": "#121212",
+                        "secondary-fixed": "#e5e2e1",
+                        "background": "#131313",
+                        "surface-tint": "#b4d400",
+                        "on-tertiary-container": "#516872",
+                        "on-secondary-fixed-variant": "#474746",
+                        "secondary-container": "#474746",
+                        "error-container": "#93000a",
+                        "status-blue": "#00E0FF",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-variant": "#353534",
+                        "surface-container": "#201f1f",
+                        "text-muted": "#888888",
+                        "primary": "#ffffff",
+                        "surface-container-highest": "#353534",
+                        "tertiary": "#ffffff",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-container": "#cee6f2",
+                        "on-tertiary-fixed": "#051e27",
+                        "primary-container": "#cdf200",
+                        "on-secondary-container": "#b7b5b4",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-black": "#0D0D0D",
+                        "on-primary-container": "#5a6b00",
+                        "on-error": "#690005",
+                        "inverse-primary": "#556500",
+                        "surface-bright": "#3a3939",
+                        "on-tertiary-fixed-variant": "#334a54",
+                        "primary-fixed-dim": "#b4d400",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "outline": "#8f9378",
+                        "on-surface": "#e5e2e1",
+                        "outline-variant": "#454932",
+                        "tertiary-fixed": "#cee6f2",
+                        "secondary": "#c8c6c5",
+                        "inverse-on-surface": "#313030",
+                        "on-primary-fixed": "#181e00",
+                        "on-tertiary": "#1c333d",
+                        "on-primary-fixed-variant": "#3f4c00",
+                        "inverse-surface": "#e5e2e1",
+                        "card-gray": "#1E1E1E",
+                        "on-secondary": "#313030",
+                        "neon-lime": "#D9FF00",
+                        "error": "#ffb4ab",
+                        "status-red": "#FF4D4D",
+                        "primary-fixed": "#cdf200",
+                        "surface-dim": "#131313",
+                        "on-surface-variant": "#c5c9ac",
+                        "on-background": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "12px",
+                        "xl": "24px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-padding": "32px",
+                        "sidebar-width": "280px",
+                        "card-gap": "24px",
+                        "gutter": "24px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"],
+                        "mono-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "title-lg": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "mono-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0D0D0D;
+            color: #e5e2e1;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .sidebar-active {
+            border-left: 4px solid #D9FF00;
+            background: rgba(53, 53, 52, 0.2);
+            color: #D9FF00;
+        }
+        .bento-card {
+            background: #1E1E1E;
+            border: 1px solid #2A2A2A;
+            transition: all 0.3s ease;
+        }
+        .bento-card:hover {
+            border-color: #353534;
+            box-shadow: 0 0 20px rgba(217, 255, 0, 0.05);
+        }
+        .neon-glow-red {
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.2);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #353534;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="antialiased overflow-hidden h-screen flex">
+<!-- SIDE NAVBAR -->
+<aside class="w-[280px] h-screen bg-deep-charcoal border-r border-surface-variant flex flex-col py-8 z-50 fixed left-0 top-0">
+<div class="px-8 mb-10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-neon-lime rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-black font-bold" data-icon="inventory_2">inventory_2</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary leading-tight">SHOW OFF</h1>
+<p class="font-label-md text-label-md text-text-muted">Management System</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<p class="px-4 text-[10px] uppercase tracking-widest text-text-muted font-bold mb-4">Menu</p>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-neon-lime border-l-4 border-neon-lime bg-surface-container-highest/20 rounded-r-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-body-md text-body-md font-bold">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="font-body-md text-body-md">Shipment</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-body-md text-body-md">Customers</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="store">store</span>
+<span class="font-body-md text-body-md">Store</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span class="font-body-md text-body-md">Report</span>
+</a>
+<div class="pt-8">
+<p class="px-4 text-[10px] uppercase tracking-widest text-text-muted font-bold mb-4">General</p>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-body-md text-body-md">Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="shield">shield</span>
+<span class="font-body-md text-body-md">Privacy</span>
+</a>
+</div>
+</nav>
+<div class="px-6 mt-auto">
+<div class="bg-surface-container-high p-4 rounded-xl border border-surface-variant relative overflow-hidden group">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-neon-lime mb-2" data-icon="auto_awesome">auto_awesome</span>
+<h4 class="font-title-lg text-body-md font-bold mb-1">Upgrade Now</h4>
+<p class="text-[10px] text-text-muted mb-3">Unlock premium AI analytics and forecasting.</p>
+<button class="w-full bg-neon-lime text-black py-2 rounded-lg font-bold text-xs active:scale-95 transition-transform">Get Pro</button>
+</div>
+</div>
+<div class="mt-6 flex items-center gap-3 pb-2">
+<img class="w-10 h-10 rounded-full border border-surface-variant object-cover" data-alt="A professional headshot of a sales administrator, mid-30s, dressed in modern minimalist streetwear. The lighting is dramatic and moody, reflecting a high-end fashion dark-mode aesthetic with subtle rim lighting. Background is a defocused urban studio environment with charcoal and deep gray tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDx6nAbrTKOUIVb6sFAUiwpI1c0uQv9DDk1rFQYrSVw5WlhruSMYh68JIQEfiVznABBn4G_9tsI3yohFHpSuUt0EhND6jBvPQtGXqIo60zr2bh4Fqz-gV_nTzhQOJvYEH0jtYM0j_WN-RgQ-BGTC0F_sCheTQwjwk_e1j6khO_DFkXhRODNTWZI9__ft8IuTFPfmgv_brCDRgSdfjExGjvjWb_XyIE1BWKzbe55LueOhUs7YNuP8um3PiLmgM25hLTDwUAP1OXBvnMR"/>
+<div class="overflow-hidden">
+<p class="font-body-md font-bold truncate">Evano</p>
+<p class="text-[10px] text-text-muted truncate">Sales Admin</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- MAIN CONTENT AREA -->
+<main class="flex-1 ml-[280px] h-screen overflow-y-auto custom-scrollbar bg-background">
+<!-- TOP NAV BAR -->
+<header class="h-20 w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-md flex items-center justify-between px-container-padding">
+<div class="flex items-center gap-6 flex-1">
+<h2 class="font-headline-md text-headline-md text-on-surface">Inventory Overview</h2>
+<div class="relative w-96 max-w-md">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2.5 pl-12 pr-4 text-body-md focus:ring-2 focus:ring-neon-lime focus:bg-surface-container transition-all" placeholder="Search product, SKU or order..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-colors text-text-muted relative">
+<span class="material-symbols-outlined" data-icon="tune">tune</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-colors text-text-muted relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-neon-lime rounded-full border border-surface"></span>
+</button>
+<button class="bg-neon-lime text-black px-6 py-2.5 rounded-full font-bold flex items-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+                    Add New Product
+                </button>
+</div>
+</header>
+<!-- DASHBOARD GRID -->
+<div class="p-container-padding space-y-card-gap">
+<!-- KEY METRICS BENTO -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-card-gap">
+<!-- Total Inventory Value -->
+<div class="bento-card p-6 rounded-xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-neon-lime">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+</div>
+<span class="material-symbols-outlined text-text-muted cursor-help" data-icon="north_east">north_east</span>
+</div>
+<p class="text-text-muted font-label-md mb-1">Total Inventory Value</p>
+<h3 class="font-headline-lg text-headline-lg mb-2">$1,235,684</h3>
+<div class="flex items-center gap-2">
+<span class="text-neon-lime text-[10px] font-bold flex items-center">
+<span class="material-symbols-outlined text-[12px]" data-icon="trending_up">trending_up</span>
+                            +2.5%
+                        </span>
+<span class="text-[10px] text-text-muted">Since last month</span>
+</div>
+</div>
+<!-- Low Stock Items -->
+<div class="bento-card p-6 rounded-xl border-l-4 border-status-red neon-glow-red bg-error-container/5">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-status-red/10 flex items-center justify-center text-status-red">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+</div>
+<span class="material-symbols-outlined text-text-muted cursor-help" data-icon="north_east">north_east</span>
+</div>
+<p class="text-text-muted font-label-md mb-1">Low Stock Items</p>
+<h3 class="font-headline-lg text-headline-lg mb-2">12 Items</h3>
+<div class="flex items-center gap-2">
+<span class="text-status-red text-[10px] font-bold">Critical Alert</span>
+<span class="text-[10px] text-text-muted">• Needs restock</span>
+</div>
+</div>
+<!-- Stock Movement Today -->
+<div class="bento-card p-6 rounded-xl">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-status-blue">
+<span class="material-symbols-outlined" data-icon="sync_alt">sync_alt</span>
+</div>
+<span class="material-symbols-outlined text-text-muted cursor-help" data-icon="north_east">north_east</span>
+</div>
+<p class="text-text-muted font-label-md mb-1">Stock Movement Today</p>
+<h3 class="font-headline-lg text-headline-lg mb-2">450 units</h3>
+<div class="flex items-center gap-2">
+<div class="flex -space-x-1">
+<div class="w-2 h-2 rounded-full bg-neon-lime"></div>
+<div class="w-2 h-2 rounded-full bg-text-muted"></div>
+</div>
+<span class="text-[10px] text-text-muted">75% Inbound / 25% Outbound</span>
+</div>
+</div>
+<!-- Picking Accuracy -->
+<div class="bento-card p-6 rounded-xl">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined" data-icon="verified">verified</span>
+</div>
+<span class="material-symbols-outlined text-text-muted cursor-help" data-icon="north_east">north_east</span>
+</div>
+<p class="text-text-muted font-label-md mb-1">Picking Accuracy</p>
+<h3 class="font-headline-lg text-headline-lg mb-2">99.2%</h3>
+<div class="w-full bg-surface-container-lowest h-1.5 rounded-full mt-2">
+<div class="bg-neon-lime h-full rounded-full w-[99.2%]"></div>
+</div>
+</div>
+</div>
+<!-- INVENTORY LIST CONTAINER -->
+<div class="bento-card rounded-xl overflow-hidden">
+<div class="p-6 border-b border-surface-variant flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h4 class="font-title-lg text-on-surface">Stock Levels</h4>
+<p class="text-text-muted font-body-md">Detailed breakdown of all available SKUs in the central warehouse.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-high hover:bg-surface-container-highest text-on-surface rounded-lg font-bold text-xs transition-colors border border-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="upload_file">upload_file</span>
+                            Export History
+                        </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-neon-lime text-black rounded-lg font-bold text-xs transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit_note">edit_note</span>
+                            Adjust Stock
+                        </button>
+</div>
+</div>
+<!-- TABLE -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-text-muted font-label-md border-b border-surface-variant">
+<th class="px-6 py-4 font-semibold uppercase tracking-wider">Product Info</th>
+<th class="px-6 py-4 font-semibold uppercase tracking-wider">SKU ID</th>
+<th class="px-6 py-4 font-semibold uppercase tracking-wider">Category</th>
+<th class="px-6 py-4 font-semibold uppercase tracking-wider text-right">Unit Price</th>
+<th class="px-6 py-4 font-semibold uppercase tracking-wider text-center">Stock Level</th>
+<th class="px-6 py-4 font-semibold uppercase tracking-wider">Status</th>
+<th class="px-6 py-4 font-semibold uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant">
+<!-- ITEM 1 -->
+<tr class="group hover:bg-surface-container-high transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-container-lowest border border-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A high-resolution product photography of a premium black streetwear backpack. Clean lighting, architectural lines, studio dark background. Part of a luxury tech-wear collection with matte finishes and subtle neon lime stitching accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVPP3hrFozyb0R-M0LdgAkHwG4K2GKPOSQ01HjFw-BdTDjN6-6P6sYyucAfjSEh-j2lcIcLwW82PpAJE5XJUMsXdoVdAP3rhCoV5FAI1nlTJNgm8plPa59zz3RRhRxYYri6U4lqLDG-ke97LsMMc-oECMY6MddHqExlSqQHGQcF_5RzjWnFtgtEIJ3SHVExNoEJlYuTfE-nEZkoZVHMfHU-OqntEVBSiG8rmD5jBmgvsZSbrv2Ft5Y2GU0e4CP_-NWjVAarmnGg2vh"/>
+</div>
+<div>
+<p class="font-body-md font-bold text-on-surface">Vanguard Backpack</p>
+<p class="text-xs text-text-muted">Matte Black / Large</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-mono-sm text-text-muted">#SHO-VG-001</td>
+<td class="px-6 py-4 text-body-md">Accessories</td>
+<td class="px-6 py-4 text-right text-body-md">$185.00</td>
+<td class="px-6 py-4 text-center">
+<div class="inline-flex items-center gap-2 bg-surface-container-lowest border border-surface-variant px-3 py-1 rounded-full">
+<span class="font-bold text-on-surface">420</span>
+<span class="text-xs text-text-muted">/ 1000</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full text-[10px] font-bold bg-neon-lime/10 text-neon-lime uppercase tracking-wider">In Stock</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-text-muted hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- ITEM 2 - LOW STOCK -->
+<tr class="group hover:bg-surface-container-high transition-colors bg-status-red/5">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-container-lowest border border-surface-variant">
+<img class="w-full h-full object-cover" data-alt="Close-up shot of a pair of high-top tech-wear sneakers in dark charcoal with neon lime soles. The style is aggressive and modern streetwear. Lighting highlights the textures of leather and synthetic mesh. Minimalist studio background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuArko-sh8o2vm4gRjoYJymd-uy0SHkfTe85GZWw1KVOGFQbO-TOYx1rTVQ2sI1oaGbhtGjU_HMtiXM-U61y8iaNoZu4ZK2f8RHPBWIQZrx7goPB03RAxaO1uMApVXsjVCf4UJ6UaCiinIl8k8WNhKaTRAwnasO525FrJKp7sw-aNW7WqnhaKWtcc85MeHhk3a1i2B8f5etuK59QIhD1VevLAMz6ImLPHV6Aa3BmpPkkdNXFRa9azg9k2PfOYrIEXcCpT094loOBRgA0"/>
+</div>
+<div>
+<p class="font-body-md font-bold text-on-surface">Cyber Runner Gen-X</p>
+<p class="text-xs text-text-muted">Ghost Gray / Size 11</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-mono-sm text-text-muted">#SHO-CR-042</td>
+<td class="px-6 py-4 text-body-md">Footwear</td>
+<td class="px-6 py-4 text-right text-body-md">$240.00</td>
+<td class="px-6 py-4 text-center">
+<div class="inline-flex items-center gap-2 bg-status-red/10 border border-status-red/20 px-3 py-1 rounded-full">
+<span class="font-bold text-status-red">8</span>
+<span class="text-xs text-status-red/60">/ 200</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full text-[10px] font-bold bg-status-red/10 text-status-red uppercase tracking-wider">Critical</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-status-red hover:text-white transition-colors">
+<span class="material-symbols-outlined" data-icon="emergency_share">emergency_share</span>
+</button>
+</td>
+</tr>
+<!-- ITEM 3 -->
+<tr class="group hover:bg-surface-container-high transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-container-lowest border border-surface-variant">
+<img class="w-full h-full object-cover" data-alt="Minimalist graphic t-shirt display on a high-quality hanger. The shirt is white with a bold, black architectural logo. Studio setting with soft global illumination and sharp shadows, reflecting a professional fashion inventory aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAy9nrEW-SnK53qAb_5dVgTPpSo5g7-87p-W6HbhR34rqWHhCWT_dMQ6gA5_6unV176dswhS21O_kr5NxZ5RpWEKSEfkkK_eFeBZxUEWY1pANKOvZxJ6wD1rEa3sG54Y1bNVfMrhbcxTagdRsqk1LqmwJ7woJeAwx6fuqZs-pbMgDo6y1hd3BLMp3DlZX1A5_RcLcxQTmXJC4ZHfS1Eg7JRGPAUKinO3zoWUEaxTAqtLCSUfMpQPFIteuMPOXEY5BCDsXC38uVvuabN"/>
+</div>
+<div>
+<p class="font-body-md font-bold text-on-surface">Core Graphic Tee</p>
+<p class="text-xs text-text-muted">Optical White / M</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-mono-sm text-text-muted">#SHO-CT-992</td>
+<td class="px-6 py-4 text-body-md">Apparel</td>
+<td class="px-6 py-4 text-right text-body-md">$45.00</td>
+<td class="px-6 py-4 text-center">
+<div class="inline-flex items-center gap-2 bg-surface-container-lowest border border-surface-variant px-3 py-1 rounded-full">
+<span class="font-bold text-on-surface">1,240</span>
+<span class="text-xs text-text-muted">/ 2000</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full text-[10px] font-bold bg-neon-lime/10 text-neon-lime uppercase tracking-wider">Healthy</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-text-muted hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- ITEM 4 -->
+<tr class="group hover:bg-surface-container-high transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-container-lowest border border-surface-variant">
+<img class="w-full h-full object-cover" data-alt="Sophisticated black metal water bottle with a matte finish. Sleek, industrial design with an etched brand logo. Dark, moody lighting that emphasizes the cylindrical form and metallic sheen. Luxury streetwear lifestyle accessory." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0IXLYe97kbtiz7J054etgyyscuHup_taXJWZUhxfBBel7CCI66qN3VpbEGCo4PTVnK7i-kuC29nNzYaTACbRkJQkJ_9Oax_7fxXZ-ci-1KMoFju0daA8iWm899fyHynNdxDsXJ2_pRcrhj8jd5AJ0Pg0NUXXb2lvOHbrlTqZbLvP7Mj8-ghHksDnp_skc0AuzG9LNKuICleZeX8n3trZ-Kwbv07qpiT3Mg0XUhBNh8mPK7_nDmae9GIdjWE19y6-Pl--I4zXC55u6"/>
+</div>
+<div>
+<p class="font-body-md font-bold text-on-surface">Hydro Stealth Flask</p>
+<p class="text-xs text-text-muted">750ml / Onyx</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-mono-sm text-text-muted">#SHO-HF-211</td>
+<td class="px-6 py-4 text-body-md">Lifestyle</td>
+<td class="px-6 py-4 text-right text-body-md">$62.00</td>
+<td class="px-6 py-4 text-center">
+<div class="inline-flex items-center gap-2 bg-surface-container-lowest border border-surface-variant px-3 py-1 rounded-full">
+<span class="font-bold text-on-surface">88</span>
+<span class="text-xs text-text-muted">/ 150</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full text-[10px] font-bold bg-status-blue/10 text-status-blue uppercase tracking-wider">Moderate</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-text-muted hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- PAGINATION -->
+<div class="p-6 flex items-center justify-between border-t border-surface-variant">
+<p class="text-xs text-text-muted">Showing 1-10 of 250 products</p>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-lg bg-surface-container-high text-text-muted hover:text-on-surface disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-neon-lime text-black font-bold text-xs">1</button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-container-high text-text-muted text-xs">2</button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-container-high text-text-muted text-xs">3</button>
+<span class="text-text-muted">...</span>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-container-high text-text-muted text-xs">25</button>
+</div>
+<button class="p-2 rounded-lg bg-surface-container-high text-text-muted hover:text-on-surface">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- LOWER BENTO SECTION -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-card-gap">
+<!-- RECENT MOVEMENTS -->
+<div class="bento-card p-6 rounded-xl col-span-2">
+<div class="flex items-center justify-between mb-6">
+<h4 class="font-title-lg text-on-surface">Recent Stock Movement</h4>
+<select class="bg-surface-container-low border-none text-xs font-bold rounded-lg px-3 py-1 focus:ring-1 focus:ring-neon-lime text-text-muted">
+<option>All Activities</option>
+<option>Inbound</option>
+<option>Outbound</option>
+</select>
+</div>
+<div class="space-y-6 relative before:absolute before:left-2 before:top-2 before:bottom-2 before:w-[1px] before:bg-surface-variant">
+<!-- MOVEMENT 1 -->
+<div class="relative pl-8 group">
+<div class="absolute left-0 top-1 w-4 h-4 rounded-full bg-neon-lime border-4 border-background z-10"></div>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-body-md font-bold text-on-surface">Stock Inbound: Vanguard Backpack</p>
+<p class="text-xs text-text-muted">Batch ID: #BIN-9023 • Warehouse A-2</p>
+</div>
+<div class="text-right">
+<p class="text-neon-lime font-bold text-body-md">+150 Units</p>
+<p class="text-[10px] text-text-muted">2 mins ago</p>
+</div>
+</div>
+</div>
+<!-- MOVEMENT 2 -->
+<div class="relative pl-8 group">
+<div class="absolute left-0 top-1 w-4 h-4 rounded-full bg-surface-variant border-4 border-background z-10 group-hover:bg-status-blue"></div>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-body-md font-bold text-on-surface">Order Shipped: #ORD-5521</p>
+<p class="text-xs text-text-muted">Carrier: DHL Express • To: Tokyo, JP</p>
+</div>
+<div class="text-right">
+<p class="text-text-muted font-bold text-body-md">-12 Units</p>
+<p class="text-[10px] text-text-muted">1 hour ago</p>
+</div>
+</div>
+</div>
+<!-- MOVEMENT 3 -->
+<div class="relative pl-8 group">
+<div class="absolute left-0 top-1 w-4 h-4 rounded-full bg-status-red border-4 border-background z-10"></div>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-body-md font-bold text-on-surface">Stock Adjustment (Damaged)</p>
+<p class="text-xs text-text-muted">Item: Cyber Runner Gen-X • Inspector: Admin_04</p>
+</div>
+<div class="text-right">
+<p class="text-status-red font-bold text-body-md">-2 Units</p>
+<p class="text-[10px] text-text-muted">4 hours ago</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- WAREHOUSE CAPACITY -->
+<div class="bento-card p-6 rounded-xl">
+<h4 class="font-title-lg text-on-surface mb-6">Warehouse Efficiency</h4>
+<div class="relative flex items-center justify-center h-48">
+<svg class="w-40 h-40 transform -rotate-90">
+<circle class="text-surface-container-lowest" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-width="12"></circle>
+<circle class="text-neon-lime" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-dasharray="440" stroke-dashoffset="110" stroke-width="12"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="text-3xl font-bold">82%</span>
+<span class="text-[10px] text-text-muted uppercase">Safe Zone</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-6">
+<div class="p-3 rounded-lg bg-surface-container-low border border-surface-variant">
+<p class="text-[10px] text-text-muted mb-1">Warning Zone</p>
+<p class="text-xs font-bold text-on-surface">10% Products</p>
+</div>
+<div class="p-3 rounded-lg bg-surface-container-low border border-surface-variant">
+<p class="text-[10px] text-text-muted mb-1">Risk Zone</p>
+<p class="text-xs font-bold text-status-red">8% Critical</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<footer class="p-container-padding text-center border-t border-surface-variant mt-8">
+<p class="text-xs text-text-muted">© 2024 SHOW OFF Inc. Urban Logistics Division. All Rights Reserved.</p>
+</footer>
+</main>
+<!-- FLOATING CHAT/BOT (OPTIONAL MICRO-INTERACTION) -->
+<div class="fixed bottom-8 right-8 z-50">
+<button class="w-14 h-14 bg-neon-lime text-black rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="support_agent">support_agent</span>
+</button>
+</div>
+<script>
+        // Micro-interaction for sidebar hover effects
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('mouseenter', () => {
+                if(!link.classList.contains('sidebar-active')) {
+                    link.style.transform = 'translateX(4px)';
+                }
+            });
+            link.addEventListener('mouseleave', () => {
+                link.style.transform = 'translateX(0)';
+            });
+        });
+    </script>
+</body></html>

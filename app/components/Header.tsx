@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, MouseEvent } from "react";
+import { useRouter } from "next/navigation";
 import { playFeedbackTone } from "../lib/feedback-tone";
 import type { Dictionary, Locale } from "../lib/i18n";
 import { silenceIntroAudio } from "../lib/intro-audio";
@@ -26,6 +27,7 @@ type CartItem = {
   price: string;
   image: string;
   quantity: number;
+  stock?: number;
 };
 
 type CustomerProfile = {
@@ -50,10 +52,16 @@ type AccountOrder = {
   final_amount: number;
   total_amount: number;
   created_at: string;
+  payment_status: string | null;
   shipping_status: string | null;
   fulfillment_status: string | null;
+  shipment_documents?: Array<{ url?: string; path?: string; name?: string }> | null;
   order_items: Array<{
     id: string;
+    product_id?: string | null;
+    product_slug?: string | null;
+    product_image?: string | null;
+    sku_snapshot?: string | null;
     product_name_snapshot: string;
     variant_label_snapshot: string | null;
     quantity: number;
@@ -68,6 +76,10 @@ type StoreAlert = {
   body: string;
   meta: string;
   tone: "progress" | "success";
+  statusLabel?: string;
+  notice?: string;
+  phase: "waiting" | "complete" | "rejected";
+  documents: Array<{ url: string; name?: string }>;
 };
 
 function formatStoredThbPrice(price: string) {
@@ -158,6 +170,10 @@ function readCartItems() {
   } catch {
     return [];
   }
+}
+
+function cartStockKey(item: Pick<CartItem, "slug" | "color" | "size">) {
+  return [item.slug, item.color, item.size].map((part) => part.trim().toLowerCase()).join("|");
 }
 
 function readSavedItems() {
@@ -271,33 +287,306 @@ function buildOrderAlerts(orders: AccountOrder[], locale: Locale): StoreAlert[] 
     .map((order) => {
       const status = order.shipping_status ?? "not_shipped";
       const fulfillment = order.fulfillment_status ?? "not_ready";
+      const payment = order.payment_status ?? "waiting_slip";
+      const documents = (Array.isArray(order.shipment_documents) ? order.shipment_documents : [])
+        .map((document) => ({ url: String(document?.url ?? "").trim(), name: String(document?.name ?? "").trim() }))
+        .filter((document) => document.url);
       let title = "Payment approved";
       let body = `Admin confirmed ${order.order_no}. We will post shipping progress here next.`;
       let tone: StoreAlert["tone"] = "progress";
+      let phase: StoreAlert["phase"] = "waiting";
 
-      if (status === "shipping") {
-        title = "Order on the way";
-        body = `${order.order_no} is now in shipping. Check back here for delivery confirmation.`;
+      if (payment === "rejected") {
+        title = "Payment rejected";
+        body = `${order.order_no} was rejected. Please check your payment slip and upload a new one.`;
+        phase = "rejected";
       } else if (status === "delivered") {
         title = "Delivered";
         body = `${order.order_no} was marked as delivered.`;
         tone = "success";
+        phase = "complete";
+      } else if (documents.length > 0) {
+        title = "Delivery bill ready";
+        body = `${order.order_no} has been dispatched. The store attached the delivery bill below.`;
+        tone = "success";
+        phase = "complete";
+      } else if (status === "shipping") {
+        title = "Preparing shipment";
+        body = `${order.order_no} is approved and our staff are preparing it for dispatch.`;
       } else if (fulfillment === "ready_to_ship") {
         title = "Preparing shipment";
         body = `${order.order_no} is approved and being prepared for dispatch.`;
       }
 
       return {
-        id: `${order.id}:${status}:${fulfillment}`,
+        id: `${order.id}:${payment === "rejected" ? "rejected" : documents.length > 0 ? `bill-${documents.length}` : `${status}-${fulfillment}`}`,
         title,
         body,
         meta: `Order ${order.order_no} · ${formatAlertDate(order.created_at, locale)}`,
         tone,
+        statusLabel: payment === "rejected" ? "Rejected" : documents.length > 0 ? "Dispatched" : fulfillment === "ready_to_ship" ? "Approved" : undefined,
+        notice:
+          payment === "rejected"
+            ? "Please upload a new payment slip so our staff can review your order again."
+            : documents.length === 0 && (fulfillment === "ready_to_ship" || status === "shipping")
+              ? "Please wait, our staff are packing your order for dispatch."
+              : undefined,
+        phase,
+        documents,
       };
     });
 }
 
+function orderItemProductSlug(item: AccountOrder["order_items"][number]) {
+  const existingSlug = item.product_slug?.trim();
+  if (existingSlug) return existingSlug;
+
+  const fallback = item.product_name_snapshot
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return fallback || slugify(item.product_name_snapshot);
+}
+
+type HistoryProductImageRow = {
+  product_id: string | null;
+  path: string | null;
+  alt_text: string | null;
+  sort_order: number | null;
+  is_primary: boolean | null;
+};
+
+type HistoryProductVariantRow = {
+  product_id: string | null;
+  sku: string | null;
+  color_name: string | null;
+};
+
+type HistoryProductRow = {
+  id: string | null;
+  sku: string | null;
+  name_en: string | null;
+  slug: string | null;
+};
+
+function historyImageColor(altText?: string | null) {
+  const match = (altText ?? "").match(/^\[color:?([^\]]*)\]/i);
+  return match?.[1]?.trim().toLowerCase() ?? "";
+}
+
+function historyItemVariant(item: AccountOrder["order_items"][number], variants: HistoryProductVariantRow[]) {
+  const sku = item.sku_snapshot?.trim().toUpperCase();
+  if (!sku) return null;
+
+  return variants.find((variant) => variant.sku?.trim().toUpperCase() === sku) ?? null;
+}
+
+function isGeneratedHistoryProductSku(sku?: string | null) {
+  return /^SO-[A-Z0-9]+-\d{4}$/.test((sku ?? "").trim().toUpperCase());
+}
+
+function isDemoHistoryImage(path?: string | null) {
+  const value = path ?? "";
+  return value.startsWith("/assets/") || value.startsWith("/test.");
+}
+
+function historyItemProduct(
+  item: AccountOrder["order_items"][number],
+  products: HistoryProductRow[],
+  variants: HistoryProductVariantRow[],
+  images: HistoryProductImageRow[],
+) {
+  const variantProductId = historyItemVariant(item, variants)?.product_id;
+  const itemName = item.product_name_snapshot.trim().toLowerCase();
+  const candidates = products.filter((product) => {
+    return product.id === variantProductId || product.id === item.product_id || product.name_en?.trim().toLowerCase() === itemName;
+  });
+
+  return candidates.sort((a, b) => {
+    const aHasRealImage = images.some((image) => image.product_id === a.id && image.path && !isDemoHistoryImage(image.path));
+    const bHasRealImage = images.some((image) => image.product_id === b.id && image.path && !isDemoHistoryImage(image.path));
+    if (aHasRealImage !== bHasRealImage) return aHasRealImage ? -1 : 1;
+
+    const aGenerated = isGeneratedHistoryProductSku(a.sku);
+    const bGenerated = isGeneratedHistoryProductSku(b.sku);
+    if (aGenerated !== bGenerated) return aGenerated ? -1 : 1;
+
+    if (a.id === variantProductId) return -1;
+    if (b.id === variantProductId) return 1;
+    if (a.id === item.product_id) return -1;
+    if (b.id === item.product_id) return 1;
+
+    return 0;
+  })[0] ?? null;
+}
+
+function historyItemProductId(
+  item: AccountOrder["order_items"][number],
+  products: HistoryProductRow[],
+  variants: HistoryProductVariantRow[],
+  images: HistoryProductImageRow[],
+) {
+  return historyItemProduct(item, products, variants, images)?.id ?? historyItemVariant(item, variants)?.product_id ?? item.product_id ?? null;
+}
+
+function historyItemColour(item: AccountOrder["order_items"][number], variants: HistoryProductVariantRow[]) {
+  const variantColour = historyItemVariant(item, variants)?.color_name;
+
+  if (variantColour?.trim()) {
+    return variantColour.trim().toLowerCase();
+  }
+
+  return (item.variant_label_snapshot ?? "")
+    .split("/")
+    .at(0)
+    ?.trim()
+    .toLowerCase() ?? "";
+}
+
+function pickHistoryItemImage(item: AccountOrder["order_items"][number], images: HistoryProductImageRow[], variants: HistoryProductVariantRow[], products: HistoryProductRow[]) {
+  const productId = historyItemProductId(item, products, variants, images);
+  const productImages = images
+    .filter((image) => image.product_id === productId && image.path)
+    .sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0));
+
+  if (!productImages.length) {
+    return item.product_image ?? null;
+  }
+
+  const colour = historyItemColour(item, variants);
+  const colourImage = colour
+    ? productImages.find((image) => {
+        const imageColour = historyImageColor(image.alt_text);
+        return imageColour === colour;
+      })
+    : null;
+  const primaryImage = productImages.find((image) => image.is_primary && !isDemoHistoryImage(image.path)) ?? productImages.find((image) => !isDemoHistoryImage(image.path)) ?? productImages.find((image) => image.is_primary) ?? productImages[0];
+
+  return colourImage?.path ?? primaryImage?.path ?? item.product_image ?? null;
+}
+
+async function hydrateOrderHistoryImages(orders: AccountOrder[], supabase: ReturnType<typeof createSupabaseBrowserClient>) {
+  const orderProductIds = Array.from(
+    new Set(
+      orders
+        .flatMap((order) => order.order_items)
+        .map((item) => item.product_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  );
+  const orderSkus = Array.from(
+    new Set(
+      orders
+        .flatMap((order) => order.order_items)
+        .map((item) => item.sku_snapshot?.trim())
+        .filter((sku): sku is string => Boolean(sku)),
+    ),
+  );
+  const orderProductNames = Array.from(
+    new Set(
+      orders
+        .flatMap((order) => order.order_items)
+        .map((item) => item.product_name_snapshot?.trim())
+        .filter((name): name is string => Boolean(name)),
+    ),
+  );
+
+  if (!orderProductIds.length && !orderSkus.length && !orderProductNames.length) {
+    return orders;
+  }
+
+  const variantQueries = [];
+  if (orderProductIds.length) {
+    variantQueries.push(
+      supabase
+        .from("product_variants")
+        .select("product_id,sku,color_name")
+        .in("product_id", orderProductIds)
+        .returns<HistoryProductVariantRow[]>(),
+    );
+  }
+  if (orderSkus.length) {
+    variantQueries.push(
+      supabase
+      .from("product_variants")
+      .select("product_id,sku,color_name")
+        .in("sku", orderSkus)
+      .returns<HistoryProductVariantRow[]>(),
+    );
+  }
+
+  const productQueries = [];
+  if (orderProductIds.length) {
+    productQueries.push(
+      supabase
+        .from("products")
+        .select("id,sku,name_en,slug")
+        .in("id", orderProductIds)
+        .returns<HistoryProductRow[]>(),
+    );
+  }
+  if (orderProductNames.length) {
+    productQueries.push(
+      supabase
+        .from("products")
+        .select("id,sku,name_en,slug")
+        .in("name_en", orderProductNames)
+        .returns<HistoryProductRow[]>(),
+    );
+  }
+
+  const [variantResults, productResults] = await Promise.all([Promise.all(variantQueries), Promise.all(productQueries)]);
+  const variants = variantResults.flatMap((result) => result.data ?? []);
+  const seedProducts = productResults.flatMap((result) => result.data ?? []);
+  const productIds = Array.from(
+    new Set([
+      ...orderProductIds,
+      ...variants.map((variant) => variant.product_id).filter((id): id is string => Boolean(id)),
+      ...seedProducts.map((product) => product.id).filter((id): id is string => Boolean(id)),
+    ]),
+  );
+
+  if (!productIds.length) {
+    return orders;
+  }
+
+  const [imagesResult, productsResult] = await Promise.all([
+    supabase
+      .from("product_images")
+      .select("product_id,path,alt_text,sort_order,is_primary")
+      .in("product_id", productIds)
+      .returns<HistoryProductImageRow[]>(),
+    supabase
+      .from("products")
+      .select("id,sku,name_en,slug")
+      .in("id", productIds)
+      .returns<HistoryProductRow[]>(),
+  ]);
+
+  const images = imagesResult.data ?? [];
+  const products = [...seedProducts, ...(productsResult.data ?? [])].filter((product, index, list) => {
+    return product.id && list.findIndex((item) => item.id === product.id) === index;
+  });
+
+  return orders.map((order) => ({
+    ...order,
+    order_items: order.order_items.map((item) => {
+      const product = historyItemProduct(item, products, variants, images);
+      const productId = product?.id ?? historyItemProductId(item, products, variants, images);
+
+      return {
+        ...item,
+        product_id: productId ?? item.product_id ?? null,
+        product_slug: product?.slug ?? item.product_slug ?? null,
+        product_image: pickHistoryItemImage(item, images, variants, products) ?? item.product_image ?? null,
+      };
+    }),
+  }));
+}
+
 export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: Dictionary; locale: Locale; tone?: "overlay" | "solid" | "clear" }) {
+  const router = useRouter();
   const lastYRef = useRef(0);
   const tickingRef = useRef(false);
   const transitionRef = useRef<number | null>(null);
@@ -314,6 +603,7 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
   const [accountTouched, setAccountTouched] = useState<Record<string, boolean>>({});
   const [accountNotice, setAccountNotice] = useState<AccountNotice | null>(null);
   const [profileEditing, setProfileEditing] = useState(false);
+  const [orderHistoryOpen, setOrderHistoryOpen] = useState(true);
   const [accountOrders, setAccountOrders] = useState<AccountOrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [seenAlertIds, setSeenAlertIds] = useState<string[]>([]);
@@ -322,10 +612,13 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
   const cartQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
   const savedQuantity = savedItems.length;
   const orderAlerts = useMemo(() => buildOrderAlerts(accountOrders, locale), [accountOrders, locale]);
-  const unreadAlertCount = useMemo(() => {
+  const unreadOrderAlerts = useMemo(() => {
     const seen = new Set(seenAlertIds);
-    return orderAlerts.filter((alert) => !seen.has(alert.id)).length;
+    return orderAlerts.filter((alert) => !seen.has(alert.id));
   }, [orderAlerts, seenAlertIds]);
+  const unreadAlertCount = useMemo(() => {
+    return unreadOrderAlerts.length;
+  }, [unreadOrderAlerts]);
   const successProfileNotice = accountNotice?.type === "success" && (accountNotice.title === "Signed in" || accountNotice.title === "Account created");
   const activeAccountCustomer = customer ?? (successProfileNotice ? accountDraft : null);
   const showAccountProfile = Boolean(activeAccountCustomer && (accountMode === "profile" || successProfileNotice));
@@ -415,6 +708,11 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
   }, []);
 
   useEffect(() => {
+    hydrateCartStock(cartItems);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartItems.length]);
+
+  useEffect(() => {
     const syncCustomer = () => {
       const profile = readCustomerProfile();
       setCustomer(profile);
@@ -484,22 +782,21 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
   }, []);
 
   useEffect(() => {
-    const shouldLoadOrders = activePanel === "alerts" || (activePanel === "account" && accountMode === "profile");
-
-    if (!shouldLoadOrders) {
-      return;
-    }
-
     let active = true;
+    const shouldShowLoading = activePanel === "alerts" || (activePanel === "account" && accountMode === "profile");
 
     const loadOrders = async () => {
       const orderIds = readOrderIds();
       if (orderIds.length === 0) {
         setAccountOrders([]);
+        setOrdersLoading(false);
         return;
       }
 
-      setOrdersLoading(true);
+      if (shouldShowLoading) {
+        setOrdersLoading(true);
+      }
+
       try {
         const supabase = createSupabaseBrowserClient();
         const { data, error } = await supabase.rpc("get_storefront_order_history", { target_order_ids: orderIds });
@@ -507,25 +804,42 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
           throw error;
         }
         if (active) {
-          setAccountOrders(Array.isArray(data) ? (data as AccountOrder[]) : []);
+          const orders = Array.isArray(data) ? (data as AccountOrder[]) : [];
+          const hydratedOrders = await hydrateOrderHistoryImages(orders, supabase);
+          setAccountOrders(hydratedOrders);
         }
       } catch {
         if (active) {
           setAccountOrders([]);
         }
       } finally {
-        if (active) {
+        if (active && shouldShowLoading) {
           setOrdersLoading(false);
         }
       }
     };
 
-    void loadOrders();
-    window.addEventListener("showoff-orders-updated", loadOrders);
+    const refreshOrders = () => {
+      void loadOrders();
+    };
+    const refreshVisibleOrders = () => {
+      if (!document.hidden) {
+        void loadOrders();
+      }
+    };
+
+    refreshOrders();
+    window.addEventListener("showoff-orders-updated", refreshOrders);
+    window.addEventListener("focus", refreshOrders);
+    document.addEventListener("visibilitychange", refreshVisibleOrders);
+    const refreshTimer = window.setInterval(refreshOrders, 30000);
 
     return () => {
       active = false;
-      window.removeEventListener("showoff-orders-updated", loadOrders);
+      window.removeEventListener("showoff-orders-updated", refreshOrders);
+      window.removeEventListener("focus", refreshOrders);
+      document.removeEventListener("visibilitychange", refreshVisibleOrders);
+      window.clearInterval(refreshTimer);
     };
   }, [accountMode, activePanel, customer]);
 
@@ -534,9 +848,11 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
 
     const syncSeenAlerts = () => setSeenAlertIds(readSeenAlerts());
     window.addEventListener("storage", syncSeenAlerts);
+    window.addEventListener("showoff-alerts-seen-updated", syncSeenAlerts);
 
     return () => {
       window.removeEventListener("storage", syncSeenAlerts);
+      window.removeEventListener("showoff-alerts-seen-updated", syncSeenAlerts);
     };
   }, []);
 
@@ -544,13 +860,8 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
     const nextIds = [...new Set([...readSeenAlerts(), ...alertIds])];
     writeSeenAlerts(nextIds);
     setSeenAlertIds(nextIds);
+    window.dispatchEvent(new CustomEvent("showoff-alerts-seen-updated"));
   };
-
-  useEffect(() => {
-    if (activePanel === "alerts" && orderAlerts.length > 0) {
-      markAlertsAsSeen();
-    }
-  }, [activePanel, orderAlerts]);
 
   useEffect(() => {
     if (!accountNotice) return;
@@ -607,13 +918,28 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
     }, 520);
   };
 
+  const openAlertDetail = (href: string, alertId: string) => (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    markAlertsAsSeen([alertId]);
+    setMenuOpen(false);
+    setActivePanel(null);
+    document.body.classList.remove("menu-lock");
+    router.push(href, { scroll: false });
+  };
+
+  const openAlertsInbox = (href: string) => (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    silenceIntroAudio();
+    setMenuOpen(false);
+    setActivePanel(null);
+    document.body.classList.remove("menu-lock");
+    router.push(href, { scroll: false });
+  };
+
   const openPanel = (panel: "account" | "alerts" | "cart" | "saved") => {
     setMenuOpen(false);
     if (panel === "account") {
       changeAccountMode(customer ? "profile" : "login");
-    }
-    if (panel === "alerts") {
-      markAlertsAsSeen();
     }
     setActivePanel(panel);
   };
@@ -651,12 +977,44 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
     setCartItems(items);
   };
 
+  async function hydrateCartStock(items: CartItem[]) {
+    if (items.length === 0) return;
+
+    try {
+      const response = await fetch("/api/storefront/cart-stock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: items.map(({ slug, color, size }) => ({ slug, color, size })) }),
+      });
+      if (!response.ok) return;
+      const payload = (await response.json()) as { stocks?: Record<string, number> };
+      const stocks = payload.stocks ?? {};
+      let changed = false;
+      const nextItems = items
+        .map((item) => {
+          const stock = stocks[cartStockKey(item)];
+          if (typeof stock !== "number") return item;
+          const quantity = Math.min(item.quantity, Math.max(0, stock));
+          if (item.stock !== stock || item.quantity !== quantity) changed = true;
+          return { ...item, stock, quantity };
+        })
+        .filter((item) => item.quantity > 0);
+
+      if (changed || nextItems.length !== items.length) {
+        saveCartItems(nextItems);
+      }
+    } catch {
+      // Keep the cart usable when the stock endpoint is temporarily unavailable.
+    }
+  }
+
   const updateCartQuantity = (targetItem: CartItem, nextQuantity: number) => {
-    const safeQuantity = Number.isFinite(nextQuantity) ? Math.max(0, Math.min(99, Math.floor(nextQuantity))) : targetItem.quantity;
+    const stockLimit = typeof targetItem.stock === "number" ? Math.max(0, targetItem.stock) : 99;
+    const safeQuantity = Number.isFinite(nextQuantity) ? Math.max(0, Math.min(stockLimit, Math.floor(nextQuantity))) : targetItem.quantity;
     const nextItems =
       safeQuantity === 0
         ? cartItems.filter((item) => !(item.slug === targetItem.slug && item.size === targetItem.size && item.color === targetItem.color))
-        : cartItems.map((item) => (item.slug === targetItem.slug && item.size === targetItem.size && item.color === targetItem.color ? { ...item, quantity: safeQuantity } : item));
+        : cartItems.map((item) => (item.slug === targetItem.slug && item.size === targetItem.size && item.color === targetItem.color ? { ...item, quantity: safeQuantity, stock: stockLimit } : item));
 
     saveCartItems(nextItems);
   };
@@ -990,36 +1348,58 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
           </button>
         </div>
         <div className="alerts-panel-body">
-          {orderAlerts.length > 0 ? (
+          {unreadOrderAlerts.length > 0 ? (
             <>
               <div className="cart-summary">
                 <h2>Order updates</h2>
                 <p>{unreadAlertCount > 0 ? `${unreadAlertCount} new update${unreadAlertCount === 1 ? "" : "s"} from the back office.` : "Your latest shipping and delivery updates are here."}</p>
               </div>
               <div className="alerts-list" aria-label="Order notifications">
-                {orderAlerts.map((alert) => {
-                  const isUnread = !seenAlertIds.includes(alert.id);
+                {unreadOrderAlerts.map((alert) => {
+                  const href = `/${locale}/alerts?alert=${encodeURIComponent(alert.id)}`;
 
                   return (
-                    <article className={`alert-line-item is-${alert.tone}${isUnread ? " is-unread" : ""}`} key={alert.id}>
+                    <a className={`alert-line-item is-${alert.tone} is-${alert.phase} is-unread`} href={href} key={alert.id} onClick={openAlertDetail(href, alert.id)}>
                       <div className="alert-line-marker" aria-hidden="true" />
                       <div className="alert-line-copy">
                         <div>
-                          <strong>{alert.title}</strong>
+                          <div className="alert-line-title-row">
+                            <strong>{alert.title}</strong>
+                            {alert.statusLabel ? <span className={`alert-status-pill ${alert.statusLabel === "Rejected" ? "is-rejected" : "is-approved"}`}>{alert.statusLabel}</span> : null}
+                          </div>
                           <small>{alert.meta}</small>
                         </div>
                         <p>{alert.body}</p>
+                        {alert.notice ? <span className="alert-pack-note">{alert.notice}</span> : null}
+                        {alert.documents.length > 0 ? (
+                          <div className="alert-line-images" aria-label="Delivery bill images">
+                            {alert.documents.slice(0, 3).map((document, index) => (
+                              <img src={document.url} alt={document.name || `Delivery bill ${index + 1}`} key={`${document.url}-${index}`} />
+                            ))}
+                          </div>
+                        ) : null}
                       </div>
-                    </article>
+                      <span className="alert-line-arrow" aria-hidden="true">›</span>
+                    </a>
                   );
                 })}
               </div>
+              <a className="alerts-inbox-link" href={`/${locale}/alerts`} onClick={openAlertsInbox(`/${locale}/alerts`)}>
+                View notification inbox
+                <span aria-hidden="true">›</span>
+              </a>
             </>
           ) : (
-            <div className="alerts-empty">
-              <strong>No alerts yet</strong>
-              <p>Your payment approvals, shipping updates, and delivery confirmations will show here once an order moves in the back office.</p>
-            </div>
+            <>
+              <div className="alerts-empty">
+                <strong>{orderAlerts.length > 0 ? "No new alerts" : "No alerts yet"}</strong>
+                <p>{orderAlerts.length > 0 ? "Everything here has already been read. New order updates will appear here first." : "Your payment approvals, shipping updates, and delivery confirmations will show here once an order moves in the back office."}</p>
+              </div>
+              <a className="alerts-inbox-link" href={`/${locale}/alerts`} onClick={openAlertsInbox(`/${locale}/alerts`)}>
+                View notification inbox
+                <span aria-hidden="true">›</span>
+              </a>
+            </>
           )}
         </div>
       </aside>
@@ -1123,19 +1503,19 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
                 </form>
               </section>
 
-              <section className="account-profile-section account-orders-section" aria-labelledby="order-history-title">
-                <div className="account-profile-section-head">
+              <section className={`account-profile-section account-orders-section${orderHistoryOpen ? " is-open" : " is-collapsed"}`} aria-labelledby="order-history-title">
+                <button className="account-profile-section-head account-orders-toggle" type="button" aria-expanded={orderHistoryOpen} onClick={() => setOrderHistoryOpen((open) => !open)}>
                   <span className="account-profile-section-icon"><OrderIcon /></span>
                   <div>
                     <h3 id="order-history-title">Order history</h3>
                     <p>Approved payments only</p>
                   </div>
                   <span className="account-orders-count">{accountOrders.length}</span>
-                </div>
+                </button>
 
-                {ordersLoading ? (
+                {orderHistoryOpen && ordersLoading ? (
                   <div className="account-orders-loading" aria-live="polite"><span /><span /></div>
-                ) : accountOrders.length > 0 ? (
+                ) : orderHistoryOpen && accountOrders.length > 0 ? (
                   <div className="account-order-list">
                     {accountOrders.map((order) => (
                       <article className="account-order-item" key={order.id}>
@@ -1147,23 +1527,36 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
                           <span>Approved</span>
                         </div>
                         <ul>
-                          {order.order_items.map((item) => (
-                            <li key={item.id}>
-                              <div><strong>{item.product_name_snapshot}</strong><span>{item.variant_label_snapshot || "Standard"}</span></div>
-                              <span>Qty {item.quantity}</span>
-                            </li>
-                          ))}
+                          {order.order_items.map((item) => {
+                            const productHref = `/${locale}/products/${orderItemProductSlug(item)}`;
+
+                            return (
+                              <li key={item.id}>
+                                <a className="account-order-product-thumb" href={productHref} onClick={visitCollection(productHref)} aria-label={`View ${item.product_name_snapshot}`}>
+                                  <img src={item.product_image || "/assets/products-grid.png"} alt={item.product_name_snapshot} />
+                                </a>
+                                <div>
+                                  <a className="account-order-product-link" href={productHref} onClick={visitCollection(productHref)}>
+                                    <strong>{item.product_name_snapshot}</strong>
+                                    <small>View product</small>
+                                  </a>
+                                  <span>{item.variant_label_snapshot || item.sku_snapshot || "Standard"}</span>
+                                </div>
+                                <span>Qty {item.quantity}</span>
+                              </li>
+                            );
+                          })}
                         </ul>
                         <div className="account-order-total"><span>Total</span><strong>{formatAccountPrice(order.final_amount || order.total_amount)}</strong></div>
                       </article>
                     ))}
                   </div>
-                ) : (
+                ) : orderHistoryOpen ? (
                   <div className="account-orders-empty">
                     <strong>No approved orders yet</strong>
                     <p>Orders appear here after the store approves your payment slip.</p>
                   </div>
-                )}
+                ) : null}
               </section>
 
               <div className="profile-foot">
@@ -1294,12 +1687,12 @@ export function Header({ dictionary, locale, tone = "overlay" }: { dictionary: D
                           aria-label={`Quantity for ${item.name}`}
                           inputMode="numeric"
                           min="1"
-                          max="99"
+                          max={typeof item.stock === "number" ? Math.max(1, item.stock) : 99}
                           type="number"
                           value={item.quantity}
                           onChange={(event) => updateCartQuantity(item, Number(event.target.value))}
                         />
-                        <button type="button" aria-label={`Add one ${item.name}`} onClick={() => updateCartQuantity(item, item.quantity + 1)}>
+                        <button type="button" aria-label={`Add one ${item.name}`} disabled={typeof item.stock === "number" && item.quantity >= item.stock} onClick={() => updateCartQuantity(item, item.quantity + 1)}>
                           +
                         </button>
                       </div>

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Customers Management - SHOW OFF Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#dee0e2",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "outline-variant": "#cfc4c5",
+                        "on-secondary-fixed": "#191c1e",
+                        "surface-container": "#eeeeee",
+                        "surface-card": "#FFFFFF",
+                        "on-error": "#ffffff",
+                        "primary": "#000000",
+                        "surface-bright": "#f9f9f9",
+                        "secondary-fixed": "#e1e2e4",
+                        "inverse-on-surface": "#f1f1f1",
+                        "secondary": "#5c5f60",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#c6c6c6",
+                        "secondary-fixed-dim": "#c5c6c8",
+                        "status-paid": "#22C55E",
+                        "tertiary": "#000000",
+                        "on-secondary-fixed-variant": "#444749",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#1b1b1b",
+                        "on-secondary-container": "#606365",
+                        "on-background": "#1b1b1b",
+                        "surface-container-highest": "#e2e2e2",
+                        "status-info": "#3B82F6",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#e2e2e2",
+                        "status-rejected": "#EF4444",
+                        "surface-variant": "#e2e2e2",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#474747",
+                        "surface": "#f9f9f9",
+                        "on-primary-container": "#848484",
+                        "inverse-surface": "#303030",
+                        "surface-background": "#F9FAFB",
+                        "on-primary": "#ffffff",
+                        "background": "#f9f9f9",
+                        "outline": "#7e7576",
+                        "surface-container-high": "#e8e8e8",
+                        "primary-fixed": "#e2e2e2",
+                        "on-surface": "#1b1b1b",
+                        "on-primary-fixed": "#1b1b1b",
+                        "accent-vibrant": "#FF5C00",
+                        "on-tertiary-container": "#848484",
+                        "on-tertiary-fixed": "#1b1b1b",
+                        "on-surface-variant": "#4c4546",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "surface-container-low": "#f3f3f3",
+                        "primary-container": "#1b1b1b",
+                        "surface-dim": "#dadada",
+                        "surface-tint": "#5e5e5e",
+                        "status-pending": "#EAB308"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "1.5rem",
+                        "section-gap": "2rem",
+                        "sidebar-width": "260px",
+                        "container-margin": "2rem",
+                        "card-padding": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "display-metrics": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "data-mono": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "display-metrics": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "data-mono": ["13px", {"lineHeight": "18px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&amp;family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1; }
+        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .ambient-shadow { box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03); }
+        .hover-ambient-shadow:hover { box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.06); }
+        body { background-color: #F9FAFB; }
+    </style>
+</head>
+<body class="text-on-surface font-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-[260px] bg-surface dark:bg-surface-dim border-r border-surface-variant dark:border-outline-variant shadow-sm flex flex-col p-4 gap-2 z-50">
+<div class="mb-8 px-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold">SO</div>
+<div>
+<h1 class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">SHOW OFF</h1>
+<p class="font-label-sm text-label-sm text-secondary">Admin Console</p>
+</div>
+</div>
+<ul class="flex-1 space-y-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 ease-in-out active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Overview</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 ease-in-out active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+<span>Orders</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 ease-in-out active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span>Products</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 ease-in-out active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="warehouse">warehouse</span>
+<span>Inventory</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container dark:bg-secondary text-primary dark:text-on-secondary font-semibold rounded-lg hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 ease-in-out active:scale-95" href="#">
+<span class="material-symbols-outlined filled" data-icon="group" data-weight="fill">group</span>
+<span>Customers</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 ease-in-out active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Financials</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all duration-200 ease-in-out active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</li>
+</ul>
+<div class="mt-auto px-4 py-4 border-t border-surface-variant flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover border border-surface-variant" data-alt="Professional headshot of a corporate administrator in a bright office environment, modern corporate style, light mode lighting, high contrast white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBshIQ9fNaryTm5hwcbs5U-l7mivhDNTUlxWIqGQXvcW_BLRpQn6ChcDHmpN6mYRjI20rQ9h5uT4OFBNbkhuQEwoa9T9FcDS7io6lSIZxKWatTOqW-yzAfEWfEL2XTaVKmuVymM2uTpkF8ofgVlmFPXzkPg7DUbex4dy6aw4AfbwF-xNfQiacMb8fMABj3JXBQknnaOx-eNm7Z6tXaz0BnNxtddN19SazncCMotb_m5pGj7WB3dC4zpHFxNxb2XoQMcKYFBOox5vZg"/>
+<div>
+<p class="font-body-md text-on-surface font-semibold">Admin User</p>
+<p class="font-label-sm text-secondary">admin@showoff.com</p>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-[260px] flex-1 flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-260px)] h-16 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md border-b border-surface-variant dark:border-outline-variant shadow-sm flex justify-between items-center px-gutter z-40">
+<div class="flex-1 flex items-center">
+<div class="relative w-full max-w-md hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 font-body-md text-on-surface focus:ring-1 focus:ring-primary focus:bg-surface transition-colors" placeholder="Search customers..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container dark:hover:bg-surface-container-highest rounded-full p-2 transition-all duration-200 active:opacity-70">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container dark:hover:bg-surface-container-highest rounded-full p-2 transition-all duration-200 active:opacity-70">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container dark:hover:bg-surface-container-highest rounded-full p-2 transition-all duration-200 active:opacity-70">
+<span class="material-symbols-outlined" data-icon="apps">apps</span>
+</button>
+</div>
+</header>
+<!-- Page Canvas -->
+<div class="mt-16 p-container-margin flex-1 flex flex-col gap-section-gap">
+<!-- Header Section -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Customers</h2>
+<p class="font-body-md text-body-md text-secondary mt-1">Manage your customer base and segment data.</p>
+</div>
+<div class="flex gap-3">
+<button class="bg-surface-card border border-outline-variant text-on-surface font-label-sm text-label-sm px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-surface-container-low transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                        Export
+                    </button>
+<button class="bg-primary text-on-primary font-label-sm text-label-sm px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-tertiary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Add Customer
+                    </button>
+</div>
+</div>
+<!-- Content Area - Bento Grid Style Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Filters Panel (Col 3) -->
+<div class="col-span-12 lg:col-span-3 space-y-6">
+<div class="bg-surface-card rounded-xl p-card-padding ambient-shadow border border-surface-variant">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-4">Segments</h3>
+<div class="space-y-2">
+<label class="flex items-center p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors group">
+<input checked="" class="text-primary focus:ring-primary h-4 w-4 border-outline-variant" name="segment" type="radio"/>
+<span class="ml-3 font-body-md text-on-surface group-hover:text-primary transition-colors">All Customers</span>
+<span class="ml-auto bg-surface-container px-2 py-0.5 rounded-full font-label-sm text-label-sm text-secondary">1,248</span>
+</label>
+<label class="flex items-center p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors group">
+<input class="text-primary focus:ring-primary h-4 w-4 border-outline-variant" name="segment" type="radio"/>
+<span class="ml-3 font-body-md text-on-surface group-hover:text-primary transition-colors">VIP Members</span>
+<span class="ml-auto bg-surface-container px-2 py-0.5 rounded-full font-label-sm text-label-sm text-secondary">86</span>
+</label>
+<label class="flex items-center p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors group">
+<input class="text-primary focus:ring-primary h-4 w-4 border-outline-variant" name="segment" type="radio"/>
+<span class="ml-3 font-body-md text-on-surface group-hover:text-primary transition-colors">Returning</span>
+<span class="ml-auto bg-surface-container px-2 py-0.5 rounded-full font-label-sm text-label-sm text-secondary">412</span>
+</label>
+<label class="flex items-center p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors group">
+<input class="text-primary focus:ring-primary h-4 w-4 border-outline-variant" name="segment" type="radio"/>
+<span class="ml-3 font-body-md text-on-surface group-hover:text-primary transition-colors">New This Month</span>
+<span class="ml-auto bg-surface-container px-2 py-0.5 rounded-full font-label-sm text-label-sm text-secondary">124</span>
+</label>
+</div>
+<div class="mt-6 pt-6 border-t border-surface-variant">
+<h3 class="font-label-sm text-label-sm text-secondary mb-3 uppercase tracking-wider">Quick Filters</h3>
+<div class="flex flex-wrap gap-2">
+<button class="bg-surface-container-low hover:bg-surface-container text-on-surface font-body-md text-[13px] px-3 py-1.5 rounded-full border border-surface-variant transition-colors">High Spend</button>
+<button class="bg-surface-container-low hover:bg-surface-container text-on-surface font-body-md text-[13px] px-3 py-1.5 rounded-full border border-surface-variant transition-colors">Recent Activity</button>
+<button class="bg-surface-container-low hover:bg-surface-container text-on-surface font-body-md text-[13px] px-3 py-1.5 rounded-full border border-surface-variant transition-colors">No Orders</button>
+</div>
+</div>
+</div>
+<!-- Micro Stats Card -->
+<div class="bg-primary text-on-primary rounded-xl p-card-padding shadow-md relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+<h4 class="font-label-sm text-label-sm opacity-80 mb-1">Total Lifetime Value</h4>
+<div class="font-display-metrics text-display-metrics">$842k</div>
+<div class="mt-4 flex items-center gap-1 font-label-sm text-status-paid">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span>+12.5% vs last month</span>
+</div>
+</div>
+</div>
+<!-- Main Data Table (Col 9) -->
+<div class="col-span-12 lg:col-span-9 bg-surface-card rounded-xl ambient-shadow border border-surface-variant overflow-hidden flex flex-col h-full">
+<div class="p-4 border-b border-surface-variant flex justify-between items-center bg-surface-bright/50">
+<div class="flex items-center gap-2">
+<button class="p-1.5 text-secondary hover:bg-surface-container rounded-md transition-colors"><span class="material-symbols-outlined text-[20px]">filter_list</span></button>
+<button class="p-1.5 text-secondary hover:bg-surface-container rounded-md transition-colors"><span class="material-symbols-outlined text-[20px]">sort</span></button>
+</div>
+<div class="font-body-md text-secondary text-sm">Showing 1-10 of 1,248</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-variant bg-surface-bright text-secondary font-label-sm text-label-sm uppercase tracking-wider">
+<th class="p-4 font-semibold w-10">
+<input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+</th>
+<th class="p-4 font-semibold">Customer</th>
+<th class="p-4 font-semibold">Status</th>
+<th class="p-4 font-semibold text-right">Orders</th>
+<th class="p-4 font-semibold text-right">Total Spent</th>
+<th class="p-4 font-semibold">Last Order</th>
+<th class="p-4 font-semibold text-center">Actions</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-on-surface divide-y divide-surface-variant">
+<!-- Row 1 VIP -->
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="p-4"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img class="w-10 h-10 rounded-full object-cover border border-surface-variant" data-alt="Close up portrait of a young professional woman smiling slightly, natural light, clean white background, modern corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDN9RyfqpGtMEILmwl5tppXN01KULQwnfjf8YsHuoM-RBHcMjvP7uShjwX8IutHydPlnFxdvaco8u32lqnndXBy80BoSdBSeCpyGsA_WC-YgVdKCDQTCHVsyEgX1o9xCqCQBQlldTrgUIiW-eDzwzmWf_Np5a0ZovqqYZsShfQsnwROQsJ6TU34bZ26l7OLSyGMBEGoqsH18vDKjGA6a3TTRkm1jN2TMVlTitqSjYoChnKlJ8gW7gE7MkmIzuZVbxpRHPRCMYBkYE"/>
+<div class="absolute -top-1 -right-1 w-4 h-4 bg-accent-vibrant rounded-full border-2 border-surface-card flex items-center justify-center" title="VIP">
+<span class="material-symbols-outlined text-white text-[10px]">star</span>
+</div>
+</div>
+<div>
+<div class="font-semibold text-primary">Eleanor Pena</div>
+<div class="text-secondary text-xs">eleanor.p@example.com</div>
+</div>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-accent-vibrant/10 text-accent-vibrant">
+                                            VIP
+                                        </span>
+</td>
+<td class="p-4 text-right font-data-mono">42</td>
+<td class="p-4 text-right font-data-mono font-semibold">$12,450.00</td>
+<td class="p-4 text-secondary text-sm">Oct 24, 2023</td>
+<td class="p-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded-md"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded-md"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 2 Standard -->
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="p-4"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover border border-surface-variant" data-alt="Portrait of a middle aged man with glasses, neutral expression, clean studio lighting, high contrast white background, corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuvWFQk3UNHH3ftoOxJmdQPx-KCEjEw-6WupkDOeZ8NYbr_N4YAv0453EsUYsZssemBGPJYr0BVc9l29lGxdd2SA1ImD-eUHb2mQK8e71JkdYpPTvGQBWqRQdhdAeEwVHGFHNPs1tFLdxH7r3Fq8F7bSOmMMvQKeSMoe6qiYKxf24C12adWsCFOBC-eE-e0lqbccJzErsG2PNTnvTT8MZCDzuvqOoXgTQfm4WsTOAFdaDNiXMP1LwXI7UzMDFL7y4WNYgLo--jZHc"/>
+<div>
+<div class="font-semibold text-primary">Albert Flores</div>
+<div class="text-secondary text-xs">albert.f@example.com</div>
+</div>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-status-paid/10 text-status-paid">
+                                            Active
+                                        </span>
+</td>
+<td class="p-4 text-right font-data-mono">15</td>
+<td class="p-4 text-right font-data-mono font-semibold">$3,120.50</td>
+<td class="p-4 text-secondary text-sm">Nov 02, 2023</td>
+<td class="p-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded-md"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded-md"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3 Standard -->
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="p-4"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-secondary font-semibold border border-surface-variant">
+                                                WF
+                                            </div>
+<div>
+<div class="font-semibold text-primary">Wade Warren</div>
+<div class="text-secondary text-xs">wade.w@example.com</div>
+</div>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-status-pending/10 text-status-pending">
+                                            At Risk
+                                        </span>
+</td>
+<td class="p-4 text-right font-data-mono">4</td>
+<td class="p-4 text-right font-data-mono font-semibold">$450.00</td>
+<td class="p-4 text-secondary text-sm">Jan 15, 2023</td>
+<td class="p-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded-md"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded-md"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 4 VIP -->
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="p-4"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img class="w-10 h-10 rounded-full object-cover border border-surface-variant" data-alt="Portrait of an older businessman, confident smile, crisp white background, professional lighting, corporate modern style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqjysEUxdWN0uXtGJTIsYRbMyp18AgHaDF3PNrbfQYL5rIbUHuhlmRvmRXLmlat7UjwMJjshfbGd6ppeKnrt8FkPv89tCuhrieoCMkPssPv588RqCU_sMsG4wWNmLpjQCVd_oQKO0POZvwGOMEB3AOkuvuPi5pl2MwKcyf-4XTC5Sp0hqVx2WGIrJrGh2Yfn3mmc6zqLESNv8Xs7La9YPqeUXXKQ8RjspC-nxcd6SIDcxD_ii25llgCOQqSpGm7YZ5Qn5GfKByQio"/>
+<div class="absolute -top-1 -right-1 w-4 h-4 bg-accent-vibrant rounded-full border-2 border-surface-card flex items-center justify-center" title="VIP">
+<span class="material-symbols-outlined text-white text-[10px]">star</span>
+</div>
+</div>
+<div>
+<div class="font-semibold text-primary">Marvin McKinney</div>
+<div class="text-secondary text-xs">marvin.m@example.com</div>
+</div>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-accent-vibrant/10 text-accent-vibrant">
+                                            VIP
+                                        </span>
+</td>
+<td class="p-4 text-right font-data-mono">89</td>
+<td class="p-4 text-right font-data-mono font-semibold">$24,800.00</td>
+<td class="p-4 text-secondary text-sm">Nov 10, 2023</td>
+<td class="p-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded-md"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded-md"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-auto p-4 border-t border-surface-variant bg-surface-bright/50 flex justify-between items-center">
+<button class="px-3 py-1.5 border border-surface-variant rounded-md text-secondary hover:bg-surface-container-low transition-colors font-body-md text-sm disabled:opacity-50" disabled="">Previous</button>
+<div class="flex gap-1">
+<button class="w-8 h-8 rounded-md bg-primary text-on-primary font-body-md text-sm flex items-center justify-center">1</button>
+<button class="w-8 h-8 rounded-md hover:bg-surface-container text-on-surface font-body-md text-sm flex items-center justify-center transition-colors">2</button>
+<button class="w-8 h-8 rounded-md hover:bg-surface-container text-on-surface font-body-md text-sm flex items-center justify-center transition-colors">3</button>
+<span class="w-8 h-8 flex items-center justify-center text-secondary">...</span>
+</div>
+<button class="px-3 py-1.5 border border-surface-variant rounded-md text-secondary hover:bg-surface-container-low transition-colors font-body-md text-sm">Next</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

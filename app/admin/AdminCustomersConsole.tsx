@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
+import styles from "./AdminCustomersConsole.module.css";
 
 type CustomerOrder = {
   id: string;
@@ -35,7 +37,7 @@ function formatDate(value: string) {
 }
 
 function formatLak(value: number) {
-  return `฿${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)}`;
+  return `₭${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)}`;
 }
 
 function getCustomerTotal(customer: AdminCustomer) {
@@ -61,9 +63,10 @@ export function AdminCustomersConsole({ customers }: { customers: AdminCustomer[
     const newCount = customers.filter(isNewCustomer).length;
     const totalRevenue = customers.reduce((total, customer) => total + getCustomerTotal(customer), 0);
     const orderCount = customers.reduce((total, customer) => total + (customer.orders?.length ?? 0), 0);
+    const activeCount = customers.filter((customer) => (customer.orders?.length ?? 0) > 0).length;
     const averageOrder = orderCount > 0 ? totalRevenue / orderCount : 0;
 
-    return { vipCount, newCount, totalRevenue, averageOrder };
+    return { vipCount, newCount, totalRevenue, averageOrder, activeCount };
   }, [customers]);
 
   const filteredCustomers = useMemo(() => {
@@ -82,92 +85,111 @@ export function AdminCustomersConsole({ customers }: { customers: AdminCustomer[
     });
   }, [customers, filter, query]);
 
+  const filterOptions: Array<{ value: CustomerFilter; label: string; count: number }> = [
+    { value: "all", label: "ທັງໝົດ", count: customers.length },
+    { value: "vip", label: "VIP", count: stats.vipCount },
+    { value: "new", label: "ລູກຄ້າໃໝ່", count: stats.newCount },
+    { value: "active", label: "ມີອໍເດີ", count: stats.activeCount },
+  ];
+
   return (
-    <section className="admin-customers-v2">
-      <div className="admin-customers-toolbar">
-        <label className="admin-customers-search">
-          <span aria-hidden="true" />
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ຄົ້ນຫາຊື່, ເບີໂທ, ອີເມວ" />
+    <section className={styles.page}>
+      <section className={styles.statGrid}>
+        <article className={`${styles.statCard} ${styles.statCardLilac}`}>
+          <span className={styles.statLabel}>ລູກຄ້າ VIP</span>
+          <strong className={styles.statValue}>{stats.vipCount}</strong>
+          <p className={styles.statNote}>ລູກຄ້າມູນຄ່າສູງ ຫຼື ຖືກຕັ້ງສະຖານະພິເສດ</p>
+        </article>
+
+        <article className={`${styles.statCard} ${styles.statCardPeach}`}>
+          <span className={styles.statLabel}>ລູກຄ້າໃໝ່</span>
+          <strong className={styles.statValue}>{stats.newCount}</strong>
+          <p className={styles.statNote}>ນັບຈາກ 30 ມື້ຫຼ້າສຸດ</p>
+        </article>
+
+        <article className={`${styles.statCard} ${styles.statCardGreen}`}>
+          <span className={styles.statLabel}>ລາຍຮັບລວມ</span>
+          <strong className={styles.statValue}>{formatLak(stats.totalRevenue)}</strong>
+          <p className={styles.statNote}>ຍອດຈາກລູກຄ້າທີ່ມີປະຫວັດການສັ່ງຊື້</p>
+        </article>
+
+        <article className={`${styles.statCard} ${styles.statCardSoft}`}>
+          <span className={styles.statLabel}>ຄ່າສະເລ່ຍຕໍ່ອໍເດີ</span>
+          <strong className={styles.statValue}>{formatLak(stats.averageOrder)}</strong>
+          <p className={styles.statNote}>ໃຊ້ເບິ່ງກຳລັງຊື້ຂອງຖານລູກຄ້າ</p>
+        </article>
+      </section>
+
+      <section className={styles.toolbar}>
+        <label className={styles.searchBox}>
+          <span>⌕</span>
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ຄົ້ນຫາຊື່, ເບີໂທ, ອີເມວ..." />
         </label>
-        <div className="admin-customers-filter" aria-label="ກອງລູກຄ້າ">
-          {[
-            ["all", "ທັງໝົດ", customers.length],
-            ["vip", "VIP", stats.vipCount],
-            ["new", "ລູກຄ້າໃໝ່", stats.newCount],
-            ["active", "ມີອໍເດີ", customers.filter((customer) => (customer.orders?.length ?? 0) > 0).length],
-          ].map(([value, label, count]) => (
-            <button className={filter === value ? "is-active" : ""} key={value} type="button" onClick={() => setFilter(value as CustomerFilter)}>
-              {label}
-              <strong>{count}</strong>
+
+        <div className={styles.filters}>
+          {filterOptions.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className={filter === option.value ? styles.filterActive : ""}
+              onClick={() => setFilter(option.value)}
+            >
+              <span>{option.label}</span>
+              <strong>{option.count}</strong>
             </button>
           ))}
         </div>
-      </div>
+      </section>
 
-      <div className="admin-customers-table-card">
-        <div className="admin-customers-row is-head">
+      <section className={styles.tableWrap}>
+        <div className={`${styles.row} ${styles.headRow}`}>
           <span>ລູກຄ້າ</span>
           <span>ຕິດຕໍ່</span>
           <span>ຍອດຊື້</span>
           <span>ອໍເດີ</span>
           <span>ສະຖານະ</span>
         </div>
+
         {filteredCustomers.length > 0 ? (
           filteredCustomers.map((customer) => {
             const orderCount = customer.orders?.length ?? 0;
             const total = getCustomerTotal(customer);
             const vip = isVip(customer);
+            const customerState = vip ? "VIP" : isNewCustomer(customer) ? "ໃໝ່" : "ປົກກະຕິ";
+            const badgeClass = vip ? styles.statusVip : isNewCustomer(customer) ? styles.statusNew : styles.statusNormal;
 
             return (
-              <div className="admin-customers-row" key={customer.id}>
-                <div className="admin-customers-person">
-                  <span>{initials(customer.name)}</span>
-                  <div>
+              <div className={styles.row} key={customer.id}>
+                <div className={styles.personCell}>
+                  <div className={styles.avatar}>{initials(customer.name)}</div>
+                  <div className={styles.personCopy}>
                     <strong>{customer.name}</strong>
-                    <small>ເປັນລູກຄ້າຕັ້ງແຕ່ {formatDate(customer.created_at)}</small>
+                    <small>ເຂົ້າລະບົບຕັ້ງແຕ່ {formatDate(customer.created_at)}</small>
                   </div>
                 </div>
-                <div className="admin-customers-contact">
+
+                <div className={styles.contactCell}>
                   <strong>{customer.phone ?? "-"}</strong>
                   <span>{customer.email ?? "ບໍ່ມີອີເມວ"}</span>
                   <small>{customer.default_address ?? "ຍັງບໍ່ມີທີ່ຢູ່"}</small>
                 </div>
-                <strong className="admin-customers-money">{formatLak(total)}</strong>
-                <span className="admin-customers-order-count">{orderCount}</span>
-                <span className={`admin-customers-status${vip ? " is-vip" : ""}`}>{vip ? "VIP" : isNewCustomer(customer) ? "ໃໝ່" : "ປົກກະຕິ"}</span>
+
+                <strong className={styles.money}>{formatLak(total)}</strong>
+                <span className={styles.orderCount}>{orderCount}</span>
+                <Link className={`${styles.statusBadge} ${badgeClass}`} href={`/admin/customers/${customer.id}`}>
+                  {customerState}
+                </Link>
               </div>
             );
           })
         ) : (
-          <div className="admin-customers-empty">
-            <strong>ບໍ່ພົບລູກຄ້າ</strong>
-            <p>ລອງປ່ຽນຄຳຄົ້ນຫາ ຫຼື ຕົວກອງດ້ານເທິງ.</p>
+          <div className={styles.emptyState}>
+            <span className={styles.emptyBadge}>Customers</span>
+            <strong>ບໍ່ພົບຂໍ້ມູນລູກຄ້າ</strong>
+            <p>ລອງປ່ຽນຄຳຄົ້ນຫາ ຫຼື ສະຫຼັບຕົວກອງດ້ານເທິງ.</p>
           </div>
         )}
-      </div>
-
-      <div className="admin-customers-stats">
-        <article>
-          <span>ຍອດຈາກລູກຄ້າ</span>
-          <strong>{formatLak(stats.totalRevenue)}</strong>
-          <em>ຈາກລູກຄ້າທີ່ມີອໍເດີ</em>
-        </article>
-        <article>
-          <span>VIP</span>
-          <strong>{stats.vipCount}</strong>
-          <em>ລູກຄ້າມູນຄ່າສູງ</em>
-        </article>
-        <article>
-          <span>ລູກຄ້າໃໝ່</span>
-          <strong>{stats.newCount}</strong>
-          <em>30 ມື້ຫຼ້າສຸດ</em>
-        </article>
-        <article>
-          <span>ມູນຄ່າສະເລ່ຍ</span>
-          <strong>{formatLak(stats.averageOrder)}</strong>
-          <em>ຕໍ່ອໍເດີ</em>
-        </article>
-      </div>
+      </section>
     </section>
   );
 }

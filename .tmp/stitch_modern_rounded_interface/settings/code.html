@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SHOW OFF | Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Geist:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#b2cad6",
+                        "on-primary": "#2b3400",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "surface": "#131313",
+                        "deep-charcoal": "#121212",
+                        "secondary-fixed": "#e5e2e1",
+                        "background": "#131313",
+                        "surface-tint": "#b4d400",
+                        "on-tertiary-container": "#516872",
+                        "on-secondary-fixed-variant": "#474746",
+                        "secondary-container": "#474746",
+                        "error-container": "#93000a",
+                        "status-blue": "#00E0FF",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-variant": "#353534",
+                        "surface-container": "#201f1f",
+                        "text-muted": "#888888",
+                        "primary": "#ffffff",
+                        "surface-container-highest": "#353534",
+                        "tertiary": "#ffffff",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-container": "#cee6f2",
+                        "on-tertiary-fixed": "#051e27",
+                        "primary-container": "#cdf200",
+                        "on-secondary-container": "#b7b5b4",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-black": "#0D0D0D",
+                        "on-primary-container": "#5a6b00",
+                        "on-error": "#690005",
+                        "inverse-primary": "#556500",
+                        "surface-bright": "#3a3939",
+                        "on-tertiary-fixed-variant": "#334a54",
+                        "primary-fixed-dim": "#b4d400",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "outline": "#8f9378",
+                        "on-surface": "#e5e2e1",
+                        "outline-variant": "#454932",
+                        "tertiary-fixed": "#cee6f2",
+                        "secondary": "#c8c6c5",
+                        "inverse-on-surface": "#313030",
+                        "on-primary-fixed": "#181e00",
+                        "on-tertiary": "#1c333d",
+                        "on-primary-fixed-variant": "#3f4c00",
+                        "inverse-surface": "#e5e2e1",
+                        "card-gray": "#1E1E1E",
+                        "on-secondary": "#313030",
+                        "neon-lime": "#D9FF00",
+                        "error": "#ffb4ab",
+                        "status-red": "#FF4D4D",
+                        "primary-fixed": "#cdf200",
+                        "surface-dim": "#131313",
+                        "on-surface-variant": "#c5c9ac",
+                        "on-background": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-padding": "32px",
+                        "sidebar-width": "280px",
+                        "card-gap": "20px",
+                        "gutter": "24px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"],
+                        "mono-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "title-lg": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "mono-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0D0D0D;
+            color: #e5e2e1;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .neon-glow:hover {
+            box-shadow: 0 0 15px rgba(217, 255, 0, 0.3);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2A2A2A;
+            border-radius: 3px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+<!-- Sidebar Navigation -->
+<aside class="w-[280px] h-screen fixed left-0 top-0 bg-deep-charcoal border-r border-surface-variant flex flex-col py-base z-40 hidden md:flex">
+<div class="px-6 py-8">
+<h1 class="text-headline-md font-headline-md font-extrabold text-neon-lime">SHOW OFF</h1>
+<p class="text-label-md font-label-md text-text-muted">Management System</p>
+</div>
+<nav class="flex-1 px-2 space-y-1">
+<div class="text-label-md text-text-muted px-4 py-2 uppercase tracking-widest font-bold">Menu</div>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-body-md">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-body-md">Shipment</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md">Customers</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">store</span>
+<span class="font-body-md">Store</span>
+</a>
+<div class="text-label-md text-text-muted px-4 py-6 uppercase tracking-widest font-bold">General</div>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body-md">Help</span>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-3 px-4 py-3 text-neon-lime border-l-4 border-neon-lime bg-surface-container-highest/20 scale-95 transition-transform active:scale-90 rounded-r-lg" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-body-md font-bold">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">shield</span>
+<span class="font-body-md">Privacy</span>
+</a>
+</nav>
+<!-- Upgrade Card -->
+<div class="px-4 mb-6">
+<div class="bg-surface-container-high p-4 rounded-xl border border-surface-variant relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-12 h-12 bg-neon-lime/20 blur-2xl"></div>
+<span class="material-symbols-outlined text-neon-lime mb-2">workspace_premium</span>
+<h4 class="font-title-lg text-sm text-primary mb-1">Upgrade Now</h4>
+<p class="text-[10px] text-text-muted mb-3">Unlock premium tracking and AI-driven analytics.</p>
+<button class="w-full py-2 bg-neon-lime text-surface-black font-bold text-[12px] rounded-lg neon-glow transition-all">Upgrade Now</button>
+</div>
+</div>
+<div class="px-4 pt-4 border-t border-surface-variant flex items-center gap-3">
+<img class="w-10 h-10 rounded-full border border-neon-lime/30" data-alt="Professional studio portrait of Evano, a high-fashion sales administrator, wearing a sleek black minimalist blazer against a neutral architectural background. The lighting is dramatic and crisp, emphasizing professional authority and modern streetwear aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9jM-FxJ9jirqo8-gvwtkRU_9PCiy9jKqFo31GXN4n8xhDlCEVcyYTwJ3oXLagdfDhJVOtOM2tAov-rXMtNoFPh-flfu2Deiv5tzmtJ9eL7QT-kU-3IocWTpg3RN7lntfCECeRzM38u094lRTZc2lgfujgzumCvFpMZPkR2SGaOOZ1-NvQCiqILU5Jd003SOpJn7Vdq_g6vcZBtjcHRPW633IpVuFXaerxKHKzc2EQd-XUUnXt0ZCdY4KxJby24y-6scrVyTrDJ1dp"/>
+<div>
+<p class="font-body-md font-bold text-on-surface">Evano</p>
+<p class="text-[10px] text-text-muted uppercase tracking-wider">Sales Admin</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-[280px] min-h-screen bg-background">
+<!-- Top Navigation -->
+<header class="h-20 w-full sticky top-0 z-50 bg-surface flex items-center justify-between px-container-padding">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-on-surface focus:ring-2 focus:ring-neon-lime placeholder:text-text-muted font-body-md" placeholder="Search settings..." type="text"/>
+</div>
+<div class="lg:hidden">
+<h2 class="font-headline-md text-neon-lime">Settings</h2>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-text-muted hover:text-neon-lime transition-all">
+<span class="material-symbols-outlined">tune</span>
+</button>
+<button class="p-2 text-text-muted hover:text-neon-lime transition-all relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-status-red rounded-full"></span>
+</button>
+<div class="h-8 w-[1px] bg-surface-variant mx-2"></div>
+<button class="px-4 py-2 bg-neon-lime text-surface-black font-bold font-body-md rounded-lg flex items-center gap-2 hover:opacity-90 transition-all">
+<span class="material-symbols-outlined">add</span>
+                    Add New Product
+                </button>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="p-container-padding max-w-7xl mx-auto space-y-gutter">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="font-display-lg text-headline-lg text-primary">System Settings</h1>
+<p class="text-text-muted font-body-lg">Manage your storefront's core configuration and identity.</p>
+</div>
+<div class="flex items-center gap-2 text-mono-sm text-text-muted">
+<span>Admin</span> / <span>Settings</span> / <span class="text-neon-lime">General</span>
+</div>
+</div>
+<!-- Settings Tabs -->
+<div class="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar border-b border-surface-variant">
+<button class="px-6 py-4 font-bold font-body-md text-neon-lime border-b-2 border-neon-lime whitespace-nowrap">Store Info</button>
+<button class="px-6 py-4 font-body-md text-text-muted hover:text-primary transition-all whitespace-nowrap">Logo &amp; Branding</button>
+<button class="px-6 py-4 font-body-md text-text-muted hover:text-primary transition-all whitespace-nowrap">Payment &amp; Bank</button>
+<button class="px-6 py-4 font-body-md text-text-muted hover:text-primary transition-all whitespace-nowrap">Exchange Rates</button>
+<button class="px-6 py-4 font-body-md text-text-muted hover:text-primary transition-all whitespace-nowrap">Stock Rules</button>
+</div>
+<!-- Settings Bento Grid -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Profile Section (Left) -->
+<div class="col-span-12 lg:col-span-4 space-y-gutter">
+<div class="bg-card-gray p-8 rounded-3xl border border-surface-variant relative">
+<div class="flex flex-col items-center text-center">
+<div class="relative group">
+<img class="w-32 h-32 rounded-full border-4 border-surface-container-high mb-6 object-cover" data-alt="A premium storefront identity icon showcasing a bold, modernist typography logo 'SHOW OFF' in electric neon lime against a deep charcoal circular badge. The design is clean, high-contrast, and evokes a high-end urban streetwear brand vibe with professional polish." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDac5VwN-rnu0iRVuEs4i-wc56-64BrFVxGpqasZiJEAI81T6fXHrBGTpYOXA7MJOHuev5ErSzPss3FfVcS0H77p9KHUMJFd2Q-lq-mv5QTbs3BSWVs_avjpSkWqRCT3ZiBfPdlJXAq87ZnjQEo4epBfY3boUUdpY2Z0kTdPWmdAC99iVnS7dzhgIHryx-CNxGHlC7SjPP9gmuXHM2VlM94YmtibXb3o7oqTutT3P7MhFnBzM9GQdNMOgdeb-_091rzIb7p4Uvfh42Z"/>
+<button class="absolute bottom-6 right-0 bg-neon-lime text-surface-black p-2 rounded-full shadow-xl hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+<h3 class="font-headline-md text-primary mb-1">SHOW OFF Store</h3>
+<p class="text-text-muted text-body-md mb-6">Retail &amp; Concept Fashion</p>
+<div class="grid grid-cols-2 gap-4 w-full">
+<div class="bg-surface-black p-4 rounded-2xl border border-surface-variant">
+<p class="text-label-md text-text-muted mb-1">Status</p>
+<p class="text-status-blue font-bold">Verified</p>
+</div>
+<div class="bg-surface-black p-4 rounded-2xl border border-surface-variant">
+<p class="text-label-md text-text-muted mb-1">Since</p>
+<p class="text-primary font-bold">2023</p>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-card-gray p-8 rounded-3xl border border-surface-variant">
+<h4 class="font-title-lg text-primary mb-6">Social Integration</h4>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 bg-surface-black rounded-xl border border-surface-variant">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+<svg class="w-4 h-4 fill-current text-primary" viewbox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.332 3.608 1.308.975.975 1.245 2.242 1.308 3.607.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.063 1.366-.333 2.633-1.308 3.608-.975.975-2.242 1.245-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.063-2.633-.333-3.608-1.308-.975-.975-1.245-2.242-1.308-3.608-.058-1.266-.07-1.646-.07-4.85s.012-3.584.07-4.85c.062-1.366.332-2.633 1.308-3.608.975-.975 2.242-1.245 3.607-1.308 1.266-.058 1.646-.07 4.85-.07m0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072s3.667-.014 4.947-.072c4.358-.2 6.78-2.618 6.98-6.98.058-1.281.072-1.689.072-4.948s-.014-3.667-.072-4.947c-.2-4.358-2.618-6.78-6.98-6.98-1.28-.058-1.689-.072-4.948-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
+</span>
+<span class="text-body-md">Instagram</span>
+</div>
+<span class="text-status-blue font-bold text-xs">Linked</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-black rounded-xl border border-surface-variant">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+<svg class="w-4 h-4 fill-current text-primary" viewbox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+</span>
+<span class="text-body-md">X.com</span>
+</div>
+<button class="text-neon-lime font-bold text-xs">Connect</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Form Section (Right) -->
+<div class="col-span-12 lg:col-span-8">
+<div class="bg-card-gray p-8 md:p-12 rounded-3xl border border-surface-variant h-full">
+<div class="flex items-center justify-between mb-8">
+<h2 class="font-headline-md text-primary">Store Configuration</h2>
+<button class="px-6 py-2 bg-neon-lime text-surface-black font-bold rounded-xl neon-glow transition-all">Save Changes</button>
+</div>
+<form class="space-y-8">
+<!-- Basic Info -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-label-md text-text-muted uppercase">Store Display Name</label>
+<input class="w-full bg-surface-black border border-surface-variant rounded-xl py-3 px-4 text-on-surface focus:ring-2 focus:ring-neon-lime focus:border-neon-lime" type="text" value="SHOW OFF Concept"/>
+</div>
+<div class="space-y-2">
+<label class="text-label-md text-text-muted uppercase">Public Email</label>
+<input class="w-full bg-surface-black border border-surface-variant rounded-xl py-3 px-4 text-on-surface focus:ring-2 focus:ring-neon-lime focus:border-neon-lime" type="email" value="contact@showoff.store"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-label-md text-text-muted uppercase">Store Description</label>
+<textarea class="w-full bg-surface-black border border-surface-variant rounded-xl py-3 px-4 text-on-surface focus:ring-2 focus:ring-neon-lime focus:border-neon-lime" rows="3">Premium urban streetwear curating the intersection of fashion, technology, and underground culture. Established in the heart of the digital city.</textarea>
+</div>
+<!-- Operation Settings -->
+<div class="pt-6 border-t border-surface-variant">
+<h4 class="font-title-lg text-primary mb-6">Operational Preferences</h4>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-body-md font-bold">Public Inventory Status</p>
+<p class="text-xs text-text-muted">Show "low stock" alerts to customers</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-lime"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-body-md font-bold">Maintenance Mode</p>
+<p class="text-xs text-text-muted">Temporarily disable storefront access</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-lime"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-body-md font-bold">Auto-Invoice Generation</p>
+<p class="text-xs text-text-muted">Send PDFs immediately after payment</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-lime"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-body-md font-bold">Wholesale Tier</p>
+<p class="text-xs text-text-muted">Enable B2B pricing models</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-lime"></div>
+</label>
+</div>
+</div>
+</div>
+<!-- Locality -->
+<div class="pt-6 border-t border-surface-variant grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="space-y-2">
+<label class="text-label-md text-text-muted uppercase">Timezone</label>
+<select class="w-full bg-surface-black border border-surface-variant rounded-xl py-3 px-4 text-on-surface focus:ring-2 focus:ring-neon-lime appearance-none">
+<option>(GMT-08:00) Pacific Time</option>
+<option>(GMT+00:00) London</option>
+<option>(GMT+01:00) Berlin</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-label-md text-text-muted uppercase">Default Currency</label>
+<select class="w-full bg-surface-black border border-surface-variant rounded-xl py-3 px-4 text-on-surface focus:ring-2 focus:ring-neon-lime appearance-none">
+<option>USD ($)</option>
+<option>EUR (€)</option>
+<option>GBP (£)</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-label-md text-text-muted uppercase">Weight Unit</label>
+<select class="w-full bg-surface-black border border-surface-variant rounded-xl py-3 px-4 text-on-surface focus:ring-2 focus:ring-neon-lime appearance-none">
+<option>Kilograms (kg)</option>
+<option>Pounds (lb)</option>
+</select>
+</div>
+</div>
+</form>
+</div>
+</div>
+<!-- DANGER ZONE -->
+<div class="col-span-12">
+<div class="bg-status-red/5 p-8 rounded-3xl border border-status-red/20 flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-status-red/20 flex items-center justify-center text-status-red">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<div>
+<h4 class="font-title-lg text-status-red">Danger Zone</h4>
+<p class="text-body-md text-text-muted">Deleting your store is permanent and cannot be undone.</p>
+</div>
+</div>
+<button class="px-8 py-3 border border-status-red text-status-red hover:bg-status-red hover:text-white font-bold rounded-xl transition-all">
+                            Archive Store
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Nav Bar (Sync with Shared Components Logic) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-deep-charcoal border-t border-surface-variant flex items-center justify-around py-3 px-4 z-50">
+<button class="flex flex-col items-center gap-1 text-text-muted">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px]">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-text-muted">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="text-[10px]">Stock</span>
+</button>
+<div class="relative -top-8">
+<button class="w-14 h-14 bg-neon-lime text-surface-black rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined font-bold">add</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1 text-text-muted">
+<span class="material-symbols-outlined">store</span>
+<span class="text-[10px]">Store</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-neon-lime">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="text-[10px]">Settings</span>
+</button>
+</nav>
+<script>
+        // Simple Interaction logic for micro-effects
+        document.querySelectorAll('input, select, textarea').forEach(element => {
+            element.addEventListener('focus', () => {
+                element.parentElement.querySelector('label')?.classList.add('text-neon-lime');
+            });
+            element.addEventListener('blur', () => {
+                element.parentElement.querySelector('label')?.classList.remove('text-neon-lime');
+            });
+        });
+
+        // Tab switching visual (simulated)
+        const tabs = document.querySelectorAll('.whitespace-nowrap');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                tabs.forEach(t => {
+                    t.classList.remove('text-neon-lime', 'border-b-2', 'border-neon-lime', 'font-bold');
+                    t.classList.add('text-text-muted');
+                });
+                tab.classList.add('text-neon-lime', 'border-b-2', 'border-neon-lime', 'font-bold');
+                tab.classList.remove('text-text-muted');
+            });
+        });
+    </script>
+</body></html>

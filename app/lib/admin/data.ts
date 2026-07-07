@@ -19,7 +19,7 @@ function todayRange() {
 }
 
 export function formatLak(value: number) {
-  return `฿${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)}`;
+  return `₭${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)}`;
 }
 
 function sumAmount(rows: Array<Record<string, unknown>>, keys: string[]) {
@@ -72,7 +72,7 @@ export async function getDashboardData() {
     supabase.from("product_variants").select("id,stock_qty,min_stock_qty,status").eq("status", "active"),
     supabase
       .from("orders")
-      .select("order_no,source,status,shipping_status,final_amount,total_amount,created_at,customers(name)")
+      .select("id,order_no,source,chat_channel,status,shipping_status,final_amount,total_amount,created_at,customers(name)")
       .order("created_at", { ascending: false })
       .limit(5),
   ]);
@@ -104,12 +104,61 @@ export async function getAdminProducts() {
 
   const { data, error } = await supabase
     .from("products")
-    .select("id,sku,name_en,name_lo,slug,sale_price,cost_price,stock_qty,status,created_at,categories(name_en),product_variants(id,sku,size_label,color_name,stock_qty,min_stock_qty,status)")
+    .select("id,sku,name_en,name_lo,slug,sale_price,cost_price,stock_qty,min_stock_qty,status,description_en,description_lo,created_at,categories(name_en),product_images(id,bucket,path,alt_text,sort_order,is_primary),product_variants(id,sku,size_label,color_name,color_hex,option_label,sale_price,cost_price,stock_qty,min_stock_qty,status)")
     .order("created_at", { ascending: false })
     .limit(50);
 
   return {
     products: error ? [] : data ?? [],
+  };
+}
+
+export async function getAdminInventoryMovements() {
+  const supabase = await createSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("inventory_movements")
+    .select("id,product_id,product_variant_id,movement_type,quantity_delta,stock_after,reference_type,reference_id,note,created_by,created_at")
+    .order("created_at", { ascending: false })
+    .limit(120);
+
+  if (error) {
+    console.error("Admin inventory movements failed", error);
+    return { movements: [] };
+  }
+
+  const movements = data ?? [];
+  const productIds = [...new Set(movements.map((item) => item.product_id).filter(Boolean))];
+  const variantIds = [...new Set(movements.map((item) => item.product_variant_id).filter(Boolean))];
+  const profileIds = [...new Set(movements.map((item) => item.created_by).filter(Boolean))];
+
+  const [productsResult, variantsResult, profilesResult] = await Promise.all([
+    productIds.length
+      ? supabase.from("products").select("id,sku,name_en,name_lo").in("id", productIds)
+      : Promise.resolve({ data: [], error: null }),
+    variantIds.length
+      ? supabase.from("product_variants").select("id,sku,color_name,size_label,option_label").in("id", variantIds)
+      : Promise.resolve({ data: [], error: null }),
+    profileIds.length
+      ? supabase.from("profiles").select("id,display_name,email").in("id", profileIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+
+  if (productsResult.error) console.error("Admin inventory movement products failed", productsResult.error);
+  if (variantsResult.error) console.error("Admin inventory movement variants failed", variantsResult.error);
+  if (profilesResult.error) console.error("Admin inventory movement profiles failed", profilesResult.error);
+
+  const productsById = new Map((productsResult.data ?? []).map((item: any) => [item.id, item]));
+  const variantsById = new Map((variantsResult.data ?? []).map((item: any) => [item.id, item]));
+  const profilesById = new Map((profilesResult.data ?? []).map((item: any) => [item.id, item]));
+
+  return {
+    movements: movements.map((item: any) => ({
+      ...item,
+      products: productsById.get(item.product_id) ?? null,
+      product_variants: item.product_variant_id ? variantsById.get(item.product_variant_id) ?? null : null,
+      profiles: item.created_by ? profilesById.get(item.created_by) ?? null : null,
+    })),
   };
 }
 
@@ -119,7 +168,7 @@ export async function getAdminOrders() {
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "id,order_no,source,status,shipping_status,payment_status,fulfillment_status,shipping_address,final_amount,total_amount,created_at,customers(name,phone,email),payments(id,status,amount,payment_method),shipments(tracking_number,carrier,status),order_items(id,sku_snapshot,product_name_snapshot,variant_label_snapshot,quantity,unit_price,line_total),payment_slips(id,bucket,path,amount,status,created_at,reject_reason)",
+      "id,order_no,source,chat_channel,status,shipping_status,payment_status,fulfillment_status,shipping_address,final_amount,total_amount,created_at,customers(name,phone,email),payments(id,status,amount,payment_method),shipments(tracking_number,carrier,status,document_images),order_items(id,sku_snapshot,product_name_snapshot,variant_label_snapshot,quantity,unit_price,line_total),payment_slips(id,bucket,path,amount,status,created_at,reject_reason)",
     )
     .order("created_at", { ascending: false })
     .limit(50);

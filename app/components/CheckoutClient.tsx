@@ -19,6 +19,7 @@ type CartItem = {
   price: string;
   image: string;
   quantity: number;
+  stock?: number;
 };
 
 type CustomerProfile = {
@@ -135,6 +136,10 @@ function readCartItems() {
   } catch {
     return [];
   }
+}
+
+function cartStockKey(item: Pick<CartItem, "slug" | "color" | "size">) {
+  return [item.slug, item.color, item.size].map((part) => part.trim().toLowerCase()).join("|");
 }
 
 function readCustomerProfile() {
@@ -371,21 +376,59 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
   }, [items, customer, currency]);
 
   useEffect(() => {
+    hydrateCartStock(items);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
+
+  useEffect(() => {
     return () => {
       slipsRef.current.forEach((slip) => URL.revokeObjectURL(slip.url));
     };
   }, []);
 
   const updateCartQuantity = (targetItem: CartItem, nextQuantity: number) => {
-    const safeQuantity = Number.isFinite(nextQuantity) ? Math.max(0, Math.min(99, Math.floor(nextQuantity))) : targetItem.quantity;
+    const stockLimit = typeof targetItem.stock === "number" ? Math.max(0, targetItem.stock) : 99;
+    const safeQuantity = Number.isFinite(nextQuantity) ? Math.max(0, Math.min(stockLimit, Math.floor(nextQuantity))) : targetItem.quantity;
     const nextItems =
       safeQuantity === 0
         ? items.filter((item) => !(item.slug === targetItem.slug && item.size === targetItem.size && item.color === targetItem.color))
-        : items.map((item) => (item.slug === targetItem.slug && item.size === targetItem.size && item.color === targetItem.color ? { ...item, quantity: safeQuantity } : item));
+        : items.map((item) => (item.slug === targetItem.slug && item.size === targetItem.size && item.color === targetItem.color ? { ...item, quantity: safeQuantity, stock: stockLimit } : item));
 
     setItems(nextItems);
     saveCartItems(nextItems);
   };
+
+  async function hydrateCartStock(currentItems: CartItem[]) {
+    if (currentItems.length === 0) return;
+
+    try {
+      const response = await fetch("/api/storefront/cart-stock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: currentItems.map(({ slug, color, size }) => ({ slug, color, size })) }),
+      });
+      if (!response.ok) return;
+      const payload = (await response.json()) as { stocks?: Record<string, number> };
+      const stocks = payload.stocks ?? {};
+      let changed = false;
+      const nextItems = currentItems
+        .map((item) => {
+          const stock = stocks[cartStockKey(item)];
+          if (typeof stock !== "number") return item;
+          const quantity = Math.min(item.quantity, Math.max(0, stock));
+          if (item.stock !== stock || item.quantity !== quantity) changed = true;
+          return { ...item, stock, quantity };
+        })
+        .filter((item) => item.quantity > 0);
+
+      if (changed || nextItems.length !== currentItems.length) {
+        setItems(nextItems);
+        saveCartItems(nextItems);
+      }
+    } catch {
+      // Checkout still falls back to the database validation on submit.
+    }
+  }
 
   const openAccount = () => {
     window.dispatchEvent(new CustomEvent("showoff-account-open"));
@@ -554,6 +597,8 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
     }
 
     window.dispatchEvent(new CustomEvent("showoff-checkout-ready", { detail: { items, customer, order: createdOrder, proof: attachedProof, slips: slips.map((slip) => slip.name), total: formatCurrency(createdOrder.payment_amount, createdOrder.payment_currency) } }));
+    saveCartItems([]);
+    setItems([]);
     setSheetMode(null);
     showFeedback({ type: "success", title: "Payment proof sent", message: `${attachedProof.slip_count} slip image${attachedProof.slip_count === 1 ? "" : "s"} sent for review.` });
   };
@@ -615,8 +660,8 @@ export function CheckoutClient({ locale }: { locale: Locale }) {
                     <p>Size {item.size} / {item.color}</p>
                     <div className="cart-quantity checkout-quantity" aria-label={`Quantity for ${item.name}`}>
                       <button type="button" aria-label={`Remove one ${item.name}`} onClick={() => updateCartQuantity(item, item.quantity - 1)}>-</button>
-                      <input aria-label={`Quantity for ${item.name}`} inputMode="numeric" min="1" max="99" type="number" value={item.quantity} onChange={(event) => updateCartQuantity(item, Number(event.target.value))} />
-                      <button type="button" aria-label={`Add one ${item.name}`} onClick={() => updateCartQuantity(item, item.quantity + 1)}>+</button>
+                      <input aria-label={`Quantity for ${item.name}`} inputMode="numeric" min="1" max={typeof item.stock === "number" ? Math.max(1, item.stock) : 99} type="number" value={item.quantity} onChange={(event) => updateCartQuantity(item, Number(event.target.value))} />
+                      <button type="button" aria-label={`Add one ${item.name}`} disabled={typeof item.stock === "number" && item.quantity >= item.stock} onClick={() => updateCartQuantity(item, item.quantity + 1)}>+</button>
                     </div>
                   </div>
                   <div className="checkout-item-side">

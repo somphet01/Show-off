@@ -1,0 +1,304 @@
+<html lang="en"><head></head><body class="text-on-surface bg-[#F8FAFC]">```html
+
+
+
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Store Settings - SHOW OFF Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e8e8e8",
+                        "inverse-on-surface": "#f1f1f1",
+                        "surface-bright": "#f9f9f9",
+                        "surface-container-low": "#f3f3f3",
+                        "on-tertiary-fixed": "#1b1b1b",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#5e5e5e",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "on-primary-fixed": "#1b1b1b",
+                        "primary-container": "#1b1b1b",
+                        "surface-card": "#FFFFFF",
+                        "primary-fixed": "#e2e2e2",
+                        "inverse-primary": "#c6c6c6",
+                        "on-primary": "#ffffff",
+                        "status-info": "#3B82F6",
+                        "status-rejected": "#EF4444",
+                        "surface": "#f9f9f9",
+                        "surface-variant": "#e2e2e2",
+                        "on-surface": "#1b1b1b",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "surface-background": "#F9FAFB",
+                        "on-secondary-container": "#606365",
+                        "surface-dim": "#dadada",
+                        "outline": "#e2e8f0",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#e1e2e4",
+                        "secondary-fixed-dim": "#c5c6c8",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-error-container": "#93000a",
+                        "background": "#f9f9f9",
+                        "outline-variant": "#f1f5f9",
+                        "on-primary-fixed-variant": "#474747",
+                        "status-paid": "#22C55E",
+                        "inverse-surface": "#303030",
+                        "surface-container": "#f1f5f9",
+                        "tertiary": "#000000",
+                        "tertiary-container": "#1b1b1b",
+                        "on-tertiary-container": "#848484",
+                        "on-secondary-fixed-variant": "#444749",
+                        "tertiary-fixed": "#e2e2e2",
+                        "secondary": "#5c5f60",
+                        "secondary-container": "#dee0e2",
+                        "on-background": "#1b1b1b",
+                        "error-container": "#ffdad6",
+                        "status-pending": "#EAB308",
+                        "on-surface-variant": "#64748b",
+                        "primary": "#000000",
+                        "accent-vibrant": "#FF5C00",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#848484",
+                        "on-secondary-fixed": "#191c1e",
+                        "on-tertiary-fixed-variant": "#474747"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "2xl": "1.25rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-margin": "2rem",
+                        "card-padding": "2rem",
+                        "sidebar-width": "280px",
+                        "section-gap": "2rem",
+                        "gutter": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "sans": ["Plus Jakarta Sans", "sans-serif"],
+                        "data-mono": ["JetBrains Mono", "monospace"]
+                    },
+                    "boxShadow": {
+                        "subtle": "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
+                        "floating": "0 10px 40px -10px rgba(0,0,0,0.08)",
+                        "inner-light": "inset 0 2px 4px 0 rgba(0, 0, 0, 0.02)"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; }
+        .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<!-- SideNavBar -->
+<nav class="fixed h-screen left-0 top-0 w-[sidebar-width] bg-surface-card flex flex-col z-20 border-r border-outline-variant">
+<div class="px-8 pt-8 pb-6">
+<div class="flex items-center gap-3 mb-1">
+<span class="material-symbols-outlined text-accent-vibrant text-3xl" data-icon="local_fire_department">local_fire_department</span>
+<h1 class="text-2xl font-bold tracking-tight text-primary">SHOW OFF</h1>
+</div>
+<p class="text-sm text-on-surface-variant ml-10">Admin Terminal</p>
+</div>
+<div class="flex-1 overflow-y-auto hide-scrollbar px-4 py-2 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+                Overview
+            </a>
+<a class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+                Orders
+            </a>
+<a class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+                Products
+            </a>
+<a class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="warehouse">warehouse</span>
+                Inventory
+            </a>
+<a class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                Customers
+            </a>
+<a class="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+                Financials
+            </a>
+<a class="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-accent-vibrant/10 text-accent-vibrant font-semibold transition-all relative overflow-hidden" href="#">
+<span class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-accent-vibrant rounded-r-full"></span>
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+</div>
+<div class="p-4 mt-auto">
+<a class="flex items-center gap-3 px-4 py-3 mb-4 rounded-2xl text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+                Support
+            </a>
+<div class="bg-primary rounded-3xl p-5 flex flex-col items-center shadow-floating">
+<img alt="Mark John" class="w-14 h-14 rounded-full mb-3 object-cover border-2 border-surface-card" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7zJzZ8DCU07NkYsTwFLAW4MDPl4No7TCI39w3c30R4GSZZCOpTIkNRyiauxajyRijmHv-xv1uOWdAXGOUJ-w5BYl_nPLZ14Ev73xGVu4QPMxtfMeP9uUi96zCiK2hkl7ILHVNfCwSKFmh_kZsAt_BMN9IwqrNbOUv8A6J_i4FIjIowPljyeeYlku3mtY_9B7C6hmtL1liev2U2YoigdPvRo4eiRMgGUZ8XqN1LM07Bl1uRngXuIIMVfadVw7zGHR70Yu6dgRXKRQ"/>
+<span class="font-bold text-on-primary text-base">Mark John</span>
+<span class="text-sm text-on-primary/70 mb-4">Admin Officer</span>
+<button class="flex items-center gap-2 text-sm text-on-primary/90 hover:text-white transition-colors">
+                    Log out <span class="material-symbols-outlined text-[18px]" data-icon="logout">logout</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-sidebar-width)] z-10 glass-panel border-b border-outline-variant flex justify-between items-center px-8 py-5 ml-[sidebar-width]">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold text-primary">SHOW OFF Admin</span>
+</div>
+<div class="flex-1 max-w-2xl mx-12">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant transition-colors group-focus-within:text-primary" data-icon="search">search</span>
+<input class="w-full bg-white border border-outline rounded-full py-3 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-subtle placeholder-on-surface-variant/70" placeholder="Search settings..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full p-2.5 transition-all relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-accent-vibrant rounded-full ring-2 ring-white"></span>
+</button>
+<button class="text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full p-2.5 transition-all">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full p-2.5 transition-all">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pt-[104px] p-8 min-h-screen pb-12 max-w-[1600px] mx-auto ml-[280px]">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="text-3xl font-bold text-primary tracking-tight mb-2">Store Settings</h2>
+<p class="text-on-surface-variant text-base">Manage your store's configuration, billing, and team access.</p>
+</div>
+<button class="px-6 py-3 rounded-2xl bg-primary text-white font-semibold hover:bg-primary/90 transition-colors shadow-floating flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="save">save</span>
+                Save All Changes
+            </button>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+<!-- Left Column: Primary Settings -->
+<div class="xl:col-span-2 flex flex-col gap-8">
+<!-- Store Info Card -->
+<section class="bg-white rounded-3xl p-8 shadow-subtle border border-outline-variant">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="storefront">storefront</span>
+</div>
+<h3 class="text-xl font-bold text-primary">Store Information</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-semibold text-primary mb-2">Store Name</label>
+<input class="w-full bg-[#F8FAFC] border-0 rounded-2xl py-3.5 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner-light" type="text" value="SHOW OFF Official"/>
+</div>
+<div>
+<label class="block text-sm font-semibold text-primary mb-2">Support Email</label>
+<input class="w-full bg-[#F8FAFC] border-0 rounded-2xl py-3.5 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner-light" type="email" value="support@showoff.com"/>
+</div>
+<div class="md:col-span-2">
+<label class="block text-sm font-semibold text-primary mb-2">Store Description</label>
+<textarea class="w-full bg-[#F8FAFC] border-0 rounded-2xl py-3.5 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-inner-light resize-none" rows="3">Premium administrative terminal for e-commerce operations.</textarea>
+</div>
+<div>
+<label class="block text-sm font-semibold text-primary mb-2">Primary Currency</label>
+<div class="relative">
+<select class="w-full bg-[#F8FAFC] border-0 rounded-2xl py-3.5 px-5 text-sm focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all appearance-none cursor-pointer shadow-inner-light font-medium text-primary">
+<option>USD - US Dollar</option>
+<option>EUR - Euro</option>
+<option>GBP - British Pound</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-primary mb-2">Timezone</label>
+<div class="relative">
+<select class="w-full bg-[#F8FAFC] border-0 rounded-2xl py-3.5 px-5 text-sm focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all appearance-none cursor-pointer shadow-inner-light font-medium text-primary">
+<option>(GMT-05:00) Eastern Time</option>
+<option>(GMT-08:00) Pacific Time</option>
+<option>(GMT+00:00) UTC</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Payment & Bank Settings -->
+<section class="bg-white rounded-3xl p-8 shadow-subtle border border-outline-variant">
+<div class="flex justify-between items-center mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="account_balance">account_balance</span>
+</div>
+<h3 class="text-xl font-bold text-primary">Payment Methods</h3>
+</div>
+<button class="text-sm font-semibold text-status-info hover:text-status-info/80 transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span> Add Method
+                        </button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-5 bg-[#F8FAFC] border border-outline rounded-2xl">
+<div class="flex items-center gap-4">
+<div class="w-14 h-10 bg-white rounded-lg border border-outline flex items-center justify-center">
+<span class="font-bold text-xs text-on-surface-variant">STRIPE</span>
+</div>
+<div>
+<p class="font-bold text-primary text-base">Stripe Gateway</p>
+<p class="text-sm text-on-surface-variant mt-0.5">Connected • Last sync: Today, 09:41 AM</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="bg-status-paid/10 text-status-paid px-3 py-1 rounded-full font-bold text-[11px] uppercase tracking-wider">Active</span>
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</div>
+</div>
+<div class="flex items-center justify-between p-5 bg-[#F8FAFC] border border-outline rounded-2xl opacity-70">
+<div class="flex items-center gap-4">
+<div class="w-14 h-10 bg-white rounded-lg border border-outline flex items-center justify-center">
+<span class="font-bold text-xs text-on-surface-variant">PPAL</span>
+</div>
+<div>
+<p class="font-bold text-primary text-base">PayPal Express</p>
+<p class="text-sm text-on-surface-variant mt-0.5">Not configured</p>
+</div>
+</div>
+<button class="text-primary font-semibold text-sm border-2 border-outline px-4 py-2 rounded-xl hover:border-primary hover:bg-surface-container transition-all">Connect</button>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Secondary Settings -->
+<div class="xl:col-span-1 flex flex-col gap-8">
+<!-- Exchange Rates -->
+<section class="bg-white rounded-3xl p-8 shadow-subtle border border-outline-variant">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="currency_exchange">currency_exchange</span>
+</div>
+<h3 class="text-xl font-bold text-primary">Exchange Rates</h3>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<span class="font-medium text-primary text-sm">Auto-update rates</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+</label></div></div></section></div></div></main></body></html>

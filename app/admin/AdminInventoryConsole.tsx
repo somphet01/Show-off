@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import styles from "./AdminInventoryConsole.module.css";
 
 type Relation<T> = T | T[] | null | undefined;
 
@@ -34,7 +35,7 @@ function firstRelation<T>(value: Relation<T>): T | null {
 }
 
 function formatLak(value: number) {
-  return `฿${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)}`;
+  return `₭${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)}`;
 }
 
 function statusLabel(status: string | null | undefined) {
@@ -89,6 +90,15 @@ function getCategory(product: AdminProduct) {
   return firstRelation(product.categories)?.name_en ?? "Uncategorized";
 }
 
+function getStockTone(product: AdminProduct) {
+  const stock = getProductStock(product);
+  const lowStock = getLowStockCount(product) > 0;
+
+  if (stock <= 0) return "empty";
+  if (lowStock) return "low";
+  return "healthy";
+}
+
 export function AdminInventoryConsole({ products }: { products: AdminProduct[] }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -126,6 +136,7 @@ export function AdminInventoryConsole({ products }: { products: AdminProduct[] }
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
+
       const statusMatch =
         status === "all" ||
         (status === "active" && product.status === "active") ||
@@ -143,118 +154,126 @@ export function AdminInventoryConsole({ products }: { products: AdminProduct[] }
 
   if (products.length === 0) {
     return (
-      <section className="admin-v2-card admin-inventory-empty">
-        <strong>ຍັງບໍ່ມີສິນຄ້າ</strong>
-        <p>ເມື່ອເພີ່ມສິນຄ້າແລ້ວ ສະຕ໊ອກ ແລະ SKU ຈະສະແດງຢູ່ໜ້ານີ້.</p>
+      <section className={styles.emptyState}>
+        <span className={styles.emptyBadge}>Inventory</span>
+        <strong>ຍັງບໍ່ມີສິນຄ້າໃນຄັງ</strong>
+        <p>ເມື່ອເພີ່ມສິນຄ້າແລ້ວ ສະຕ໋ອກ, SKU ແລະ ສະຖານະຈະຂຶ້ນໃຫ້ເຫັນທີ່ໜ້ານີ້.</p>
       </section>
     );
   }
 
   return (
-    <div className="admin-inventory-v2">
-      <section className="admin-inventory-toolbar">
-        <div className="admin-inventory-search">
-          <span aria-hidden="true">⌕</span>
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Product name / SKU..."
-            aria-label="ຄົ້ນຫາສິນຄ້າ"
-          />
-        </div>
-        <label>
-          <span>Category</span>
-          <select value={category} onChange={(event) => setCategory(event.target.value)}>
-            <option value="all">All Categories</option>
-            {categories.map((item) => (
-              <option key={item} value={item}>{item}</option>
-            ))}
-          </select>
+    <section className={styles.page}>
+      <section className={styles.statGrid}>
+        <article className={`${styles.statCard} ${styles.statCardGreen}`}>
+          <span className={styles.statLabel}>ຈຳນວນຄົງຄັງລວມ</span>
+          <strong className={styles.statValue}>{stats.totalStock}</strong>
+          <p className={styles.statNote}>ນັບລວມສິນຄ້າທຸກ variant ໃນລະບົບ</p>
+        </article>
+
+        <article className={`${styles.statCard} ${styles.statCardPeach}`}>
+          <span className={styles.statLabel}>ສິນຄ້າໃກ້ໝົດ</span>
+          <strong className={styles.statValue}>{stats.lowStock}</strong>
+          <p className={styles.statNote}>ລາຍການທີ່ຄວນຈັດຊື້ເພີ່ມທັນທີ</p>
+        </article>
+
+        <article className={`${styles.statCard} ${styles.statCardLilac}`}>
+          <span className={styles.statLabel}>ມູນຄ່າຄັງ</span>
+          <strong className={styles.statValue}>{formatLak(stats.totalValue)}</strong>
+          <p className={styles.statNote}>ຄຳນວນຈາກ stock ຄູນລາຄາຂາຍປັດຈຸບັນ</p>
+        </article>
+
+        <article className={`${styles.statCard} ${styles.statCardSoft}`}>
+          <span className={styles.statLabel}>ສິນຄ້າເປີດຂາຍ</span>
+          <strong className={styles.statValue}>{stats.active}</strong>
+          <p className={styles.statNote}>ສະຖານະພ້ອມຂາຍຢູ່ໜ້າຮ້ານ</p>
+        </article>
+      </section>
+
+      <section className={styles.toolbar}>
+        <label className={styles.searchBox}>
+          <span>⌕</span>
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ຄົ້ນຫາສິນຄ້າ ຫຼື SKU..." />
         </label>
-        <label>
-          <span>Status</span>
-          <select value={status} onChange={(event) => setStatus(event.target.value as InventoryStatus)}>
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="low-stock">Low Stock</option>
-            <option value="inactive">Inactive</option>
-          </select>
-        </label>
-        <label className="admin-inventory-check">
+
+        <select className={styles.select} value={category} onChange={(event) => setCategory(event.target.value)}>
+          <option value="all">ທຸກໝວດໝູ່</option>
+          {categories.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+
+        <select className={styles.select} value={status} onChange={(event) => setStatus(event.target.value as InventoryStatus)}>
+          <option value="all">ທຸກສະຖານະ</option>
+          <option value="active">ເປີດຂາຍ</option>
+          <option value="low-stock">ໃກ້ໝົດ</option>
+          <option value="inactive">ປິດຂາຍ</option>
+        </select>
+
+        <label className={styles.check}>
           <input checked={onlyLowStock} onChange={(event) => setOnlyLowStock(event.target.checked)} type="checkbox" />
-          <span>Only Low Stock Items</span>
+          <span>ສະແດງສະເພາະລາຍການໃກ້ໝົດ</span>
         </label>
       </section>
 
-      <section className="admin-v2-card admin-inventory-table-card">
-        <div className="admin-inventory-table">
-          <div className="admin-inventory-row is-head">
+      {filteredProducts.length > 0 ? (
+        <section className={styles.tableWrap}>
+          <div className={`${styles.row} ${styles.headRow}`}>
             <span>Product</span>
-            <span>SKU</span>
+            <span>SKU / Variant</span>
             <span>Category</span>
             <span>Price</span>
-            <span>Stock Balance</span>
+            <span>Stock</span>
             <span>Status</span>
-            <span>Actions</span>
           </div>
 
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => {
-              const stock = getProductStock(product);
-              const lowStock = getLowStockCount(product) > 0;
-              const categoryName = getCategory(product);
+          {filteredProducts.map((product) => {
+            const stock = getProductStock(product);
+            const tone = getStockTone(product);
+            const lowStock = getLowStockCount(product) > 0;
 
-              return (
-                <div className="admin-inventory-row" key={product.id}>
-                  <div className="admin-inventory-product">
-                    <span aria-hidden="true">{(product.name_en ?? "SO").slice(0, 2).toUpperCase()}</span>
+            return (
+              <div className={styles.row} key={product.id}>
+                <div className={styles.productCell}>
+                  <div className={styles.thumb}>{(product.name_en ?? product.name_lo ?? "SO").slice(0, 2).toUpperCase()}</div>
+                  <div className={styles.productCopy}>
                     <strong>{product.name_en ?? product.name_lo ?? "Untitled product"}</strong>
-                    <small>{getVariantSummary(product)}</small>
-                  </div>
-                  <span className="admin-inventory-sku">{product.sku ?? product.slug ?? "-"}</span>
-                  <span><em>{categoryName}</em></span>
-                  <strong>{formatLak(product.sale_price ?? 0)}</strong>
-                  <div className={lowStock ? "admin-inventory-stock is-low" : "admin-inventory-stock"}>
-                    <b>{stock} Units</b>
-                    <i style={{ width: `${Math.min(100, Math.max(8, stock))}%` }} />
-                  </div>
-                  <button className={product.status === "active" ? "admin-inventory-toggle is-on" : "admin-inventory-toggle"} type="button" aria-label="ສະຖານະສິນຄ້າ">
-                    <span>{statusLabel(product.status)}</span>
-                  </button>
-                  <div className="admin-inventory-actions">
-                    {lowStock ? <button type="button">Restock</button> : null}
-                    <button aria-label="ແກ້ໄຂ" type="button">≡</button>
-                    <button aria-label="ເພີ່ມເຕີມ" type="button">⋮</button>
+                    <small>{product.slug ?? "No slug"}</small>
                   </div>
                 </div>
-              );
-            })
-          ) : (
-            <div className="admin-inventory-no-results">
-              <strong>ບໍ່ພົບສິນຄ້າ</strong>
-              <p>ລອງປ່ຽນຄຳຄົ້ນຫາ ຫຼືຕົວກອງສະຕ໊ອກ.</p>
-            </div>
-          )}
-        </div>
-      </section>
 
-      <section className="admin-inventory-stats">
-        <article>
-          <span>Total Value</span>
-          <strong>{formatLak(stats.totalValue)}</strong>
-          <p>↗ +4.2% ຈາກເດືອນກ່ອນ</p>
-        </article>
-        <article className="is-alert">
-          <span>Low Stock SKUs</span>
-          <strong>{stats.lowStock} Items</strong>
-          <p>Requires immediate restock</p>
-        </article>
-        <article>
-          <span>Storage Used</span>
-          <strong>{stats.totalStock} Units</strong>
-          <i style={{ width: `${Math.min(100, Math.max(12, stats.active * 8))}%` }} />
-        </article>
-      </section>
-    </div>
+                <div className={styles.skuCell}>
+                  <strong>{product.sku ?? "-"}</strong>
+                  <small>{getVariantSummary(product)}</small>
+                </div>
+
+                <span>{getCategory(product)}</span>
+                <strong>{formatLak(product.sale_price ?? 0)}</strong>
+
+                <div className={styles.stockCell}>
+                  <div className={styles.stockTop}>
+                    <b>{stock} ຊິ້ນ</b>
+                    {lowStock ? <small>Low stock</small> : <small>Healthy</small>}
+                  </div>
+                  <div className={styles.stockTrack}>
+                    <span className={`${styles.stockFill} ${styles[`stock_${tone}`]}`} style={{ width: `${Math.min(100, Math.max(10, stock))}%` }} />
+                  </div>
+                </div>
+
+                <span className={`${styles.statusBadge} ${styles[`status_${product.status ?? "inactive"}`] ?? ""}`}>{statusLabel(product.status)}</span>
+              </div>
+            );
+          })}
+        </section>
+      ) : (
+        <section className={styles.emptyState}>
+          <span className={styles.emptyBadge}>Inventory</span>
+          <strong>ບໍ່ພົບລາຍການສິນຄ້າ</strong>
+          <p>ລອງປ່ຽນຄຳຄົ້ນຫາ ຫຼື ປັບຕົວກອງສະຕ໋ອກ.</p>
+        </section>
+      )}
+    </section>
   );
 }

@@ -53,34 +53,42 @@ export function productGalleryForColour(colour: string, baseColour: string, base
   return colourImageGroups[colourFamily(colour)] ?? baseGallery;
 }
 
+function usesCoverMaster(image: string) {
+  return image.includes("-card.") || image.includes("real-retro-") || image.includes("/product-images/") || image.includes("product-images") || image.includes("so_product=");
+}
+
 export function ProductColourGallery({
   baseColour,
   colorCount,
   gallery,
   productName,
   colourImages,
+  initialColour,
 }: {
   baseColour: string;
   colorCount: number;
   gallery: string[];
   productName: string;
   colourImages?: Record<string, string[]>;
+  initialColour?: string;
 }) {
   const galleryRef = useRef<HTMLDivElement>(null);
   const colours = useMemo(() => productColourOptions(baseColour, colorCount, colourImages), [baseColour, colorCount, colourImages]);
-  const [selectedColour, setSelectedColour] = useState(baseColour);
+  const resolvedInitialColour = initialColour && colours.includes(initialColour) ? initialColour : baseColour;
+  const [selectedColour, setSelectedColour] = useState(resolvedInitialColour);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const activeImages = useMemo(() => productGalleryForColour(selectedColour, baseColour, gallery, colourImages), [baseColour, colourImages, gallery, selectedColour]);
   const currentLightboxImage = lightboxIndex === null ? null : activeImages[lightboxIndex];
 
   useEffect(() => {
+    setSelectedColour(resolvedInitialColour);
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
 
     window.scrollTo({ left: 0, top: window.scrollY });
     galleryRef.current?.scrollTo({ left: 0 });
-  }, []);
+  }, [resolvedInitialColour]);
 
   useEffect(() => {
     const onColourSelected = (event: Event) => {
@@ -141,7 +149,7 @@ export function ProductColourGallery({
     <section className="product-showcase" aria-label={`${productName} gallery in ${selectedColour}`}>
       <div className="product-gallery" ref={galleryRef}>
         {activeImages.map((image, index) => (
-          <figure className={`product-frame${image.includes("-card.") || image.includes("real-retro-") ? " is-cover-master" : ""}`} key={`${selectedColour}-${image}-${index}`}>
+          <figure className={`product-frame${usesCoverMaster(image) ? " is-cover-master" : ""}`} key={`${selectedColour}-${image}-${index}`}>
             <button type="button" aria-label={`View ${productName} ${selectedColour} image ${index + 1}`} onClick={() => setLightboxIndex(index)}>
               <img src={image} alt={`${productName} ${selectedColour} view ${index + 1}`} />
             </button>

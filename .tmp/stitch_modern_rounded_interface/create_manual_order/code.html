@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Order | SHOW OFF Management System</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Geist:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#b2cad6",
+                        "on-primary": "#2b3400",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "surface": "#131313",
+                        "deep-charcoal": "#121212",
+                        "secondary-fixed": "#e5e2e1",
+                        "background": "#131313",
+                        "surface-tint": "#b4d400",
+                        "on-tertiary-container": "#516872",
+                        "on-secondary-fixed-variant": "#474746",
+                        "secondary-container": "#474746",
+                        "error-container": "#93000a",
+                        "status-blue": "#00E0FF",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-variant": "#353534",
+                        "surface-container": "#201f1f",
+                        "text-muted": "#888888",
+                        "primary": "#ffffff",
+                        "surface-container-highest": "#353534",
+                        "tertiary": "#ffffff",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-container": "#cee6f2",
+                        "on-tertiary-fixed": "#051e27",
+                        "primary-container": "#cdf200",
+                        "on-secondary-container": "#b7b5b4",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-black": "#0D0D0D",
+                        "on-primary-container": "#5a6b00",
+                        "on-error": "#690005",
+                        "inverse-primary": "#556500",
+                        "surface-bright": "#3a3939",
+                        "on-tertiary-fixed-variant": "#334a54",
+                        "primary-fixed-dim": "#b4d400",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "outline": "#8f9378",
+                        "on-surface": "#e5e2e1",
+                        "outline-variant": "#454932",
+                        "tertiary-fixed": "#cee6f2",
+                        "secondary": "#c8c6c5",
+                        "inverse-on-surface": "#313030",
+                        "on-primary-fixed": "#181e00",
+                        "on-tertiary": "#1c333d",
+                        "on-primary-fixed-variant": "#3f4c00",
+                        "inverse-surface": "#e5e2e1",
+                        "card-gray": "#1E1E1E",
+                        "on-secondary": "#313030",
+                        "neon-lime": "#D9FF00",
+                        "error": "#ffb4ab",
+                        "status-red": "#FF4D4D",
+                        "primary-fixed": "#cdf200",
+                        "surface-dim": "#131313",
+                        "on-surface-variant": "#c5c9ac",
+                        "on-background": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "16px",
+                        "xl": "24px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-padding": "32px",
+                        "sidebar-width": "280px",
+                        "card-gap": "20px",
+                        "gutter": "24px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"],
+                        "mono-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0D0D0D;
+            color: #e5e2e1;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(217, 255, 0, 0.15);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #353534;
+            border-radius: 10px;
+        }
+        .active-pill {
+            background: #cdf200;
+            color: #181e00;
+        }
+    </style>
+</head>
+<body class="overflow-hidden">
+<!-- SIDEBAR NAV -->
+<aside class="w-[280px] h-screen fixed left-0 top-0 bg-deep-charcoal border-r border-surface-variant flex flex-col py-base z-[100]">
+<!-- Brand -->
+<div class="px-6 py-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-neon-lime rounded-xl flex items-center justify-center text-black">
+<span class="material-symbols-outlined font-bold" style="font-variation-settings: 'FILL' 1;">vaping_rooms</span>
+</div>
+<div>
+<h1 class="text-headline-md font-headline-md font-extrabold text-primary leading-none">SHOW OFF</h1>
+<p class="text-[10px] font-label-md text-text-muted tracking-widest mt-1">MANAGEMENT SYSTEM</p>
+</div>
+</div>
+</div>
+<!-- Main Tabs -->
+<nav class="flex-1 px-4 space-y-1">
+<p class="text-[10px] font-bold text-text-muted px-4 py-4 tracking-tighter uppercase">Menu</p>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-neon-lime border-l-4 border-neon-lime bg-surface-container-highest/20 rounded-r-xl" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-body-md text-body-md font-semibold">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-body-md text-body-md">Shipment</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md text-body-md">Customers</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined">store</span>
+<span class="font-body-md text-body-md">Store</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-body-md text-body-md">Report</span>
+</a>
+<p class="text-[10px] font-bold text-text-muted px-4 py-4 tracking-tighter uppercase mt-6">General</p>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body-md text-body-md">Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</nav>
+<!-- Footer Profile -->
+<div class="px-4 mt-auto">
+<div class="bg-surface-container-high rounded-xl p-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a young sales administrator named Evano, wearing a clean, modern black streetwear hoodie against a dark charcoal background. The lighting is dramatic and high-contrast, highlighting his features with a subtle neon lime rim light that matches the brand aesthetic. He looks confident and approachable, fitting for a premium streetwear management software user profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9oXiWF7Dx3Irsk8f_zusEWsGK81LazOQ_HwW_BrCni-dtK56RRehn3G05sjxUTk16wwiGzZz6Zk9q1EGSMRN0e3ZgJi1gDi5psEyxEcVfr4ctwzkN0dFFP9Q1vAFqogtBO1LmIfIzcH5rwyhsmkpDRv3zfX3cf69CajQtFNQ_P9O_h1ZdGWwJLG5xkZ4-kOd6SqtvKu0L-eF5cjA5ZET9XautR9fi5mj-wJ-nhRNIdz8zESydNmEUctYjuhTasxjL35970WvgEmnV"/>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-body-md font-semibold text-on-surface truncate">Evano</p>
+<p class="text-label-md text-text-muted truncate">Sales Admin</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- MAIN CONTENT -->
+<main class="ml-[280px] h-screen bg-surface flex flex-col overflow-hidden">
+<!-- TOP NAV -->
+<header class="h-20 w-full flex items-center justify-between px-container-padding shrink-0 bg-surface z-50">
+<div class="flex items-center gap-4">
+<h2 class="font-display-lg text-title-lg text-on-surface">Create New Order</h2>
+<div class="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-full border border-surface-variant">
+<span class="w-2 h-2 rounded-full bg-neon-lime"></span>
+<span class="text-label-md text-on-surface">Walk-in Customer</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="bg-neon-lime text-on-primary font-bold px-6 py-2.5 rounded-full flex items-center gap-2 hover:scale-[1.02] transition-all active:scale-95 neon-glow">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span class="text-body-md font-bold">New Product</span>
+</button>
+</div>
+</header>
+<!-- DASHBOARD GRID LAYOUT -->
+<div class="flex-1 p-container-padding flex gap-8 overflow-hidden">
+<!-- LEFT: PRODUCT SELECTION -->
+<section class="flex-[1.5] flex flex-col overflow-hidden">
+<!-- Search & Filters -->
+<div class="flex items-center gap-4 mb-6">
+<div class="flex-1 relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">search</span>
+<input class="w-full bg-surface-container border-none focus:ring-2 focus:ring-neon-lime rounded-xl py-3 pl-12 text-on-surface placeholder:text-text-muted" placeholder="Search product name or SKU..." type="text"/>
+</div>
+<button class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-all border border-surface-variant">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</div>
+<!-- Categories -->
+<div class="flex gap-3 mb-6 overflow-x-auto pb-2 custom-scrollbar">
+<button class="px-6 py-2 rounded-full bg-neon-lime text-black font-bold text-body-md shrink-0">All Items</button>
+<button class="px-6 py-2 rounded-full bg-surface-container text-text-muted hover:text-on-surface font-semibold text-body-md shrink-0 border border-surface-variant">Outerwear</button>
+<button class="px-6 py-2 rounded-full bg-surface-container text-text-muted hover:text-on-surface font-semibold text-body-md shrink-0 border border-surface-variant">T-Shirts</button>
+<button class="px-6 py-2 rounded-full bg-surface-container text-text-muted hover:text-on-surface font-semibold text-body-md shrink-0 border border-surface-variant">Accessories</button>
+<button class="px-6 py-2 rounded-full bg-surface-container text-text-muted hover:text-on-surface font-semibold text-body-md shrink-0 border border-surface-variant">Footwear</button>
+</div>
+<!-- Product Grid -->
+<div class="flex-1 overflow-y-auto custom-scrollbar pr-2">
+<div class="grid grid-cols-2 lg:grid-cols-3 gap-card-gap">
+<!-- Product Card 1 -->
+<div class="bg-card-gray border border-surface-variant rounded-xl overflow-hidden group cursor-pointer hover:border-neon-lime/50 transition-all p-3">
+<div class="relative aspect-square rounded-lg overflow-hidden bg-surface-container mb-3">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A high-resolution product shot of a premium oversized black cotton t-shirt with a minimalist neon lime logo on the chest. The shirt is displayed on a high-quality ghost mannequin, showcasing its heavyweight texture and urban streetwear silhouette. The lighting is clean and industrial with subtle shadows, emphasizing the quality of the fabric." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAccOJr9u0PzUjG4dhrxM5-umYwNA5R0YP808bg_OZ5VD8Q4n6dyPi5mvTz7ZSgj3gDEnkdteUPo6UbeN3cvp4S14Zy3qd7PSBUFGhLL1Jr3JtDtqRwaf2Fsu4JDA0h8_x_as_S1_qBgcdheNUUZ3-v64vZpAF5FslnNvOOxe9go1vsxYkklKmUjWWjknKFfIwmKKBfX6kwERi3dvX8ba_kU9H2MU8SkQ5Wbv4vA8MOXTbmLcALaB-bWLAsA0KXHxwIC41-3tULAk_6"/>
+<div class="absolute top-2 right-2 px-2 py-1 bg-surface-black/80 backdrop-blur-md rounded-md">
+<span class="text-label-md text-neon-lime font-bold">24 In Stock</span>
+</div>
+</div>
+<h4 class="font-semibold text-on-surface truncate">Essential Heavyweight Tee</h4>
+<div class="flex items-center justify-between mt-1">
+<p class="text-neon-lime font-bold text-headline-md">$45.00</p>
+<button class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface hover:bg-neon-lime hover:text-black transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="bg-card-gray border border-surface-variant rounded-xl overflow-hidden group cursor-pointer hover:border-neon-lime/50 transition-all p-3">
+<div class="relative aspect-square rounded-lg overflow-hidden bg-surface-container mb-3">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A studio photograph of a pair of chunky designer sneakers with a mix of grey suede, white leather, and vibrant neon lime accents. The sneakers are set against a dark, tech-inspired background with subtle reflections. The image captures the intricate detailing of the soles and the high-end materials used in modern streetwear footwear." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLFWDXz_ScKZUTWGbjKu9FeZZccr50hxPuHvqTcNiuApcdTZBbthatxLoAAttlbyoXlkogBKhuPAEp82bZIy0EVMHZALQ514bCzZHPuehm5q9-iq3982I64KMxQam0YezaYBKUrqeAGpATW7CStI2CJVhrefV53ignUB_DX3bJrQ8j-i937WMG905Gtydvsw_iJXtFxxRxmYu6-x4gtJMzeI-475Tljge4YIXE9YRAXF-UMP8sz3-XnSPKcDs624bZ-Pws4aIMpiYC"/>
+<div class="absolute top-2 right-2 px-2 py-1 bg-surface-black/80 backdrop-blur-md rounded-md">
+<span class="text-label-md text-neon-lime font-bold">12 In Stock</span>
+</div>
+</div>
+<h4 class="font-semibold text-on-surface truncate">Vult-01 Runners</h4>
+<div class="flex items-center justify-between mt-1">
+<p class="text-neon-lime font-bold text-headline-md">$185.00</p>
+<button class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface hover:bg-neon-lime hover:text-black transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="bg-card-gray border border-surface-variant rounded-xl overflow-hidden group cursor-pointer hover:border-neon-lime/50 transition-all p-3">
+<div class="relative aspect-square rounded-lg overflow-hidden bg-surface-container mb-3">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A sleek, matte black tactical chest rig bag with multiple compartments and adjustable nylon straps. The bag features a subtle, embroidered SHOW OFF branding in tonal black thread. It is styled in a tech-wear fashion context, reflecting urban utility and futuristic streetwear aesthetics. High-contrast studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDU7jfjtEm-Qg2MFYofLZelmlINlyASyMcNpzlnzfnunsL8KevqtphyHnKO-Eb7xERHnhqdyf4RmoVgZ6D8cKQk6Hsatru6On3HYOHLhXydwaEqtMqmZwkWy8VLUm4DBT_vuH_BcyTV8_Rk8NXsFB4s5z6TtXSAaWwEs19y92YuNNi22kio5kvo28mK15AOEPDZ09dyDOrj2-DZFAxyBVygDkvWyri4aCgTmTQQDEmBSvRyAfzI9G5IT6vkiasznR70zaSKojO-YPfo"/>
+<div class="absolute top-2 right-2 px-2 py-1 bg-surface-black/80 backdrop-blur-md rounded-md">
+<span class="text-label-md text-status-red font-bold">4 In Stock</span>
+</div>
+</div>
+<h4 class="font-semibold text-on-surface truncate">Tactical Chest Rig</h4>
+<div class="flex items-center justify-between mt-1">
+<p class="text-neon-lime font-bold text-headline-md">$72.00</p>
+<button class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface hover:bg-neon-lime hover:text-black transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="bg-card-gray border border-surface-variant rounded-xl overflow-hidden group cursor-pointer hover:border-neon-lime/50 transition-all p-3">
+<div class="relative aspect-square rounded-lg overflow-hidden bg-surface-container mb-3">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional flat-lay of a high-end black denim jacket with distressed details and a large, artistic graphic print on the back in grayscale with neon lime highlights. The jacket is made from premium Japanese denim, visible in the weave and texture. The overall style is edgy, contemporary streetwear." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKo21qPTgRS5E286S02f95JHEIo-ZPdn7_qMGbQyUv-NAJb1frqM9AWykC-5yBB7b6tgU1GrmOdeH62obi7QTM8LQnfFbi8Z4aEbzm9_Rbgvpzs1DTrmNhJ8yIXFmqbhX7IEwEWNXt5lKplgxsheteWESvajS6NAgUXVkXFWJU9hIMuGx_KzLeiDR-MGrBdZQow-K6XObjxeLus-q9sz4BIQegaSodN_NDXKgl_7NNC6RvD7Z5Pzto6Qa9vY1jpfRB1KsChXasG5bL"/>
+<div class="absolute top-2 right-2 px-2 py-1 bg-surface-black/80 backdrop-blur-md rounded-md">
+<span class="text-label-md text-neon-lime font-bold">18 In Stock</span>
+</div>
+</div>
+<h4 class="font-semibold text-on-surface truncate">Distressed Denim Shell</h4>
+<div class="flex items-center justify-between mt-1">
+<p class="text-neon-lime font-bold text-headline-md">$120.00</p>
+<button class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface hover:bg-neon-lime hover:text-black transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+</div>
+<!-- Product Card 5 -->
+<div class="bg-card-gray border border-surface-variant rounded-xl overflow-hidden group cursor-pointer hover:border-neon-lime/50 transition-all p-3">
+<div class="relative aspect-square rounded-lg overflow-hidden bg-surface-container mb-3">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A close-up product photo of a high-quality charcoal grey beanie with a thick rib-knit texture. A small, woven neon lime label is stitched onto the cuff. The lighting is soft and focused, capturing the warmth and premium feel of the material. Minimalist and clean urban apparel style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6Ywzzo15pOMNe7tIH-5ZHJbFHGFZDiWxdcQM53M7pvOcx5jkFBEfVywqmpDVZsswfGyt1-XzJkSNKiFVx8vsTh12cumU6PB6HAzELgMly5UnIAgkIBas6TQ6GizYGw8WZ-eKaydilje0oTgTwSMqo_ERQozS2iAiboASFVOBbz9qXVRD4HNw8FaC3uLTUhJCrxfBCZ5OLbTj5wpJ2WCgLJnpvPIwx6fsXUEtl-jy0T4getg_b2qVzv2essthIopVQvlPGY_KtIwKW"/>
+<div class="absolute top-2 right-2 px-2 py-1 bg-surface-black/80 backdrop-blur-md rounded-md">
+<span class="text-label-md text-neon-lime font-bold">42 In Stock</span>
+</div>
+</div>
+<h4 class="font-semibold text-on-surface truncate">Ribbed Knit Beanie</h4>
+<div class="flex items-center justify-between mt-1">
+<p class="text-neon-lime font-bold text-headline-md">$28.00</p>
+<button class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface hover:bg-neon-lime hover:text-black transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+</div>
+<!-- Product Card 6 -->
+<div class="bg-card-gray border border-surface-variant rounded-xl overflow-hidden group cursor-pointer hover:border-neon-lime/50 transition-all p-3 opacity-60">
+<div class="relative aspect-square rounded-lg overflow-hidden bg-surface-container mb-3">
+<img class="w-full h-full object-cover" data-alt="A high-fashion urban accessory: a set of three stainless steel rings with geometric engravings, presented on a dark textured marble surface. The lighting creates sharp glints on the metal edges. The style is industrial, modern, and unisex, aligning with the streetwear aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOnUKLGy0uNZpLOzicDSjkhmzWiRBq0xTMvjMVJ0ImOLsIPHn_xPgvQUPFav_F8E4HSQDm3qyLVGn6VHaiWz9ZNYAuURdXMiliFteqv2a6o_M__5qa5VgCRertUVjsOAhQKXfRJYMOUBkRBRm_yqnNrrtsXHF4wMUd68gwkkdPbPHxnH7Ib2XdPDGXkqXd40ezVWOVPDld68RA0dbbx-fqxvj_UK_Rolu6bpWQEMfdS_Laar2iE50LJCLrWcJ0GeK8xNxQMHS0T_ih"/>
+<div class="absolute inset-0 bg-black/60 flex items-center justify-center">
+<span class="bg-status-red text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">Out of Stock</span>
+</div>
+</div>
+<h4 class="font-semibold text-on-surface truncate">Industrial Ring Set</h4>
+<div class="flex items-center justify-between mt-1">
+<p class="text-text-muted font-bold text-headline-md">$55.00</p>
+<button class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-text-muted cursor-not-allowed">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- RIGHT: ORDER SUMMARY -->
+<section class="flex-1 bg-deep-charcoal rounded-xl border border-surface-variant flex flex-col overflow-hidden">
+<!-- Header -->
+<div class="p-6 border-b border-surface-variant">
+<h3 class="text-title-lg font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-neon-lime">shopping_bag</span>
+                        Order Details
+                    </h3>
+<p class="text-label-md text-text-muted mt-1">ID: #ORD-49210-24</p>
+</div>
+<!-- Customer Selection -->
+<div class="p-6 space-y-4">
+<label class="block text-label-md font-bold text-text-muted uppercase tracking-tighter">Customer Information</label>
+<div class="relative group">
+<div class="w-full bg-surface-container rounded-xl p-3 border border-surface-variant flex items-center gap-3 cursor-pointer hover:border-neon-lime/30 transition-all">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-text-muted">person_add</span>
+</div>
+<div class="flex-1">
+<p class="text-body-md font-semibold text-on-surface">Select or Add Customer</p>
+<p class="text-[11px] text-text-muted">Search by phone or name</p>
+</div>
+<span class="material-symbols-outlined text-text-muted">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Cart Items -->
+<div class="flex-1 overflow-y-auto px-6 space-y-4 custom-scrollbar">
+<label class="block text-label-md font-bold text-text-muted uppercase tracking-tighter">Current Cart (2)</label>
+<!-- Cart Item 1 -->
+<div class="flex items-center gap-3 bg-surface-container/50 p-3 rounded-xl border border-transparent hover:border-surface-variant transition-all">
+<div class="w-14 h-14 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A minimalist product image of an essential heavyweight tee in black cotton, as described previously, shown in a compact thumbnail view." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-qSIGOG8ebpVaMlpCMqpydUfRRPD_dRBSARRUB3BwaX3A4DdcLnKIkv3U0fl8McNIkGdFRBnin7DWYR1zSPa3WSbH0RO9PCa8geWJLpgSrcsmPg32V8E7Z3QQZxhlWydU2HM6hu4d61yuumUL1S1WJTMyaLVG8HcfsVwrRvXba2rnhj7Z3aQnnRWm6VNkd0vRYkFV8ygtn9nWrJUwO0WmzlCxrJPRhqRAQUICNFWKqmijFZ2N18zOHOlfPAf4UuqxCNAQDoi7HCKC"/>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-body-md font-bold text-on-surface truncate">Essential Heavy Tee</p>
+<p class="text-label-md text-text-muted">$45.00 x 1</p>
+</div>
+<div class="flex flex-col items-end gap-1">
+<p class="text-body-md font-bold text-neon-lime">$45.00</p>
+<div class="flex items-center gap-2">
+<button class="w-6 h-6 rounded bg-surface-variant flex items-center justify-center text-[14px] hover:bg-surface-container-highest transition-all">-</button>
+<span class="text-body-md font-bold w-4 text-center">1</span>
+<button class="w-6 h-6 rounded bg-surface-variant flex items-center justify-center text-[14px] hover:bg-surface-container-highest transition-all">+</button>
+</div>
+</div>
+</div>
+<!-- Cart Item 2 -->
+<div class="flex items-center gap-3 bg-surface-container/50 p-3 rounded-xl border border-transparent hover:border-surface-variant transition-all">
+<div class="w-14 h-14 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A thumbnail image of the Vult-01 Runners sneakers with neon lime accents, as described previously, shown from a side profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-qJYPvkFE2ROyQe1IAcbthNiPsAKABFXL1aS3Vj8YoR4K2JmVyO1ChwXtXXV3XPZdgQsIl7ooIas9w2tEkZZfzRvNhZHAQTKwKDkxakflEOPzpx4bKqLHyPqjdT54VQ3nqRB2tEnONQWY96jZnb1y8FKGJ1BdlBV8xPOQqBaElfNnjwMafDtrxsRpdw4h0ExsQboRpUjbyZWq54WSV_UpNa_ODFp6UweJCf_q465INtPn6B8BIUbnaIWJL0-ybAMv886ysfAc2Yc4"/>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-body-md font-bold text-on-surface truncate">Vult-01 Runners</p>
+<p class="text-label-md text-text-muted">$185.00 x 1</p>
+</div>
+<div class="flex flex-col items-end gap-1">
+<p class="text-body-md font-bold text-neon-lime">$185.00</p>
+<div class="flex items-center gap-2">
+<button class="w-6 h-6 rounded bg-surface-variant flex items-center justify-center text-[14px]">-</button>
+<span class="text-body-md font-bold w-4 text-center">1</span>
+<button class="w-6 h-6 rounded bg-surface-variant flex items-center justify-center text-[14px]">+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Calculation & Payment -->
+<div class="p-6 bg-surface-container-lowest space-y-4 rounded-t-2xl">
+<!-- Discount Field -->
+<div class="flex gap-2">
+<input class="flex-1 bg-surface border-surface-variant focus:ring-neon-lime text-on-surface rounded-lg py-2 px-3 text-body-md" placeholder="Promo code" type="text"/>
+<button class="bg-surface-variant text-on-surface font-bold px-4 rounded-lg hover:bg-surface-container-highest transition-all">Apply</button>
+</div>
+<!-- Payment Toggle -->
+<div class="space-y-2">
+<label class="block text-label-md font-bold text-text-muted uppercase tracking-tighter">Payment Method</label>
+<div class="grid grid-cols-3 gap-2">
+<button class="flex flex-col items-center justify-center p-2 rounded-xl border border-neon-lime bg-neon-lime/10 text-neon-lime group">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="text-[10px] font-bold mt-1 uppercase">Cash</span>
+</button>
+<button class="flex flex-col items-center justify-center p-2 rounded-xl border border-surface-variant text-text-muted hover:border-on-surface/30 hover:text-on-surface transition-all">
+<span class="material-symbols-outlined text-[20px]">credit_card</span>
+<span class="text-[10px] font-bold mt-1 uppercase">Card</span>
+</button>
+<button class="flex flex-col items-center justify-center p-2 rounded-xl border border-surface-variant text-text-muted hover:border-on-surface/30 hover:text-on-surface transition-all">
+<span class="material-symbols-outlined text-[20px]">qr_code_2</span>
+<span class="text-[10px] font-bold mt-1 uppercase">QR Scan</span>
+</button>
+</div>
+</div>
+<!-- Totals -->
+<div class="space-y-2 pt-2">
+<div class="flex justify-between text-body-md text-text-muted">
+<span>Subtotal</span>
+<span>$230.00</span>
+</div>
+<div class="flex justify-between text-body-md text-text-muted">
+<span>Tax (10%)</span>
+<span>$23.00</span>
+</div>
+<div class="flex justify-between text-headline-md font-bold text-on-surface pt-2 border-t border-surface-variant">
+<span>Total Amount</span>
+<span class="text-neon-lime">$253.00</span>
+</div>
+</div>
+<!-- Final Action -->
+<button class="w-full bg-neon-lime text-on-primary py-4 rounded-xl font-extrabold text-body-lg flex items-center justify-center gap-3 hover:scale-[1.01] active:scale-[0.98] transition-all neon-glow mt-4">
+<span class="material-symbols-outlined font-bold">check_circle</span>
+                        Confirm and Mark as Paid
+                    </button>
+</div>
+</section>
+</div>
+</main>
+<!-- FLOATING CHAT HELPER -->
+<div class="fixed bottom-8 right-8 z-[110]">
+<button class="w-14 h-14 rounded-2xl bg-on-surface text-surface-black flex items-center justify-center shadow-2xl hover:scale-110 transition-all group active:rotate-12">
+<span class="material-symbols-outlined text-[28px] group-hover:animate-pulse">chat_bubble</span>
+<div class="absolute -top-1 -right-1 w-5 h-5 bg-status-red rounded-full flex items-center justify-center border-2 border-surface">
+<span class="text-[10px] font-bold text-white">2</span>
+</div>
+</button>
+</div>
+<!-- Micro-interaction script -->
+<script>
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Haptic feedback simulation
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(5);
+                }
+            });
+        });
+
+        // Simple search highlighting
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('h4').forEach(title => {
+                const card = title.closest('.bg-card-gray');
+                if (title.innerText.toLowerCase().includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body></html>

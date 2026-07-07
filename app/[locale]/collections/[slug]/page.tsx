@@ -4,6 +4,7 @@ import { Footer } from "../../../components/Footer";
 import { Header } from "../../../components/Header";
 import { dictionaries, isLocale, locales, type Locale } from "../../../lib/i18n";
 import { productsForCollectionSlug, shopCategories, slugify, titleFromSlug } from "../../../lib/shop";
+import { getStorefrontProducts } from "../../../lib/shop-server";
 
 export function generateStaticParams() {
   const slugs = [shopCategories.map((category) => category.title), shopCategories.flatMap((category) => category.items)].flat().map(slugify);
@@ -37,7 +38,8 @@ export default async function CollectionPage({ params }: { params: Promise<{ loc
   const dictionary = dictionaries[locale as Locale];
   const title = collectionTitle(slug);
   const description = collectionDescription(slug);
-  const products = productsForCollectionSlug(slug);
+  const storefrontProducts = await getStorefrontProducts();
+  const products = productsForCollectionSlug(slug, storefrontProducts);
 
   return (
     <div className={`locale-shell locale-${locale}`} lang={locale}>
@@ -46,7 +48,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ loc
         <section className="collection-hero" aria-labelledby="collection-title">
           <h1 id="collection-title">
             {title}
-            <sup>161</sup>
+            <sup>{products.length}</sup>
           </h1>
           <p>
             {description} <a href="#collection-grid">read more</a>

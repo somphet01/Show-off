@@ -1,6 +1,6 @@
 "use client";
 
-import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode, useEffect, useMemo, useRef } from "react";
+import { Children, type ReactNode, useEffect, useMemo, useRef } from "react";
 
 type HomeAutoRailProps = {
   children: ReactNode;
@@ -14,21 +14,6 @@ const noRailDragSelector = "a.product-card, button, input, select, textarea, [ro
 export function HomeAutoRail({ children, direction }: HomeAutoRailProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const railItems = useMemo(() => Children.toArray(children), [children]);
-  const repeatedItems = useMemo(
-    () => [
-      ...railItems,
-      ...railItems.map((child, index) =>
-        isValidElement(child)
-          ? cloneElement(child as ReactElement<Record<string, unknown>>, {
-              key: `rail-repeat-${index}`,
-              "aria-hidden": true,
-              tabIndex: -1,
-            })
-          : child,
-      ),
-    ],
-    [railItems],
-  );
 
   useEffect(() => {
     const track = trackRef.current;
@@ -45,24 +30,13 @@ export function HomeAutoRail({ children, direction }: HomeAutoRailProps) {
     let dragState: { id: number; x: number; y: number; scrollLeft: number; active: boolean } | null = null;
     let suppressClickUntil = 0;
 
-    const loopWidth = () => track.scrollWidth / 2;
+    const loopWidth = () => track.scrollWidth;
     const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth);
-    if (direction === "left" && track.scrollLeft <= 1) {
-      track.scrollLeft = loopWidth();
-      currentScroll = track.scrollLeft;
-    }
 
     const visibilityObserver = new IntersectionObserver(
       ([entry]) => {
         const nextVisible = entry.isIntersecting;
-
-        if (!nextVisible && isVisible) {
-          pausedByUser = false;
-          if (direction === "left") {
-            track.scrollLeft = loopWidth();
-            currentScroll = track.scrollLeft;
-          }
-        }
+        if (!nextVisible && isVisible) pausedByUser = false;
 
         isVisible = nextVisible;
         lastTime = performance.now();
@@ -80,16 +54,10 @@ export function HomeAutoRail({ children, direction }: HomeAutoRailProps) {
         const distance = (speedPxPerSecond * elapsed) / 1000;
 
         if (direction === "right") {
-          currentScroll += distance;
-          if (currentScroll >= loopWidth()) {
-            currentScroll -= loopWidth();
-          }
+          currentScroll = Math.min(maxScroll(), currentScroll + distance);
           track.scrollLeft = currentScroll;
         } else {
-          currentScroll -= distance;
-          if (currentScroll <= 0) {
-            currentScroll += loopWidth();
-          }
+          currentScroll = Math.max(0, currentScroll - distance);
           track.scrollLeft = currentScroll;
         }
       }
@@ -241,7 +209,7 @@ export function HomeAutoRail({ children, direction }: HomeAutoRailProps) {
 
   return (
     <div className="rail-track rail-auto-motion" data-direction={direction} ref={trackRef}>
-      {repeatedItems}
+      {railItems}
     </div>
   );
 }

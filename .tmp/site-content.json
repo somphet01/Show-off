@@ -1,0 +1,63 @@
+{
+  "covers": [
+    {
+      "id": "home-hero",
+      "title": "Built to Stand Out",
+      "label": "Jackets",
+      "asset": "/assets/cover-main.png",
+      "link": "/collections/jackets",
+      "cta": "SHOP NOW",
+      "mediaType": "image",
+      "enabled": true
+    },
+    {
+      "id": "baggy-jeans",
+      "title": "Built Different",
+      "label": "Baggy Jeans",
+      "asset": "https://sjajocumfgxyxfufinse.supabase.co/storage/v1/object/public/product-images/website/1783169790098-u6ev37-0_woman_mirror_3840x2160.mp4",
+      "link": "/collections/baggy-jeans",
+      "cta": "NEW ARRIVALS",
+      "mediaType": "video",
+      "enabled": true
+    },
+    {
+      "id": "premium-tees",
+      "title": "Premium Boxy Tees",
+      "label": "Made to Stand Out",
+      "asset": "https://sjajocumfgxyxfufinse.supabase.co/storage/v1/object/public/product-images/website/1783169908704-71qxsd-0_woman_tight_pants_3840x2160.mp4",
+      "link": "/collections/t-shirts",
+      "cta": "SHOP THE DROP",
+      "mediaType": "video",
+      "enabled": true
+    },
+    {
+      "id": "accessories-campaign",
+      "title": "Essential Accessories",
+      "label": "Complete Your Look",
+      "asset": "/assets/campaign-moto.png",
+      "link": "/collections/accessories",
+      "cta": "SHOP ACCESSORIES",
+      "mediaType": "image",
+      "enabled": true
+    },
+    {
+      "id": "hoodies-campaign",
+      "title": "Essential Hoodies",
+      "label": "Built for Everyday",
+      "asset": "/assets/campaign-beach.png",
+      "link": "/collections/hoodies",
+      "cta": "DISCOVER MORE",
+      "mediaType": "image",
+      "enabled": true
+    }
+  ],
+  "intro": {
+    "enabled": true,
+    "mediaType": "video",
+    "src": "/assets/show-off-intro.mp4",
+    "audioEnabled": true,
+    "fadeMs": 700,
+    "durationMs": 5200,
+    "showOncePerVisit": true
+  }
+}

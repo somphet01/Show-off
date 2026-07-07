@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SHOW OFF | Orders Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Geist:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(217, 255, 0, 0.15);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0D0D0D;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2A2A2A;
+            border-radius: 10px;
+        }
+        .glass-card {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#b2cad6",
+                        "on-primary": "#2b3400",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "surface": "#131313",
+                        "deep-charcoal": "#121212",
+                        "secondary-fixed": "#e5e2e1",
+                        "background": "#131313",
+                        "surface-tint": "#b4d400",
+                        "on-tertiary-container": "#516872",
+                        "on-secondary-fixed-variant": "#474746",
+                        "secondary-container": "#474746",
+                        "error-container": "#93000a",
+                        "status-blue": "#00E0FF",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-variant": "#353534",
+                        "surface-container": "#201f1f",
+                        "text-muted": "#888888",
+                        "primary": "#ffffff",
+                        "surface-container-highest": "#353534",
+                        "tertiary": "#ffffff",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-container": "#cee6f2",
+                        "on-tertiary-fixed": "#051e27",
+                        "primary-container": "#cdf200",
+                        "on-secondary-container": "#b7b5b4",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-black": "#0D0D0D",
+                        "on-primary-container": "#5a6b00",
+                        "on-error": "#690005",
+                        "inverse-primary": "#556500",
+                        "surface-bright": "#3a3939",
+                        "on-tertiary-fixed-variant": "#334a54",
+                        "primary-fixed-dim": "#b4d400",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "outline": "#8f9378",
+                        "on-surface": "#e5e2e1",
+                        "outline-variant": "#454932",
+                        "tertiary-fixed": "#cee6f2",
+                        "secondary": "#c8c6c5",
+                        "inverse-on-surface": "#313030",
+                        "on-primary-fixed": "#181e00",
+                        "on-tertiary": "#1c333d",
+                        "on-primary-fixed-variant": "#3f4c00",
+                        "inverse-surface": "#e5e2e1",
+                        "card-gray": "#1E1E1E",
+                        "on-secondary": "#313030",
+                        "neon-lime": "#D9FF00",
+                        "error": "#ffb4ab",
+                        "status-red": "#FF4D4D",
+                        "primary-fixed": "#cdf200",
+                        "surface-dim": "#131313",
+                        "on-surface-variant": "#c5c9ac",
+                        "on-background": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-padding": "32px",
+                        "sidebar-width": "280px",
+                        "card-gap": "20px",
+                        "gutter": "24px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"],
+                        "mono-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "title-lg": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "mono-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface-black text-on-surface font-body-md selection:bg-neon-lime selection:text-surface-black min-h-screen">
+<!-- Sidebar Navigation Shell -->
+<aside class="w-[280px] h-screen fixed left-0 top-0 bg-deep-charcoal border-r border-surface-variant flex flex-col py-base z-50">
+<div class="px-6 py-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-neon-lime rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-surface-black font-bold">bolt</span>
+</div>
+<div>
+<h1 class="text-headline-md font-headline-md font-extrabold text-primary leading-tight">SHOW OFF</h1>
+<p class="text-label-md font-label-md text-text-muted tracking-widest">MANAGEMENT</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-2 mt-4 overflow-y-auto custom-scrollbar">
+<p class="px-4 text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-4">Main Menu</p>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-neon-lime transition-colors">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-neon-lime transition-colors">inventory_2</span>
+<span class="font-body-md">Inventory</span>
+</a>
+<!-- Active Navigation Item: Shipment maps to Orders flow -->
+<a class="flex items-center gap-3 px-4 py-3 text-neon-lime border-l-4 border-neon-lime bg-surface-container-highest/20 rounded-r-xl transition-all duration-200 shadow-[4px_0_15px_rgba(217,255,0,0.05)]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+<span class="font-body-md font-semibold">Shipment</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-neon-lime transition-colors">group</span>
+<span class="font-body-md">Customers</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-neon-lime transition-colors">store</span>
+<span class="font-body-md">Store</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-neon-lime transition-colors">monitoring</span>
+<span class="font-body-md">Report</span>
+</a>
+<div class="pt-8 space-y-2">
+<p class="px-4 text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-4">General</p>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body-md">Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md">Settings</span>
+</a>
+</div>
+</nav>
+<div class="px-6 py-6 border-t border-surface-variant">
+<div class="bg-surface-container-high rounded-2xl p-4 relative overflow-hidden group">
+<div class="relative z-10">
+<h4 class="font-bold text-sm text-primary">Upgrade Now</h4>
+<p class="text-[11px] text-text-muted mt-1 leading-relaxed">Get 20% off for Pro features. Limited time offer.</p>
+<button class="mt-3 w-full bg-neon-lime text-surface-black py-2 rounded-lg font-bold text-xs hover:scale-105 transition-transform active:scale-95">Upgrade</button>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-6xl">workspace_premium</span>
+</div>
+</div>
+<div class="mt-6 flex items-center gap-3">
+<img class="w-10 h-10 rounded-xl object-cover" data-alt="A professional studio portrait of a modern, stylish creative director in their 30s with sharp features and a confident expression. The lighting is dramatic and moody, characteristic of a high-end fashion brand aesthetic, with deep shadows and soft rim lighting. The background is a clean, dark charcoal texture that blends into the streetwear UI theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDx9iTT_6paFM16mUK3bA7o_n47SkkCfBVqzV8Rcceh6Hx6zW7jJ0sR4bjjrDQ4uA6PXdY84zS9SYCL6AFOzP3yByHvCyEmqpiYW7XfcLvug9oocySR1j-C3vWV6OFxNTrf6-pgQ1PrMFipDEXORjsbEFdnuhr7IKaIP2RCH7VOTegpyIjPrR6vLi14pSL0S0L8JN51jUZKtK3XdjSMmjdfkJRW-N5NWCnKmV9uiqItjAo3lPQlKUijBgZ70cw-82cTKV8Qv8LG6Qxp"/>
+<div class="flex-1 min-w-0">
+<h5 class="text-sm font-bold text-primary truncate">Evano</h5>
+<p class="text-xs text-text-muted truncate">Sales Admin</p>
+</div>
+<button class="text-text-muted hover:text-neon-lime">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[280px] min-h-screen p-container-padding">
+<!-- Top Navbar Anchor -->
+<header class="h-20 w-full flex items-center justify-between mb-8">
+<div class="flex flex-col">
+<h2 class="font-headline-md text-headline-md text-primary tracking-tight">Orders History</h2>
+<nav class="flex items-center gap-2 text-label-md font-label-md text-text-muted mt-1">
+<span>Dashboard</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-on-surface">Shipment</span>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-neon-lime transition-colors">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-12 pr-6 py-3 w-80 text-sm focus:ring-2 focus:ring-neon-lime transition-all text-on-surface placeholder:text-text-muted" placeholder="Search orders, customers..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="w-12 h-12 rounded-xl flex items-center justify-center bg-surface-container border border-surface-variant text-on-surface hover:border-neon-lime hover:text-neon-lime transition-all">
+<span class="material-symbols-outlined">tune</span>
+</button>
+<button class="w-12 h-12 rounded-xl flex items-center justify-center bg-surface-container border border-surface-variant text-on-surface hover:border-neon-lime hover:text-neon-lime transition-all relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-3 right-3 w-2 h-2 bg-status-red rounded-full"></span>
+</button>
+<button class="ml-2 flex items-center gap-2 bg-neon-lime text-surface-black px-6 py-3 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all neon-glow">
+<span class="material-symbols-outlined">add</span>
+<span>Add New Product</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Search & Filter Cluster -->
+<section class="bg-card-gray rounded-[2rem] border border-surface-variant p-8 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+<!-- Global Search in Filter Bar -->
+<div class="lg:col-span-1 space-y-2">
+<label class="text-[10px] font-bold text-text-muted uppercase tracking-widest pl-1">Order No / Customer</label>
+<div class="relative">
+<input class="w-full bg-surface-black border border-surface-variant focus:border-neon-lime focus:ring-1 focus:ring-neon-lime rounded-xl py-3 pl-10 pr-4 text-sm transition-all text-on-surface" placeholder="Search..." type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-lg">search</span>
+</div>
+</div>
+<!-- Channel Filter -->
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-text-muted uppercase tracking-widest pl-1">Channel</label>
+<select class="w-full bg-surface-black border border-surface-variant focus:border-neon-lime focus:ring-1 focus:ring-neon-lime rounded-xl py-3 px-4 text-sm transition-all text-on-surface appearance-none cursor-pointer">
+<option>All Channels</option>
+<option>Web Store</option>
+<option>Chat Commerce</option>
+<option>Walk-in Retail</option>
+</select>
+</div>
+<!-- Payment Status Filter -->
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-text-muted uppercase tracking-widest pl-1">Payment Status</label>
+<select class="w-full bg-surface-black border border-surface-variant focus:border-neon-lime focus:ring-1 focus:ring-neon-lime rounded-xl py-3 px-4 text-sm transition-all text-on-surface appearance-none cursor-pointer">
+<option>All Status</option>
+<option>Completed</option>
+<option>Processing</option>
+<option>Pending</option>
+<option>Cancelled</option>
+</select>
+</div>
+<!-- Shipping Status Filter -->
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-text-muted uppercase tracking-widest pl-1">Shipping</label>
+<select class="w-full bg-surface-black border border-surface-variant focus:border-neon-lime focus:ring-1 focus:ring-neon-lime rounded-xl py-3 px-4 text-sm transition-all text-on-surface appearance-none cursor-pointer">
+<option>All Logistics</option>
+<option>Dispatched</option>
+<option>In Transit</option>
+<option>Delivered</option>
+<option>Awaiting Slip</option>
+</select>
+</div>
+<!-- Date Filter -->
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-text-muted uppercase tracking-widest pl-1">Date Range</label>
+<div class="relative">
+<input class="w-full bg-surface-black border border-surface-variant focus:border-neon-lime focus:ring-1 focus:ring-neon-lime rounded-xl py-3 pl-10 pr-4 text-sm transition-all text-on-surface cursor-pointer" readonly="" type="text" value="Jun 1, 2024 - Jun 30, 2024"/>
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-lg">calendar_today</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Orders Data Table -->
+<div class="bg-card-gray rounded-[2rem] border border-surface-variant overflow-hidden">
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-variant">
+<th class="px-8 py-6 text-label-md font-label-md text-text-muted uppercase tracking-widest">Order No</th>
+<th class="px-8 py-6 text-label-md font-label-md text-text-muted uppercase tracking-widest">Customer</th>
+<th class="px-8 py-6 text-label-md font-label-md text-text-muted uppercase tracking-widest">Channel</th>
+<th class="px-8 py-6 text-label-md font-label-md text-text-muted uppercase tracking-widest">Amount (LAK)</th>
+<th class="px-8 py-6 text-label-md font-label-md text-text-muted uppercase tracking-widest text-center">Payment</th>
+<th class="px-8 py-6 text-label-md font-label-md text-text-muted uppercase tracking-widest text-center">Shipping</th>
+<th class="px-8 py-6 text-label-md font-label-md text-text-muted uppercase tracking-widest">Created At</th>
+<th class="px-8 py-6 text-label-md font-label-md text-text-muted uppercase tracking-widest text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant/50">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-high transition-colors group cursor-pointer">
+<td class="px-8 py-6">
+<span class="font-mono-sm text-primary font-bold">#ORD-9021</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A close-up high-resolution photo of a trendy young man wearing an oversized black streetwear hoodie and silver chains. The background is blurred with bokeh city lights in a cool-toned urban environment. The photo is styled like a premium streetwear brand lookbook, featuring sharp focus on the facial features and soft, cinematic lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAv7visjMoxhS1F2GJWG_ja_DyteCretq6_qTLaeEPOHld2RewTW-EQPugx7tchj0_YBNo6-QtpEAGodvaVnTyHYQtpowfwGg_UayHC2klFQdZFwIgejAATYW_R4gwwpwCszmdUuEOdzi4TTbDO8OZOh5rNRNHmspABBw0j1PQcfdlHTk1rd62G1oU3eNCLzqdvwvuKSNLnrYRM1Nmx9UtgrVU12LLFZR4_4IGyymeVuRLCj9IDJo8cQeWT3zZxwNlxg-1QhnZQ4gs"/>
+</div>
+<span class="text-sm font-semibold">Tee Vongsavanh</span>
+</div>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-status-blue text-lg">language</span>
+<span class="text-sm">Web Store</span>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="text-sm font-bold text-neon-lime">₭ 1,250,000</span>
+</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-neon-lime/10 text-neon-lime text-[11px] font-bold rounded-full uppercase tracking-tighter">Completed</span>
+</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-status-blue/10 text-status-blue text-[11px] font-bold rounded-full uppercase tracking-tighter">In Transit</span>
+</td>
+<td class="px-8 py-6">
+<span class="text-sm text-text-muted">Jun 24, 09:12 AM</span>
+</td>
+<td class="px-8 py-6 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:text-neon-lime"><span class="material-symbols-outlined text-lg">visibility</span></button>
+<button class="p-2 hover:text-neon-lime"><span class="material-symbols-outlined text-lg">edit</span></button>
+<button class="p-2 hover:text-status-red"><span class="material-symbols-outlined text-lg">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-high transition-colors group cursor-pointer">
+<td class="px-8 py-6">
+<span class="font-mono-sm text-primary font-bold">#ORD-9018</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A portrait of a stylish woman with vibrant dyed hair, wearing a minimalist black t-shirt and modern streetwear accessories. The studio lighting is bright but soft, creating a clean fashion aesthetic with a slightly dark, moody vibe that fits the premium management system's design. The background is a flat, neutral gray." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOBzBQTq5J6jUQ6nSUUAk0ZIFZ9m8ym_-ZRdqf1GPBlpSTXjj8Zrjumjx5lD4k6ARUG3zq4EFpfke-_6edWQbPe8jA_1A2Em8EH_v2_GYOofWDlbgLaECEE5E5Z0Gp5q_-bbuIgzIdNk3iQt1PFreCybZMeVsgW0U2zUlOOgQD3fpETOu2CibS2e6_sfxuRkWsZwltPZM__DvP6309djrcRdmkpqm3X-QDb5NcT0RIHSm2AbFTA8ikbY7LjDfHxkCGCVDDjOSLLIxS"/>
+</div>
+<span class="text-sm font-semibold">Maya Phommahaxay</span>
+</div>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-neon-lime text-lg">chat_bubble</span>
+<span class="text-sm">Chat Commerce</span>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="text-sm font-bold text-neon-lime">₭ 890,000</span>
+</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-yellow-400/10 text-yellow-400 text-[11px] font-bold rounded-full uppercase tracking-tighter">Processing</span>
+</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-orange-400/10 text-orange-400 text-[11px] font-bold rounded-full uppercase tracking-tighter">Awaiting Slip</span>
+</td>
+<td class="px-8 py-6">
+<span class="text-sm text-text-muted">Jun 24, 08:45 AM</span>
+</td>
+<td class="px-8 py-6 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:text-neon-lime"><span class="material-symbols-outlined text-lg">visibility</span></button>
+<button class="p-2 hover:text-neon-lime"><span class="material-symbols-outlined text-lg">edit</span></button>
+<button class="p-2 hover:text-status-red"><span class="material-symbols-outlined text-lg">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-high transition-colors group cursor-pointer">
+<td class="px-8 py-6">
+<span class="font-mono-sm text-primary font-bold">#ORD-9015</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up profile of a model wearing high-end streetwear and a techwear-inspired face mask. The environment is a dimly lit neon alleyway with reflections on wet pavement. The aesthetic is futuristic and urban, aligning perfectly with the dark charcoal and neon lime UI elements." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzVgYB6hFytVPB5V09NUCjC_dE4V_rKBx2UBYSfRFtpToPms3rL8jnlFY1ATjCQ8RYUdyREY51Q0UnN9poLdTKGeEseoxU7duDgZG1-ra3-p8pRgJi4m_1-qJ9kjwRobeLRKxf2kZ4Tbz4B-TbbUUDzpF6T_ZLtGIUh59wzVPTDHNRuXwbET6b_DFl2Y34KDZG1U2c8ozBf8vfLGYrPiTfu_UYwaHW0iR5dKPKoHLILtkDldf2F-TTQ4_JP6wKmzsJYRCRYyjgpUpa"/>
+</div>
+<span class="text-sm font-semibold">Anousone Keo</span>
+</div>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface text-lg">storefront</span>
+<span class="text-sm">Walk-in</span>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="text-sm font-bold text-neon-lime">₭ 4,200,000</span>
+</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-neon-lime/10 text-neon-lime text-[11px] font-bold rounded-full uppercase tracking-tighter">Completed</span>
+</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-neon-lime/10 text-neon-lime text-[11px] font-bold rounded-full uppercase tracking-tighter">Delivered</span>
+</td>
+<td class="px-8 py-6">
+<span class="text-sm text-text-muted">Jun 23, 04:20 PM</span>
+</td>
+<td class="px-8 py-6 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:text-neon-lime"><span class="material-symbols-outlined text-lg">visibility</span></button>
+<button class="p-2 hover:text-neon-lime"><span class="material-symbols-outlined text-lg">edit</span></button>
+<button class="p-2 hover:text-status-red"><span class="material-symbols-outlined text-lg">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-high transition-colors group cursor-pointer">
+<td class="px-8 py-6">
+<span class="font-mono-sm text-primary font-bold">#ORD-9010</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A fashion-forward individual wearing a structured denim jacket and oversized glasses in a minimalist urban setting. High contrast photography with deep blacks and sharp highlights. The mood is confident and sophisticated, echoing the premium feel of the administration dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkseq35l3SFsza9w3Up5cHXkLKm7Wsi6MZoYEP3pynR-qKitOU7thLJDH5vYB6J96Cwi8fJ8oBfNW6T1_5XO0cDqjjPuIJs5_842FRADjudlPv_2e-ddpTNNg7z7PuGpizceo97HcWQrH7_kevty9W-YqZxUYdPMBUjvNa2VWCzgE70sSReFk8YemZKTjBzYfLbmI3RvZX2lDgfdX1ChrhbO6ZOsDBr_OvDNXqkxdqmx45lsCQFQGsFlo9rkk4nlZMZZUMTUEcZti5"/>
+</div>
+<span class="text-sm font-semibold">Sengphet Xay</span>
+</div>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-status-blue text-lg">language</span>
+<span class="text-sm">Web Store</span>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="text-sm font-bold text-neon-lime">₭ 550,000</span>
+</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-status-red/10 text-status-red text-[11px] font-bold rounded-full uppercase tracking-tighter">Cancelled</span>
+</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-surface-variant text-text-muted text-[11px] font-bold rounded-full uppercase tracking-tighter">Voided</span>
+</td>
+<td class="px-8 py-6">
+<span class="text-sm text-text-muted">Jun 23, 11:30 AM</span>
+</td>
+<td class="px-8 py-6 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:text-neon-lime"><span class="material-symbols-outlined text-lg">visibility</span></button>
+<button class="p-2 hover:text-neon-lime"><span class="material-symbols-outlined text-lg">edit</span></button>
+<button class="p-2 hover:text-status-red"><span class="material-symbols-outlined text-lg">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container-high transition-colors group cursor-pointer">
+<td class="px-8 py-6">
+<span class="font-mono-sm text-primary font-bold">#ORD-8995</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A portrait of a male model in high-fashion streetwear, featuring a tech-vest and neon accents. The background is a clean architectural concrete structure with harsh sunlight creating bold shadows. This visual represents the architectural softness and high-contrast impact of the design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCciHqEllTMK2k7FFx4Ij5kT1hZ0DHHWOtHzpMly-8TbuypODoFKUVHtR_Fw73NwYaG9wjcAvnlYGNnb-GbFPHMAHkHX409GG8STREgnj7KziRKuEp7RJvVC1GBdO0ox4qlrbyt9mF9J44JAraOfgMXJShbsgG0LeWUcOAElHxs4VfXwdnTiaTeznYC21hi3M7RWeDah02Ypc-FbAgJ3XeUJvUVMUDivVgYu_mWXzq_MKV9Yap9ssgrtOIqaIKZVCmK2jGfwaHT3WYu"/>
+</div>
+<span class="text-sm font-semibold">Boualam S.</span>
+</div>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-neon-lime text-lg">chat_bubble</span>
+<span class="text-sm">Chat Commerce</span>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="text-sm font-bold text-neon-lime">₭ 2,100,000</span>
+</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-neon-lime/10 text-neon-lime text-[11px] font-bold rounded-full uppercase tracking-tighter">Completed</span>
+</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-status-blue/10 text-status-blue text-[11px] font-bold rounded-full uppercase tracking-tighter">Dispatched</span>
+</td>
+<td class="px-8 py-6">
+<span class="text-sm text-text-muted">Jun 22, 02:15 PM</span>
+</td>
+<td class="px-8 py-6 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:text-neon-lime"><span class="material-symbols-outlined text-lg">visibility</span></button>
+<button class="p-2 hover:text-neon-lime"><span class="material-symbols-outlined text-lg">edit</span></button>
+<button class="p-2 hover:text-status-red"><span class="material-symbols-outlined text-lg">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination & Summary -->
+<div class="px-8 py-6 flex items-center justify-between bg-surface-container-low border-t border-surface-variant">
+<p class="text-sm text-text-muted">Showing <span class="text-on-surface font-bold">1 - 5</span> of <span class="text-on-surface font-bold">48</span> results</p>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-surface-variant text-text-muted hover:bg-surface-black transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-neon-lime text-surface-black font-bold text-sm">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-surface-variant hover:bg-surface-black transition-colors text-sm font-semibold">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-surface-variant hover:bg-surface-black transition-colors text-sm font-semibold">3</button>
+<span class="px-2 text-text-muted">...</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-surface-variant hover:bg-surface-black transition-colors text-sm font-semibold">10</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-surface-variant text-on-surface hover:bg-surface-black transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Metric Overlays (Contextual) -->
+<section class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<div class="bg-card-gray rounded-3xl p-6 border border-surface-variant flex items-center justify-between">
+<div>
+<p class="text-[11px] font-bold text-text-muted uppercase tracking-[0.15em] mb-1">Weekly Sales</p>
+<h3 class="text-headline-md font-headline-md text-primary tracking-tighter">₭ 45.2M</h3>
+<div class="flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-neon-lime text-sm">trending_up</span>
+<span class="text-[10px] text-neon-lime font-bold">+12.5%</span>
+</div>
+</div>
+<div class="w-12 h-12 bg-neon-lime/10 rounded-2xl flex items-center justify-center">
+<span class="material-symbols-outlined text-neon-lime">payments</span>
+</div>
+</div>
+<div class="bg-card-gray rounded-3xl p-6 border border-surface-variant flex items-center justify-between">
+<div>
+<p class="text-[11px] font-bold text-text-muted uppercase tracking-[0.15em] mb-1">New Orders</p>
+<h3 class="text-headline-md font-headline-md text-primary tracking-tighter">184</h3>
+<div class="flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-neon-lime text-sm">trending_up</span>
+<span class="text-[10px] text-neon-lime font-bold">+5.2%</span>
+</div>
+</div>
+<div class="w-12 h-12 bg-status-blue/10 rounded-2xl flex items-center justify-center">
+<span class="material-symbols-outlined text-status-blue">shopping_cart</span>
+</div>
+</div>
+<div class="bg-card-gray rounded-3xl p-6 border border-surface-variant flex items-center justify-between">
+<div>
+<p class="text-[11px] font-bold text-text-muted uppercase tracking-[0.15em] mb-1">Awaiting Pickup</p>
+<h3 class="text-headline-md font-headline-md text-primary tracking-tighter">24</h3>
+<div class="flex items-center gap-1 mt-2 text-text-muted">
+<span class="text-[10px] font-bold uppercase tracking-widest">Normal Load</span>
+</div>
+</div>
+<div class="w-12 h-12 bg-surface-container-highest rounded-2xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface">package_2</span>
+</div>
+</div>
+<div class="bg-card-gray rounded-3xl p-6 border border-surface-variant flex items-center justify-between">
+<div>
+<p class="text-[11px] font-bold text-text-muted uppercase tracking-[0.15em] mb-1">Active Items</p>
+<h3 class="text-headline-md font-headline-md text-primary tracking-tighter">1,250</h3>
+<div class="flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-status-red text-sm">trending_down</span>
+<span class="text-[10px] text-status-red font-bold">-2.1%</span>
+</div>
+</div>
+<div class="w-12 h-12 bg-status-red/10 rounded-2xl flex items-center justify-center">
+<span class="material-symbols-outlined text-status-red">inventory_2</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Micro-interactions Script -->
+<script>
+        // Subtle row click effect
+        document.querySelectorAll('tr').forEach(row => {
+            row.addEventListener('mousedown', function() {
+                this.classList.add('scale-[0.995]', 'bg-surface-container-highest');
+            });
+            row.addEventListener('mouseup', function() {
+                this.classList.remove('scale-[0.995]', 'bg-surface-container-highest');
+            });
+        });
+
+        // Hover glow for cards
+        document.querySelectorAll('.bg-card-gray').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.boxShadow = '0 0 20px rgba(217, 255, 0, 0.05)';
+                card.style.borderColor = '#3A3A3A';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.boxShadow = 'none';
+                card.style.borderColor = '#2A2A2A';
+            });
+        });
+    </script>
+</body></html>

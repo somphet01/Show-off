@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SHOW OFF - Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error-container": "#ffdad6",
+                      "error": "#ba1a1a",
+                      "secondary-container": "#dee0e2",
+                      "tertiary-fixed-dim": "#c6c6c6",
+                      "outline-variant": "#cfc4c5",
+                      "on-secondary-fixed": "#191c1e",
+                      "surface-container": "#eeeeee",
+                      "surface-card": "#FFFFFF",
+                      "on-error": "#ffffff",
+                      "primary": "#000000",
+                      "surface-bright": "#f9f9f9",
+                      "secondary-fixed": "#e1e2e4",
+                      "inverse-on-surface": "#f1f1f1",
+                      "secondary": "#5c5f60",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-primary": "#c6c6c6",
+                      "secondary-fixed-dim": "#c5c6c8",
+                      "status-paid": "#22C55E",
+                      "tertiary": "#000000",
+                      "on-secondary-fixed-variant": "#444749",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-container": "#1b1b1b",
+                      "on-secondary-container": "#606365",
+                      "on-background": "#1b1b1b",
+                      "surface-container-highest": "#e2e2e2",
+                      "status-info": "#3B82F6",
+                      "on-error-container": "#93000a",
+                      "tertiary-fixed": "#e2e2e2",
+                      "status-rejected": "#EF4444",
+                      "surface-variant": "#e2e2e2",
+                      "primary-fixed-dim": "#c6c6c6",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#474747",
+                      "surface": "#f9f9f9",
+                      "on-primary-container": "#848484",
+                      "inverse-surface": "#303030",
+                      "surface-background": "#F9FAFB",
+                      "on-primary": "#ffffff",
+                      "background": "#f9f9f9",
+                      "outline": "#7e7576",
+                      "surface-container-high": "#e8e8e8",
+                      "primary-fixed": "#e2e2e2",
+                      "on-surface": "#1b1b1b",
+                      "on-primary-fixed": "#1b1b1b",
+                      "accent-vibrant": "#FF5C00",
+                      "on-tertiary-container": "#848484",
+                      "on-tertiary-fixed": "#1b1b1b",
+                      "on-surface-variant": "#4c4546",
+                      "on-tertiary-fixed-variant": "#474747",
+                      "surface-container-low": "#f3f3f3",
+                      "primary-container": "#1b1b1b",
+                      "surface-dim": "#dadada",
+                      "surface-tint": "#5e5e5e",
+                      "status-pending": "#EAB308"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "1.5rem",
+                      "section-gap": "2rem",
+                      "sidebar-width": "260px",
+                      "container-margin": "2rem",
+                      "card-padding": "1.5rem"
+              },
+              "fontFamily": {
+                      "display-metrics": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "data-mono": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "display-metrics": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "data-mono": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+          /* Minimalist scrollbar */
+          ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+          }
+          ::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          ::-webkit-scrollbar-thumb {
+            background: #cfc4c5;
+            border-radius: 9999px;
+          }
+          ::-webkit-scrollbar-thumb:hover {
+            background: #7e7576;
+          }
+          
+          /* Ambient shadow for level 1 surfaces */
+          .shadow-level-1 {
+              box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03);
+          }
+      </style>
+</head>
+<body class="bg-surface-background text-on-surface font-body-md antialiased min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex bg-surface dark:bg-surface-dim border-r border-surface-variant dark:border-outline-variant shadow-sm fixed left-0 top-0 h-full w-[260px] flex-col p-4 gap-2 z-50">
+<div class="mb-8 px-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[20px]" data-icon="storefront">storefront</span>
+</div>
+<div>
+<h1 class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed tracking-tight">SHOW OFF</h1>
+<p class="font-label-sm text-label-sm text-secondary">Admin Console</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200 ease-in-out active:scale-95 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200 ease-in-out active:scale-95 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="shopping_bag">shopping_bag</span>
+<span class="font-body-md text-body-md">Orders</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200 ease-in-out active:scale-95 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="inventory_2">inventory_2</span>
+<span class="font-body-md text-body-md">Products</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200 ease-in-out active:scale-95 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="warehouse">warehouse</span>
+<span class="font-body-md text-body-md">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200 ease-in-out active:scale-95 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="group">group</span>
+<span class="font-body-md text-body-md">Customers</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200 ease-in-out active:scale-95 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="payments">payments</span>
+<span class="font-body-md text-body-md">Financials</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container dark:bg-secondary text-primary dark:text-on-secondary font-semibold rounded-lg transition-all duration-200 ease-in-out active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="settings" data-weight="fill" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</div>
+<div class="mt-auto pt-4 border-t border-surface-variant">
+<button class="w-full flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-low rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-body-md text-body-md">Sign Out</span>
+</button>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md border-b border-surface-variant dark:border-outline-variant shadow-sm fixed top-0 right-0 w-full md:w-[calc(100%-260px)] h-16 flex justify-between items-center px-gutter z-40">
+<!-- Mobile Menu Button (Visible only on small screens) -->
+<button class="md:hidden p-2 text-secondary hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<div class="flex-1 flex items-center justify-start max-w-xl ml-4 md:ml-0">
+<div class="relative w-full max-w-md hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-body-md font-body-md focus:ring-1 focus:ring-primary focus:bg-surface-card transition-all" placeholder="Search settings..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container dark:hover:bg-surface-container-highest rounded-full p-2 transition-all duration-200 active:opacity-70">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container dark:hover:bg-surface-container-highest rounded-full p-2 transition-all duration-200 active:opacity-70">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container dark:hover:bg-surface-container-highest rounded-full p-2 transition-all duration-200 active:opacity-70">
+<span class="material-symbols-outlined" data-icon="apps">apps</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden ml-2 border border-surface-variant cursor-pointer">
+<img alt="Administrator Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate administrator, female, wearing a smart casual blazer, smiling slightly against a clean, bright white background. Studio lighting, highly detailed." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMO46uUq0RlwF8B8lZh48Tl9mUhIGxfkEDKN9HT8sPXuVBfGnT4AGAdiJ7j6MRMvEeD70rye_e-o3Nj4ZEK4nHLbtJ4KkykzVccbnWg9l2TLnKh-LnX0BS7o5cXo2QvcElEpSdrhVHj8ypD0u85-IkHUEPjgnMZbLWi6q1qA56sbT5hygdKto_QOqHiz_3aQPuclOuSYa58VC_7d6_IGt45J2BQEsK39DBd4hPCxCeICUJZ6Apn7p0wwDhYR2HA3IZZ3ICUusRMF4"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 mt-16 md:ml-[260px] p-container-margin max-w-[1440px] mx-auto w-full">
+<!-- Page Header -->
+<div class="mb-section-gap">
+<h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">System Settings</h2>
+<p class="font-body-md text-body-md text-secondary mt-1">Manage your store's core configuration, payments, and localization.</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Store Information (Spans 8 cols on large) -->
+<div class="lg:col-span-8 bg-surface-card rounded-xl p-card-padding shadow-level-1 border border-surface-variant/50">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="store">store</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">Store Profile</h3>
+<p class="font-label-sm text-label-sm text-secondary">Basic information presented to customers.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-4">
+<div>
+<label class="block font-label-sm text-label-sm text-secondary mb-1">Store Name</label>
+<input class="w-full bg-surface-container-low border border-transparent rounded-lg py-2.5 px-3 text-body-md font-body-md focus:border-primary focus:bg-surface-card focus:ring-0 transition-colors" type="text" value="SHOW OFF Flagship"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-secondary mb-1">Support Email</label>
+<input class="w-full bg-surface-container-low border border-transparent rounded-lg py-2.5 px-3 text-body-md font-body-md focus:border-primary focus:bg-surface-card focus:ring-0 transition-colors" type="email" value="support@showoff.store"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-secondary mb-1">Contact Phone</label>
+<input class="w-full bg-surface-container-low border border-transparent rounded-lg py-2.5 px-3 text-body-md font-body-md focus:border-primary focus:bg-surface-card focus:ring-0 transition-colors" type="tel" value="+66 2 123 4567"/>
+</div>
+</div>
+<div class="flex flex-col">
+<label class="block font-label-sm text-label-sm text-secondary mb-1">Store Logo</label>
+<div class="flex-1 border-2 border-dashed border-surface-variant rounded-lg flex flex-col items-center justify-center p-6 bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer group relative overflow-hidden">
+<div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
+<span class="bg-surface-card text-primary px-3 py-1.5 rounded-full font-label-sm text-label-sm shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="upload">upload</span> Replace
+                                </span>
+</div>
+<img alt="Store Logo" class="w-24 h-24 object-contain mb-2" data-alt="A minimalist, high-end e-commerce store logo featuring elegant typography for the words 'SHOW OFF' in black on a white background. Crisp, vector-style design, corporate identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXr3LmTUA978lqWrfSYZGAfBqvhAZj9bNsI8Gca2Jt0ASSQoXH4Hbvqb47O00g4wEq93O9mJhHzLGI-Sto9wacDNJavHUDxHoS-siWBpLT2k534woB4ZYfw69TlRkq3ObvmoQudUToI1lvmdBftsdIdghVab3OI771x-ZCmDsQ6XezDChtvPJcWm__YR6mgYL0o0jiNONcy6q3PIQFQ0yZ1Eckea44rhghLxgbueD4EXW3eDKKO4e0ub4FxkXEfF1-otMqA-FpkJU"/>
+<p class="font-label-sm text-label-sm text-secondary text-center mt-2">Recommended: 512x512px PNG</p>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-surface-variant flex justify-end">
+<button class="bg-primary text-on-primary font-body-md text-body-md font-medium px-5 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                        Save Profile
+                    </button>
+</div>
+</div>
+<!-- Exchange Rate (Spans 4 cols on large) -->
+<div class="lg:col-span-4 bg-surface-card rounded-xl p-card-padding shadow-level-1 border border-surface-variant/50 flex flex-col">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="currency_exchange">currency_exchange</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">Exchange Rate</h3>
+<p class="font-label-sm text-label-sm text-secondary">THB to LAK Base Rate</p>
+</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col justify-center py-4">
+<div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-4 flex items-center justify-between relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-surface-variant/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
+<div class="text-center w-[40%]">
+<span class="block font-label-sm text-label-sm text-secondary mb-1">Base (THB)</span>
+<span class="font-data-mono text-headline-md font-bold text-primary">฿ 1.00</span>
+</div>
+<div class="w-[20%] flex justify-center text-secondary">
+<span class="material-symbols-outlined bg-surface-container rounded-full p-1" data-icon="arrow_forward">arrow_forward</span>
+</div>
+<div class="text-center w-[40%]">
+<span class="block font-label-sm text-label-sm text-secondary mb-1">Target (LAK)</span>
+<div class="relative">
+<span class="absolute left-0 top-1/2 -translate-y-1/2 font-data-mono text-headline-md font-bold text-primary ml-2">₭</span>
+<input class="w-full bg-transparent border-none text-center font-data-mono text-headline-md font-bold text-primary pl-6 pr-2 py-1 focus:ring-0 focus:bg-surface-container-low rounded" type="number" value="650.50"/>
+</div>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between text-label-sm font-label-sm">
+<span class="text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="sync">sync</span> Auto-update from API
+                        </span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<div class="mt-auto pt-4 border-t border-surface-variant">
+<p class="font-label-sm text-label-sm text-secondary text-center">Last updated: Today, 09:41 AM</p>
+</div>
+</div>
+<!-- Payment & Bank Settings (Full Width 12 cols) -->
+<div class="lg:col-span-12 bg-surface-card rounded-xl p-card-padding shadow-level-1 border border-surface-variant/50">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">Payment Methods</h3>
+<p class="font-label-sm text-label-sm text-secondary">Configure bank accounts and QR payment options for checkout.</p>
+</div>
+</div>
+<button class="flex items-center gap-2 text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container-low px-3 py-1.5 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span> Add Account
+                    </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+<!-- Bank Account Card 1 -->
+<div class="border border-surface-variant rounded-xl p-4 relative overflow-hidden group hover:border-primary/30 transition-colors">
+<div class="absolute top-4 right-4 flex gap-1">
+<button class="text-secondary hover:text-primary transition-colors p-1"><span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span></button>
+</div>
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container p-2 flex-shrink-0">
+<img alt="Bank Logo" class="w-full h-full object-contain" data-alt="A clean, minimalist logo of a modern commercial bank, geometric shapes, blue and white colors, corporate identity, high quality vector style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhxN1ZpsocjMzf7zlzzIiHmOISnO86MMaJ1VCP28WZ7gK5ic-7b0huPc91W-9wh4nS6QWuVvsmJxNueSHemIB1lk5rk1OPcAWMdQxyoHuEH8IfvG_zDpBCn9aLn1BQAefKVrWDs4pSGzlFXx5gRUsycnI9Y36fuTm4_GqEwZa7C13pP9OgpW1AylCxjyolwCEOGSq7Xs0TJ9FlZ9O2Yghh6RAi0jLGv49w1SBA6C0SOIc_0GJyelEJcZK3MIyBMP0steMQbmFNWaE"/>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h4 class="font-body-md text-body-md font-semibold text-primary">Kasikornbank (KBank)</h4>
+<span class="bg-status-paid/10 text-status-paid font-label-sm text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Active</span>
+</div>
+<p class="font-data-mono text-data-mono text-secondary mb-2">012-3-45678-9</p>
+<p class="font-label-sm text-label-sm text-secondary mb-4">SHOW OFF CO., LTD.</p>
+</div>
+</div>
+<div class="mt-2 pt-3 border-t border-surface-variant flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="qr_code">qr_code</span> PromptPay Linked
+                            </span>
+<button class="text-accent-vibrant font-label-sm text-label-sm font-semibold hover:underline">View QR</button>
+</div>
+</div>
+<!-- Bank Account Card 2 -->
+<div class="border border-surface-variant rounded-xl p-4 relative overflow-hidden group hover:border-primary/30 transition-colors">
+<div class="absolute top-4 right-4 flex gap-1">
+<button class="text-secondary hover:text-primary transition-colors p-1"><span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span></button>
+</div>
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container p-2 flex-shrink-0">
+<img alt="BCEL Logo" class="w-full h-full object-contain" data-alt="A clean, minimalist logo of a Lao commercial bank, geometric shapes, red and white colors, corporate identity, high quality vector style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQmJoK3r_p_Qsh9XG2GtKtGQByfxD5MQoxT0RHBGsTUqTcWc2-cdK-VQa4mOf6UHJ8W1TPdEpcP0l1NSPm4oInlAVWUbMZJhewmHpi0gatCrm0yHdIzw9gq8hrkj5VI2EWeKL-v66Wc8loZci40ih9wyeIsUut0yU1LdxGrFVCmVjhuRKdZZozISgehImt6f0foN2p0U4jgYxJEmUdUWOCo2BwT7o81mh5pto33Sbz02H63qKWNSb1psvA5uDcwNBJus8Mj9zB45Q"/>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h4 class="font-body-md text-body-md font-semibold text-primary">BCEL (Laos)</h4>
+<span class="bg-status-paid/10 text-status-paid font-label-sm text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Active</span>
+</div>
+<p class="font-data-mono text-data-mono text-secondary mb-2">160-12-00-12345678-001</p>
+<p class="font-label-sm text-label-sm text-secondary mb-4">SHOW OFF SOLE CO., LTD.</p>
+</div>
+</div>
+<div class="mt-2 pt-3 border-t border-surface-variant flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="qr_code_scanner">qr_code_scanner</span> OnePay Linked
+                            </span>
+<button class="text-accent-vibrant font-label-sm text-label-sm font-semibold hover:underline">View QR</button>
+</div>
+</div>
+<!-- Add New / Ghost Card -->
+<button class="border-2 border-dashed border-surface-variant rounded-xl p-4 flex flex-col items-center justify-center text-secondary hover:bg-surface-container-low hover:text-primary hover:border-primary/30 transition-all min-h-[160px] group">
+<span class="material-symbols-outlined text-[32px] mb-2 group-hover:scale-110 transition-transform" data-icon="add_card">add_card</span>
+<span class="font-body-md text-body-md font-semibold">Configure New Payment</span>
+<span class="font-label-sm text-label-sm text-center mt-1 opacity-70">Add bank transfer or external gateway</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

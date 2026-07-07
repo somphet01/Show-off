@@ -5,3 +5,4 @@ server.out.log
 server.err.log
 *.tsbuildinfo
 .env*.local
+.admin-ui-reference/dist

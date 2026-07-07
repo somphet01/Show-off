@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Edit Product | SHOW OFF Management System</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Geist:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#b2cad6",
+                        "on-primary": "#2b3400",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "surface": "#131313",
+                        "deep-charcoal": "#121212",
+                        "secondary-fixed": "#e5e2e1",
+                        "background": "#131313",
+                        "surface-tint": "#b4d400",
+                        "on-tertiary-container": "#516872",
+                        "on-secondary-fixed-variant": "#474746",
+                        "secondary-container": "#474746",
+                        "error-container": "#93000a",
+                        "status-blue": "#00E0FF",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-variant": "#353534",
+                        "surface-container": "#201f1f",
+                        "text-muted": "#888888",
+                        "primary": "#ffffff",
+                        "surface-container-highest": "#353534",
+                        "tertiary": "#ffffff",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-container": "#cee6f2",
+                        "on-tertiary-fixed": "#051e27",
+                        "primary-container": "#cdf200",
+                        "on-secondary-container": "#b7b5b4",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-black": "#0D0D0D",
+                        "on-primary-container": "#5a6b00",
+                        "on-error": "#690005",
+                        "inverse-primary": "#556500",
+                        "surface-bright": "#3a3939",
+                        "on-tertiary-fixed-variant": "#334a54",
+                        "primary-fixed-dim": "#b4d400",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "outline": "#8f9378",
+                        "on-surface": "#e5e2e1",
+                        "outline-variant": "#454932",
+                        "tertiary-fixed": "#cee6f2",
+                        "secondary": "#c8c6c5",
+                        "inverse-on-surface": "#313030",
+                        "on-primary-fixed": "#181e00",
+                        "on-tertiary": "#1c333d",
+                        "on-primary-fixed-variant": "#3f4c00",
+                        "inverse-surface": "#e5e2e1",
+                        "card-gray": "#1E1E1E",
+                        "on-secondary": "#313030",
+                        "neon-lime": "#D9FF00",
+                        "error": "#ffb4ab",
+                        "status-red": "#FF4D4D",
+                        "primary-fixed": "#cdf200",
+                        "surface-dim": "#131313",
+                        "on-surface-variant": "#c5c9ac",
+                        "on-background": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "xxl": "24px"
+                    },
+                    "spacing": {
+                        "container-padding": "32px",
+                        "sidebar-width": "280px",
+                        "card-gap": "20px",
+                        "gutter": "24px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"],
+                        "mono-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "title-lg": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "mono-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0D0D0D;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A2A2A;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #353534;
+        }
+        .neon-glow {
+            box-shadow: 0 0 10px rgba(217, 255, 0, 0.15);
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+    </style>
+</head>
+<body class="bg-surface-black text-on-surface font-body-md selection:bg-neon-lime selection:text-black">
+<!-- Sidebar Navigation Shell -->
+<aside class="w-[280px] h-screen fixed left-0 top-0 bg-deep-charcoal border-r border-surface-variant flex flex-col py-8 z-[60] hidden md:flex">
+<div class="px-8 mb-10">
+<h1 class="text-headline-md font-headline-md font-extrabold text-primary">SHOW OFF</h1>
+<p class="font-label-md text-label-md text-text-muted mt-1">Management System</p>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<div class="text-[10px] font-bold uppercase tracking-widest text-text-muted px-4 mb-2">Menu</div>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined transition-transform group-hover:scale-110" data-icon="dashboard">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-neon-lime border-l-4 border-neon-lime bg-surface-container-highest/20 rounded-r-xl group" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-body-md font-semibold">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="font-body-md">Shipment</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-body-md">Customers</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined" data-icon="store">store</span>
+<span class="font-body-md">Store</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span class="font-body-md">Report</span>
+</a>
+<div class="pt-8 pb-2 text-[10px] font-bold uppercase tracking-widest text-text-muted px-4">General</div>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-body-md">Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<div class="bg-card-gray rounded-xxl p-5 mb-8 relative overflow-hidden group">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-neon-lime mb-2" data-icon="workspace_premium" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<h4 class="font-title-lg text-white mb-2">Upgrade Now</h4>
+<p class="text-label-md text-text-muted mb-4">Unlock premium features for your growing shop.</p>
+<button class="w-full bg-neon-lime text-black font-bold py-2 rounded-xl text-sm transition-transform active:scale-95">Upgrade</button>
+</div>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-neon-lime/10 rounded-full blur-3xl group-hover:bg-neon-lime/20 transition-all"></div>
+</div>
+<div class="flex items-center gap-3 px-2">
+<img class="w-10 h-10 rounded-full border border-surface-variant object-cover" data-alt="A professional close-up studio portrait of a modern tech administrator with a confident expression, wearing a stylish black minimalist streetwear hoodie. The lighting is dramatic and cinematic, with cool blue and neon yellow rim lighting against a deep charcoal background, conveying expertise and authority in a high-end streetwear fashion context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHXjFeaYpMt8duWjFFDTlOqyS3r9KsnigQ0CpjiIzHAZvoxZ7hFTvnEpKtPd1Tfo3KG2E-BUioLYbjFo5ucfZtt68JO5J5byKB2Y9_SdTIVS3CZL2JRP9cVHOc4SlKBq-57ohvDvtp4LIOVtDs6hLP2wZDWoVqvARUCgq9iKBNCH0suVWGHYVteY9w6i9woJdnpMddsaNORNHCI-b9mw2iLaBViSNI2HYVngDIiHMgOa9P1Cq3eeVCf3tkVOHs6aLoXxBuC5oNlGzV"/>
+<div>
+<p class="font-body-md font-semibold text-white">Evano</p>
+<p class="text-[10px] text-text-muted">Sales Admin</p>
+</div>
+<button class="ml-auto text-text-muted hover:text-white">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-[280px] min-h-screen bg-surface-black">
+<!-- Top Navigation Bar -->
+<header class="h-20 w-full sticky top-0 z-50 bg-surface/80 backdrop-blur-md flex items-center justify-between px-container-padding">
+<div class="flex items-center gap-4">
+<button class="p-2 md:hidden">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<div class="flex flex-col">
+<h2 class="font-headline-md text-white">Edit Product</h2>
+<p class="text-label-md text-text-muted">Home / Inventory / Products / #SKU-2091</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" data-icon="search">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-12 pr-6 py-2.5 w-80 text-sm focus:ring-2 focus:ring-neon-lime/50 transition-all" placeholder="Search here" type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-on-surface" data-icon="tune">tune</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors relative">
+<span class="material-symbols-outlined text-on-surface" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-neon-lime rounded-full border-2 border-surface"></span>
+</button>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-6 py-2.5 rounded-xl border border-surface-variant font-bold text-sm hover:bg-surface-container transition-colors">Discard</button>
+<button class="px-6 py-2.5 rounded-xl bg-neon-lime text-black font-bold text-sm shadow-lg shadow-neon-lime/10 hover:scale-[1.02] active:scale-[0.98] transition-all">Save Changes</button>
+</div>
+</div>
+</header>
+<!-- Product Editing Canvas -->
+<div class="p-container-padding max-w-[1400px] mx-auto">
+<div class="bento-grid">
+<!-- Basic Info Card -->
+<div class="col-span-12 lg:col-span-8 bg-card-gray rounded-xxl p-8 border border-outline-variant/30">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-title-lg text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-neon-lime" data-icon="info">info</span>
+                            Basic Information
+                        </h3>
+</div>
+<div class="space-y-6">
+<div>
+<label class="block font-label-md text-text-muted mb-2 uppercase tracking-wider">Product Name</label>
+<input class="w-full bg-surface-black border border-surface-variant rounded-xl px-4 py-3 focus:border-neon-lime focus:ring-0 transition-all text-on-surface" type="text" value="Oversized Cyber-Graphic Hoodie"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block font-label-md text-text-muted mb-2 uppercase tracking-wider">Brand / Collection</label>
+<select class="w-full bg-surface-black border border-surface-variant rounded-xl px-4 py-3 focus:border-neon-lime focus:ring-0 transition-all text-on-surface appearance-none">
+<option>NEON_WAVE Fall '24</option>
+<option>TECHWEAR CORE</option>
+<option>URBAN NOMAD</option>
+</select>
+</div>
+<div>
+<label class="block font-label-md text-text-muted mb-2 uppercase tracking-wider">Base SKU</label>
+<input class="w-full bg-surface-black border border-surface-variant rounded-xl px-4 py-3 focus:border-neon-lime focus:ring-0 transition-all text-on-surface" type="text" value="SKU-2091-H"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-text-muted mb-2 uppercase tracking-wider">Description</label>
+<textarea class="w-full bg-surface-black border border-surface-variant rounded-xl px-4 py-3 focus:border-neon-lime focus:ring-0 transition-all text-on-surface" rows="5">Premium heavyweight 450GSM cotton hoodie with high-density screen print and utility pocket detailing. Inspired by Tokyo's nightscape and cyberpunk subcultures. Relaxed fit with dropped shoulders.</textarea>
+</div>
+</div>
+</div>
+<!-- Media Gallery Card -->
+<div class="col-span-12 lg:col-span-4 bg-card-gray rounded-xxl p-8 border border-outline-variant/30">
+<h3 class="font-title-lg text-white mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-neon-lime" data-icon="photo_library">photo_library</span>
+                        Media Gallery
+                    </h3>
+<div class="space-y-4">
+<div class="aspect-square w-full rounded-xxl border-2 border-dashed border-surface-variant flex flex-col items-center justify-center bg-surface-black/50 group hover:border-neon-lime transition-colors cursor-pointer overflow-hidden relative">
+<img class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" data-alt="A high-end editorial streetwear product photograph of a black oversized hoodie with vibrant neon green graphic prints on the front. The hoodie is draped on a minimalist architectural sculpture in a dark concrete studio setting. The lighting is dramatic, highlighting the texture of the heavyweight cotton and the sharp details of the graphic design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAt2LvUt6XcABHiPOgNyNy56oC5bBNb3Lk2ehJ5e040ssYkKddAGWXZxv9y333psA7Mhyrw-Vrn7hLLjJUpdMyO2voOnqzsQ6GVuzb3RGyeDlaag9JseYdbvaVHMe5YwcerOrJ4wPliv6PK4UTZdWcy67xeAJCGZtG9rtvItdj48onxMN67AyvgfCLUucNxZy-_F69yzudu7lMU0-RcC8Ty9YdM98b64D9_NXllanVtsQfJgPSQYYJ6j3qJzLXOpFBT-_oYf2xd-8Pp"/>
+<div class="relative z-10 flex flex-col items-center">
+<span class="material-symbols-outlined text-neon-lime text-4xl mb-2" data-icon="cloud_upload">cloud_upload</span>
+<span class="font-body-md text-white font-bold">Change Main Image</span>
+<span class="text-xs text-text-muted mt-1">Recommended: 1200 x 1200px</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<div class="aspect-square rounded-xl bg-surface-black border border-surface-variant overflow-hidden group cursor-pointer relative">
+<img class="w-full h-full object-cover group-hover:opacity-50 transition-opacity" data-alt="A macro close-up of a high-density screen-printed graphic on a black streetwear hoodie. The print features sharp geometric lines and Japanese typography in neon lime. The focus is incredibly tight, showing the intricate weave of the 450GSM cotton fabric under harsh studio lighting that emphasizes depth and texture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLnmrZxawNaVyPTd7Fy_OTdHiI0L7CW81p7iybUSWghDIvIM0aKM2OLU87DRFIPO7d900macayR3FLBvYUbpa6lZLRbvLgGYtTopgo2pEx468Pd9qhARJBuKvPDFY00agzVm2XcUW__I_jc3U_51pDZSXEeoVfoM0XzmugqhByQzMXW5ApiFhjav20p6EvTfcmFVGQe3Uwcd10fIcBuAo9HWpKLOQmF8tsKhKuDw7WzXeNReD6E0wPGCpNITEKQUL0Md3QhepAxOo3"/>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+<span class="material-symbols-outlined text-white" data-icon="edit">edit</span>
+</div>
+</div>
+<div class="aspect-square rounded-xl bg-surface-black border border-surface-variant overflow-hidden group cursor-pointer relative">
+<img class="w-full h-full object-cover group-hover:opacity-50 transition-opacity" data-alt="A detailed shot of the back of a premium black streetwear hoodie, showing a large cyberpunk-inspired digital artwork print. The composition is clean and centered against a dark grey background. The lighting is soft but directed, highlighting the colors of the print and the silhouette of the garment's oversized fit." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXJG25-OjEUMbUzqZ7mXjKtY6X_s--8qskSIYQrNcVZjKHerijXGGbAQxvg5ehjqo7dMsZvC41GmHEpnqwoqMiWLPYuszhIekbmgtbCB6iBwdX8h9t7BcCClVenq6-9wHpJOwZ9Uws4TKbpSlsOlDqMaPB4YjeMEtTvKi6VkhLgAFNTjtUsuUnTllqw1RMxjmngaxqIzNPrTNZmULRZshsWDvT_myxBRTHFrN7XzW-CzCF_DQcSaEpMFvN7W7X-83UaJEgjgO8IXXP"/>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+<span class="material-symbols-outlined text-white" data-icon="edit">edit</span>
+</div>
+</div>
+<div class="aspect-square rounded-xl border-2 border-dashed border-surface-variant flex items-center justify-center hover:border-neon-lime transition-colors group cursor-pointer">
+<span class="material-symbols-outlined text-text-muted group-hover:text-neon-lime" data-icon="add">add</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Variant Matrix -->
+<div class="col-span-12 bg-card-gray rounded-xxl p-8 border border-outline-variant/30">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-title-lg text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-neon-lime" data-icon="layers">layers</span>
+                            Variant Matrix
+                        </h3>
+<button class="flex items-center gap-2 text-neon-lime font-bold text-sm bg-neon-lime/5 px-4 py-2 rounded-xl border border-neon-lime/20 hover:bg-neon-lime/10 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="add_box">add_box</span>
+                            Generate Variants
+                        </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full">
+<thead>
+<tr class="text-left border-b border-surface-variant">
+<th class="pb-4 font-label-md text-text-muted uppercase tracking-wider px-2">Size</th>
+<th class="pb-4 font-label-md text-text-muted uppercase tracking-wider px-2">Colorway</th>
+<th class="pb-4 font-label-md text-text-muted uppercase tracking-wider px-2">SKU</th>
+<th class="pb-4 font-label-md text-text-muted uppercase tracking-wider px-2">Base Cost</th>
+<th class="pb-4 font-label-md text-text-muted uppercase tracking-wider px-2 text-center">Stock</th>
+<th class="pb-4 font-label-md text-text-muted uppercase tracking-wider px-2">Selling Price</th>
+<th class="pb-4 font-label-md text-text-muted uppercase tracking-wider px-2 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant/50">
+<tr class="group hover:bg-surface-container-high transition-colors">
+<td class="py-4 px-2"><span class="bg-surface-black border border-surface-variant px-3 py-1.5 rounded-lg font-mono-sm">XL</span></td>
+<td class="py-4 px-2">
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 rounded-full bg-[#0D0D0D] border border-surface-variant"></div>
+<span class="font-body-md text-on-surface">Onyx Black</span>
+</div>
+</td>
+<td class="py-4 px-2 font-mono-sm text-text-muted">SKU-2091-H-XL-ONYX</td>
+<td class="py-4 px-2 font-body-md">$45.00</td>
+<td class="py-4 px-2 text-center">
+<div class="bg-neon-lime/10 text-neon-lime border border-neon-lime/20 rounded-lg py-1 px-3 inline-block font-bold">124</div>
+</td>
+<td class="py-4 px-2 font-body-md font-bold text-white">$120.00</td>
+<td class="py-4 px-2 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-2 text-text-muted hover:text-white transition-colors"><span class="material-symbols-outlined text-sm" data-icon="edit">edit</span></button>
+<button class="p-2 text-text-muted hover:text-status-red transition-colors"><span class="material-symbols-outlined text-sm" data-icon="delete">delete</span></button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container-high transition-colors">
+<td class="py-4 px-2"><span class="bg-surface-black border border-surface-variant px-3 py-1.5 rounded-lg font-mono-sm">L</span></td>
+<td class="py-4 px-2">
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 rounded-full bg-[#0D0D0D] border border-surface-variant"></div>
+<span class="font-body-md text-on-surface">Onyx Black</span>
+</div>
+</td>
+<td class="py-4 px-2 font-mono-sm text-text-muted">SKU-2091-H-L-ONYX</td>
+<td class="py-4 px-2 font-body-md">$45.00</td>
+<td class="py-4 px-2 text-center">
+<div class="bg-status-red/10 text-status-red border border-status-red/20 rounded-lg py-1 px-3 inline-block font-bold">08</div>
+</td>
+<td class="py-4 px-2 font-body-md font-bold text-white">$120.00</td>
+<td class="py-4 px-2 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-2 text-text-muted hover:text-white transition-colors"><span class="material-symbols-outlined text-sm" data-icon="edit">edit</span></button>
+<button class="p-2 text-text-muted hover:text-status-red transition-colors"><span class="material-symbols-outlined text-sm" data-icon="delete">delete</span></button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container-high transition-colors">
+<td class="py-4 px-2"><span class="bg-surface-black border border-surface-variant px-3 py-1.5 rounded-lg font-mono-sm">M</span></td>
+<td class="py-4 px-2">
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 rounded-full bg-[#353534] border border-surface-variant"></div>
+<span class="font-body-md text-on-surface">Steel Grey</span>
+</div>
+</td>
+<td class="py-4 px-2 font-mono-sm text-text-muted">SKU-2091-H-M-STEEL</td>
+<td class="py-4 px-2 font-body-md">$45.00</td>
+<td class="py-4 px-2 text-center">
+<div class="bg-neon-lime/10 text-neon-lime border border-neon-lime/20 rounded-lg py-1 px-3 inline-block font-bold">67</div>
+</td>
+<td class="py-4 px-2 font-body-md font-bold text-white">$120.00</td>
+<td class="py-4 px-2 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-2 text-text-muted hover:text-white transition-colors"><span class="material-symbols-outlined text-sm" data-icon="edit">edit</span></button>
+<button class="p-2 text-text-muted hover:text-status-red transition-colors"><span class="material-symbols-outlined text-sm" data-icon="delete">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Pricing & Profit Calculator -->
+<div class="col-span-12 lg:col-span-6 bg-card-gray rounded-xxl p-8 border border-outline-variant/30">
+<h3 class="font-title-lg text-white mb-8 flex items-center gap-2">
+<span class="material-symbols-outlined text-neon-lime" data-icon="payments">payments</span>
+                        Pricing &amp; Profit
+                    </h3>
+<div class="grid grid-cols-2 gap-6 mb-10">
+<div>
+<label class="block font-label-md text-text-muted mb-2 uppercase tracking-wider">Unit Cost</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
+<input class="w-full bg-surface-black border border-surface-variant rounded-xl pl-8 pr-4 py-3 focus:border-neon-lime focus:ring-0 transition-all text-on-surface font-bold" type="number" value="45.00"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-text-muted mb-2 uppercase tracking-wider">MSRP</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
+<input class="w-full bg-surface-black border border-surface-variant rounded-xl pl-8 pr-4 py-3 focus:border-neon-lime focus:ring-0 transition-all text-on-surface font-bold" type="number" value="120.00"/>
+</div>
+</div>
+</div>
+<div class="bg-surface-black rounded-xxl p-6 border border-surface-variant relative overflow-hidden">
+<div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="text-center md:text-left">
+<p class="font-label-md text-text-muted uppercase tracking-widest mb-1">Projected Profit</p>
+<p class="text-display-lg text-neon-lime">$75.00</p>
+<p class="text-body-md text-text-muted">Per individual unit sold</p>
+</div>
+<div class="w-24 h-24 rounded-full border-8 border-surface-variant flex items-center justify-center relative">
+<svg class="w-full h-full -rotate-90 absolute">
+<circle class="text-neon-lime" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="94.2" stroke-width="8"></circle>
+</svg>
+<div class="text-center">
+<span class="text-lg font-bold text-white">62.5%</span>
+<span class="block text-[8px] text-text-muted uppercase font-bold">Margin</span>
+</div>
+</div>
+</div>
+<div class="absolute right-0 top-0 w-32 h-32 bg-neon-lime/5 blur-3xl rounded-full"></div>
+</div>
+</div>
+<!-- Inventory Movement / Analytics -->
+<div class="col-span-12 lg:col-span-6 bg-card-gray rounded-xxl p-8 border border-outline-variant/30">
+<h3 class="font-title-lg text-white mb-8 flex items-center gap-2">
+<span class="material-symbols-outlined text-neon-lime" data-icon="query_stats">query_stats</span>
+                        Inventory Velocity
+                    </h3>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-neon-lime/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-neon-lime" data-icon="trending_up">trending_up</span>
+</div>
+<div>
+<p class="font-body-md text-white font-semibold">Demand Level</p>
+<p class="text-[10px] text-text-muted uppercase tracking-wider">High Velocity Item</p>
+</div>
+</div>
+<span class="text-headline-md font-headline-md text-white">8.4x</span>
+</div>
+<div class="space-y-4 pt-4 border-t border-surface-variant">
+<div class="flex justify-between text-label-md mb-1">
+<span class="text-text-muted">Monthly Turnover</span>
+<span class="text-neon-lime font-bold">85% Capacity</span>
+</div>
+<div class="w-full h-3 bg-surface-black rounded-full overflow-hidden flex gap-0.5 p-0.5">
+<div class="h-full bg-neon-lime rounded-full" style="width: 85%"></div>
+<div class="h-full bg-surface-variant rounded-full" style="width: 15%"></div>
+</div>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-neon-lime"></div>
+<span class="text-[10px] text-text-muted">Current Stock</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-surface-variant"></div>
+<span class="text-[10px] text-text-muted">Pending Restock</span>
+</div>
+</div>
+</div>
+<div class="p-4 bg-status-blue/5 border border-status-blue/20 rounded-xl flex items-start gap-4">
+<span class="material-symbols-outlined text-status-blue" data-icon="lightbulb">lightbulb</span>
+<p class="text-body-md text-status-blue leading-tight">Insight: Restock this item before Sept 20 to avoid "Out of Stock" status during the Fall drop.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Padding for Floating Actions -->
+<div class="h-32"></div>
+</main>
+<!-- Mobile Navigation (Suppressed on Desktop) -->
+<nav class="fixed bottom-0 left-0 right-0 h-16 bg-deep-charcoal border-t border-surface-variant flex items-center justify-around px-4 z-[100] md:hidden">
+<button class="p-2 text-neon-lime"><span class="material-symbols-outlined" data-icon="dashboard">dashboard</span></button>
+<button class="p-2 text-text-muted"><span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span></button>
+<button class="p-2 text-text-muted"><span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span></button>
+<button class="p-2 text-text-muted"><span class="material-symbols-outlined" data-icon="group">group</span></button>
+<button class="p-2 text-text-muted"><span class="material-symbols-outlined" data-icon="settings">settings</span></button>
+</nav>
+<!-- Floating Action for Quick Add (Contextual) -->
+<button class="fixed bottom-24 right-8 w-14 h-14 bg-neon-lime text-black rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[100] md:bottom-12 md:right-12">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+<script>
+        // Micro-interaction for numeric values
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('change', (e) => {
+                // Future expansion: Recalculate profit logic would go here
+                console.log('Value updated:', e.target.value);
+            });
+        });
+
+        // Hover effect for matrix rows
+        const rows = document.querySelectorAll('tr');
+        rows.forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.classList.add('neon-glow');
+            });
+            row.addEventListener('mouseleave', () => {
+                row.classList.remove('neon-glow');
+            });
+        });
+    </script>
+</body></html>

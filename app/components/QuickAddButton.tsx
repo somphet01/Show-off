@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useEffect, useId, useRef, useState } from "react";
 
 const cartStorageKey = "show-off-cart";
@@ -13,6 +14,7 @@ type CartItem = {
   price: string;
   image: string;
   quantity: number;
+  stock?: number;
 };
 
 type QuickAddItem = {
@@ -50,32 +52,54 @@ function swatchLabel(swatch: string) {
     .join(" ");
 }
 
+function swatchStyle(hex?: string) {
+  return hex ? ({ "--swatch-color": hex } as CSSProperties) : undefined;
+}
+
+function swatchClassName(swatch: string, hex?: string) {
+  return hex ? `${swatch} has-custom-swatch` : swatch;
+}
+
 export function QuickAddButton({
   item,
   swatches = ["black"],
+  swatchHexes,
+  swatchLabels,
   sizeOptionsByColor,
+  variantStockByColor,
   imageByColor,
 }: {
   item: QuickAddItem;
   swatches?: string[];
+  swatchHexes?: string[];
+  swatchLabels?: string[];
   sizeOptionsByColor?: Record<string, string[]>;
+  variantStockByColor?: Record<string, Record<string, number>>;
   imageByColor?: Record<string, string>;
 }) {
   const visibleSwatches = swatches.length > 0 ? swatches : ["black"];
   const quickAddId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedColorIndex, setSelectedColorIndex] = useState<number | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
-  const activeColorLabel = selectedColor ? swatchLabel(selectedColor) : item.color;
-  const activeSizes = sizeOptionsByColor?.[activeColorLabel] ?? sizes;
+  const colorLabelAt = (index: number) => swatchLabels?.[index] || swatchLabel(visibleSwatches[index]) || item.color;
+  const selectedColorLabel = selectedColorIndex !== null ? colorLabelAt(selectedColorIndex) : null;
+  const activeSizes = selectedColorLabel ? sizeOptionsByColor?.[selectedColorLabel] ?? sizes : [];
+  const activeStock = selectedColorLabel ? variantStockByColor?.[selectedColorLabel] : undefined;
+  const colorIsSoldOut = (index: number) => {
+    const label = colorLabelAt(index);
+    const stock = variantStockByColor?.[label];
+    return stock ? Object.values(stock).every((value) => value <= 0) : false;
+  };
+  const sizeIsSoldOut = (size: string) => (activeStock ? (activeStock[size] ?? 0) <= 0 : false);
 
   const closeQuickAdd = () => {
     setOpen(false);
     setAdded(false);
     setSelectedSize(null);
-    setSelectedColor(null);
+    setSelectedColorIndex(null);
   };
 
   useEffect(() => {
@@ -99,20 +123,29 @@ export function QuickAddButton({
     };
   }, [quickAddId]);
 
-  const addToCart = (size: string, colorClass: string) => {
-    const color = swatchLabel(colorClass) || item.color;
+  const addToCart = (size: string, color: string) => {
+    const stockLimit = Math.max(0, activeStock?.[size] ?? 99);
     const nextItem: CartItem = {
       ...item,
       color,
       image: imageByColor?.[color] ?? item.image,
       size,
       quantity: 1,
+      stock: stockLimit,
     };
 
     const currentItems = readCartItems();
     const existingItem = currentItems.find((cartItem) => cartItem.slug === nextItem.slug && cartItem.size === nextItem.size && cartItem.color === nextItem.color);
+    if (existingItem && existingItem.quantity >= stockLimit) {
+      writeCartItems(currentItems.map((cartItem) => (cartItem.slug === nextItem.slug && cartItem.size === nextItem.size && cartItem.color === nextItem.color ? { ...cartItem, stock: stockLimit } : cartItem)));
+      setAdded(true);
+      window.setTimeout(() => {
+        closeQuickAdd();
+      }, 650);
+      return;
+    }
     const nextItems = existingItem
-      ? currentItems.map((cartItem) => (cartItem.slug === nextItem.slug && cartItem.size === nextItem.size && cartItem.color === nextItem.color ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem))
+      ? currentItems.map((cartItem) => (cartItem.slug === nextItem.slug && cartItem.size === nextItem.size && cartItem.color === nextItem.color ? { ...cartItem, quantity: Math.min(stockLimit, cartItem.quantity + 1), stock: stockLimit } : cartItem))
       : [nextItem, ...currentItems];
 
     writeCartItems(nextItems);
@@ -123,29 +156,27 @@ export function QuickAddButton({
   };
 
   const chooseSize = (size: string) => {
-    setSelectedSize(size);
-    if (visibleSwatches.length === 1) {
-      addToCart(size, visibleSwatches[0]);
-    }
-  };
-
-  const chooseColor = (color: string) => {
-    setSelectedColor(color);
-    const nextColorLabel = swatchLabel(color) || item.color;
-    if (selectedSize && sizeOptionsByColor?.[nextColorLabel] && !sizeOptionsByColor[nextColorLabel].includes(selectedSize)) {
-      setSelectedSize(null);
+    if (!selectedColorLabel || sizeIsSoldOut(size)) {
       return;
     }
 
-    if (selectedSize) {
-      addToCart(selectedSize, color);
+    setSelectedSize(size);
+    addToCart(size, selectedColorLabel);
+  };
+
+  const chooseColor = (index: number) => {
+    if (colorIsSoldOut(index)) {
+      return;
     }
+
+    setSelectedColorIndex(index);
+    setSelectedSize(null);
   };
 
   return (
     <div
       ref={rootRef}
-      className={`quick-add${open ? " is-open" : ""}${selectedSize && visibleSwatches.length > 1 ? " has-size" : ""}${visibleSwatches.length > 5 ? " has-scrollable-colours" : ""}${added ? " is-added" : ""}`}
+      className={`quick-add${open ? " is-open" : ""}${selectedColorIndex !== null ? " has-color" : ""}${visibleSwatches.length > 5 ? " has-scrollable-colours" : ""}${added ? " is-added" : ""}`}
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -153,21 +184,24 @@ export function QuickAddButton({
     >
       {open ? (
         <div className="quick-add-panel" aria-label={`Quick add ${item.name}`}>
-          <div className="quick-add-sizes" aria-label="Choose size">
-            {activeSizes.map((size) => (
-              <button className={size === selectedSize ? "is-selected" : ""} type="button" onClick={() => chooseSize(size)} key={`${item.slug}-${size}`}>
-                {size}
-              </button>
-            ))}
-          </div>
           <div className="quick-add-colour-strip">
             <div className="quick-add-swatches" aria-label="Choose colour">
             {visibleSwatches.map((swatch, index) => (
-              <button className={swatch === selectedColor ? "is-selected" : ""} type="button" aria-label={`Choose ${swatchLabel(swatch)}`} onClick={() => chooseColor(swatch)} key={`${item.slug}-${swatch}-${index}`}>
-                <i className={swatch} />
+              <button className={`${index === selectedColorIndex ? "is-selected" : ""}${colorIsSoldOut(index) ? " is-sold-out" : ""}`} type="button" aria-label={`Choose ${colorLabelAt(index)}`} aria-disabled={colorIsSoldOut(index)} onClick={() => chooseColor(index)} key={`${item.slug}-${swatch}-${index}`}>
+                <i className={swatchClassName(swatch, swatchHexes?.[index])} style={swatchStyle(swatchHexes?.[index])} />
               </button>
             ))}
             </div>
+          </div>
+          <div className="quick-add-sizes" aria-label="Choose size">
+            {activeSizes.map((size) => {
+              const soldOut = sizeIsSoldOut(size);
+              return (
+                <button className={`${size === selectedSize ? "is-selected" : ""}${soldOut ? " is-sold-out" : ""}`} type="button" aria-disabled={soldOut} disabled={soldOut} onClick={() => chooseSize(size)} key={`${item.slug}-${selectedColorLabel ?? "colour"}-${size}`}>
+                  {size}
+                </button>
+              );
+            })}
           </div>
           <span aria-live="polite">{added ? "Added" : "Select"}</span>
         </div>

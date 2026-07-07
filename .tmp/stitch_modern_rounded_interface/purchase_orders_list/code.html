@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SHOW OFF | Purchase Orders</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Geist:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#b2cad6",
+                        "on-primary": "#2b3400",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "surface": "#131313",
+                        "deep-charcoal": "#121212",
+                        "secondary-fixed": "#e5e2e1",
+                        "background": "#131313",
+                        "surface-tint": "#b4d400",
+                        "on-tertiary-container": "#516872",
+                        "on-secondary-fixed-variant": "#474746",
+                        "secondary-container": "#474746",
+                        "error-container": "#93000a",
+                        "status-blue": "#00E0FF",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-variant": "#353534",
+                        "surface-container": "#201f1f",
+                        "text-muted": "#888888",
+                        "primary": "#ffffff",
+                        "surface-container-highest": "#353534",
+                        "tertiary": "#ffffff",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-container": "#cee6f2",
+                        "on-tertiary-fixed": "#051e27",
+                        "primary-container": "#cdf200",
+                        "on-secondary-container": "#b7b5b4",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-black": "#0D0D0D",
+                        "on-primary-container": "#5a6b00",
+                        "on-error": "#690005",
+                        "inverse-primary": "#556500",
+                        "surface-bright": "#3a3939",
+                        "on-tertiary-fixed-variant": "#334a54",
+                        "primary-fixed-dim": "#b4d400",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "outline": "#8f9378",
+                        "on-surface": "#e5e2e1",
+                        "outline-variant": "#454932",
+                        "tertiary-fixed": "#cee6f2",
+                        "secondary": "#c8c6c5",
+                        "inverse-on-surface": "#313030",
+                        "on-primary-fixed": "#181e00",
+                        "on-tertiary": "#1c333d",
+                        "on-primary-fixed-variant": "#3f4c00",
+                        "inverse-surface": "#e5e2e1",
+                        "card-gray": "#1E1E1E",
+                        "on-secondary": "#313030",
+                        "neon-lime": "#D9FF00",
+                        "error": "#ffb4ab",
+                        "status-red": "#FF4D4D",
+                        "primary-fixed": "#cdf200",
+                        "surface-dim": "#131313",
+                        "on-surface-variant": "#c5c9ac",
+                        "on-background": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-padding": "32px",
+                        "sidebar-width": "280px",
+                        "card-gap": "20px",
+                        "gutter": "24px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"],
+                        "mono-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "title-lg": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "mono-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-glow {
+            box-shadow: 0 0 15px rgba(217, 255, 0, 0.15);
+        }
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #121212 0%, #0D0D0D 100%);
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0D0D0D;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A2A2A;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-neon-lime selection:text-black overflow-hidden h-screen flex">
+<!-- Side Navigation Bar -->
+<aside class="w-[280px] h-screen fixed left-0 top-0 border-r border-surface-variant sidebar-gradient flex flex-col py-8 z-50">
+<div class="px-8 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-neon-lime rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-black font-bold" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+</div>
+<div>
+<h1 class="text-headline-md font-headline-md font-extrabold text-primary leading-tight">SHOW OFF</h1>
+<p class="text-[10px] font-label-md text-text-muted tracking-widest uppercase">Management System</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2 px-4">
+<p class="px-4 text-[11px] font-label-md text-text-muted uppercase mb-4 tracking-widest">Menu</p>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-neon-lime transition-colors">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-neon-lime border-l-4 border-neon-lime bg-surface-container-highest/20 rounded-r-xl active-glow" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-body-md font-semibold">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-neon-lime transition-colors">local_shipping</span>
+<span class="font-body-md">Shipment</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-neon-lime transition-colors">group</span>
+<span class="font-body-md">Customers</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-neon-lime transition-colors">store</span>
+<span class="font-body-md">Store</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-neon-lime transition-colors">monitoring</span>
+<span class="font-body-md">Report</span>
+</a>
+</nav>
+<div class="px-4 mt-auto space-y-2">
+<div class="p-6 bg-surface-container-high rounded-xl mb-6 relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-20 h-20 bg-neon-lime/10 rounded-full blur-2xl group-hover:bg-neon-lime/20 transition-all"></div>
+<h3 class="text-on-surface font-title-lg mb-2 z-10 relative">Look For Pro?</h3>
+<p class="text-text-muted text-[12px] leading-relaxed mb-4 z-10 relative">Unlock premium features with 20% off for a limited time!</p>
+<button class="w-full py-3 bg-surface-container-highest text-on-surface font-bold text-body-md rounded-lg hover:bg-neon-lime hover:text-black transition-all active:scale-95">Upgrade Now</button>
+</div>
+<p class="px-4 text-[11px] font-label-md text-text-muted uppercase mb-2 tracking-widest">General</p>
+<a class="flex items-center gap-3 px-4 py-2 text-text-muted hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">help</span>
+<span class="text-body-md">Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-text-muted hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-body-md">Settings</span>
+</a>
+<div class="pt-6 mt-6 border-t border-surface-variant flex items-center gap-3 px-2">
+<img class="w-10 h-10 rounded-full object-cover grayscale hover:grayscale-0 transition-all duration-300" data-alt="A professional sales administrator portrait with cinematic lighting, set against a dark, minimalist studio background. The subject is wearing high-end urban streetwear, matching the premium dark mode aesthetic of the SHOW OFF brand. Deep blacks and subtle charcoal tones dominate the composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwX_pC64jrMpWZy3SHNxYCnP1SDEunGBW1DdA6jXF7c7lPxQySZmbFEyBzUmY74vAh7F43x_GzUYtLGqe_h5Wm1DOdWokZ8A5URMYhaf8W2TOm-rmmoSDquBjqPQudDpEX8lpeA1wlb26UtmSjgOgIDuC5UMJXMkxYMeKYo4-Z-0rGKgTSAOAolxvAVi15pWiWN5WfzDCO7xLANYpXZd38tY_StA9U03pqxXXl6lT1IG3Ki-8_xTXT3gBG74W3m0cY-pY1S0DL-NXp"/>
+<div class="flex-1">
+<h4 class="text-body-md font-bold text-on-surface">Evano</h4>
+<p class="text-[10px] text-text-muted">Sales Admin</p>
+</div>
+<button class="text-text-muted hover:text-neon-lime">
+<span class="material-symbols-outlined">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="ml-[280px] flex-1 h-screen overflow-y-auto flex flex-col">
+<!-- Top Navbar -->
+<header class="h-20 w-full sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center justify-between px-container-padding shrink-0">
+<div class="flex items-center gap-8 flex-1">
+<div class="relative w-full max-w-md group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-neon-lime transition-colors">search</span>
+<input class="w-full bg-surface-container-low border border-surface-variant rounded-full py-2.5 pl-12 pr-4 text-body-md focus:outline-none focus:ring-2 focus:ring-neon-lime/30 focus:border-neon-lime transition-all" placeholder="Search PO, Suppliers, SKU..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-surface-container-high text-text-muted transition-all">
+<span class="material-symbols-outlined">tune</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-surface-container-high text-text-muted transition-all relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-neon-lime rounded-full border-2 border-background"></span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-surface-container-high text-text-muted transition-all relative">
+<span class="material-symbols-outlined">mail</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-status-red rounded-full border-2 border-background"></span>
+</button>
+</div>
+<button class="bg-neon-lime text-black font-bold px-6 py-2.5 rounded-xl flex items-center gap-2 hover:shadow-[0_0_20px_rgba(217,255,0,0.3)] transition-all active:scale-95">
+<span class="material-symbols-outlined font-bold">add</span>
+<span>Create PO</span>
+</button>
+</div>
+</header>
+<!-- Content Area -->
+<div class="p-container-padding pt-0">
+<!-- Page Header -->
+<div class="flex flex-col mb-8">
+<div class="flex items-center gap-2 text-text-muted text-[12px] font-mono-sm mb-2">
+<span>Inventory</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface">Purchase Orders</span>
+</div>
+<h2 class="text-headline-lg font-headline-lg text-primary">Purchase Orders</h2>
+</div>
+<!-- Dashboard Stats Summary -->
+<div class="grid grid-cols-4 gap-gutter mb-8">
+<div class="bg-card-gray border border-surface-variant p-6 rounded-xl hover:border-neon-lime/50 transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-neon-lime/10 text-neon-lime rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+</div>
+<span class="text-status-blue font-mono-sm bg-status-blue/10 px-2 py-1 rounded text-[10px]">+12.5%</span>
+</div>
+<p class="text-text-muted text-label-md uppercase tracking-wider mb-1">Total Active POs</p>
+<h4 class="text-headline-md text-on-surface">1,284</h4>
+</div>
+<div class="bg-card-gray border border-surface-variant p-6 rounded-xl hover:border-neon-lime/50 transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-status-blue/10 text-status-blue rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pending_actions</span>
+</div>
+<span class="text-status-red font-mono-sm bg-status-red/10 px-2 py-1 rounded text-[10px]">-2.4%</span>
+</div>
+<p class="text-text-muted text-label-md uppercase tracking-wider mb-1">Awaiting Receipt</p>
+<h4 class="text-headline-md text-on-surface">432</h4>
+</div>
+<div class="bg-card-gray border border-surface-variant p-6 rounded-xl hover:border-neon-lime/50 transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">payments</span>
+</div>
+<span class="text-neon-lime font-mono-sm bg-neon-lime/10 px-2 py-1 rounded text-[10px]">+18.2%</span>
+</div>
+<p class="text-text-muted text-label-md uppercase tracking-wider mb-1">Total Spend (LAK)</p>
+<h4 class="text-headline-md text-on-surface">84.2M</h4>
+</div>
+<div class="bg-card-gray border border-surface-variant p-6 rounded-xl hover:border-neon-lime/50 transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-status-red/10 text-status-red rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">error</span>
+</div>
+<span class="text-text-muted font-mono-sm bg-surface-container-high px-2 py-1 rounded text-[10px]">Critical</span>
+</div>
+<p class="text-text-muted text-label-md uppercase tracking-wider mb-1">Delayed Shipment</p>
+<h4 class="text-headline-md text-on-surface">12</h4>
+</div>
+</div>
+<!-- Main Table Section -->
+<div class="bg-card-gray border border-surface-variant rounded-xl overflow-hidden shadow-2xl relative">
+<!-- Table Filters -->
+<div class="p-6 border-b border-surface-variant flex items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="flex p-1 bg-surface-container-low rounded-lg border border-surface-variant">
+<button class="px-4 py-2 bg-surface-container-highest text-on-surface rounded-md text-body-md font-semibold transition-all">All Orders</button>
+<button class="px-4 py-2 text-text-muted hover:text-on-surface rounded-md text-body-md transition-all">Pending</button>
+<button class="px-4 py-2 text-text-muted hover:text-on-surface rounded-md text-body-md transition-all">Received</button>
+</div>
+<div class="h-8 w-[1px] bg-surface-variant"></div>
+<button class="flex items-center gap-2 text-text-muted hover:text-on-surface transition-all px-3 py-2">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span class="text-body-md">Last 30 Days</span>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 text-text-muted hover:text-on-surface border border-surface-variant px-4 py-2 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span class="text-body-md font-semibold">Export</span>
+</button>
+<button class="flex items-center justify-center w-10 h-10 border border-surface-variant rounded-lg text-text-muted hover:text-neon-lime transition-all">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Table Header -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-lowest/50 text-text-muted font-label-md uppercase tracking-widest text-[11px]">
+<tr>
+<th class="px-8 py-5 font-semibold"><input class="rounded bg-surface-variant border-transparent focus:ring-neon-lime text-neon-lime" type="checkbox"/></th>
+<th class="px-6 py-5 font-semibold">PO Number</th>
+<th class="px-6 py-5 font-semibold">Supplier</th>
+<th class="px-6 py-5 font-semibold">Created Date</th>
+<th class="px-6 py-5 font-semibold text-right">Total Cost (CNY/LAK)</th>
+<th class="px-6 py-5 font-semibold">Status</th>
+<th class="px-8 py-5 font-semibold text-center">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant">
+<!-- Row 1 -->
+<tr class="group hover:bg-surface-container-high/40 transition-colors">
+<td class="px-8 py-6"><input class="rounded bg-surface-variant border-transparent focus:ring-neon-lime text-neon-lime" type="checkbox"/></td>
+<td class="px-6 py-6 font-mono-sm text-neon-lime font-semibold">#PO-2024-0892</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 text-[10px] font-bold">ZS</div>
+<div>
+<p class="text-on-surface font-semibold">ZhenSheng Garments</p>
+<p class="text-[10px] text-text-muted">Guangzhou, CN</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-6 text-text-muted text-body-md">Oct 24, 2024</td>
+<td class="px-6 py-6 text-right">
+<p class="text-on-surface font-bold">¥12,450.00</p>
+<p class="text-[10px] text-text-muted">₭38,595,000</p>
+</td>
+<td class="px-6 py-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neon-lime/10 text-neon-lime text-[11px] font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-neon-lime animate-pulse"></span>
+                                        Pending
+                                    </span>
+</td>
+<td class="px-8 py-6 text-center">
+<div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-8 h-8 rounded-lg hover:bg-surface-variant text-text-muted transition-all"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-variant text-text-muted transition-all"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-variant text-status-red transition-all"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-surface-container-high/40 transition-colors">
+<td class="px-8 py-6"><input class="rounded bg-surface-variant border-transparent focus:ring-neon-lime text-neon-lime" type="checkbox"/></td>
+<td class="px-6 py-6 font-mono-sm text-neon-lime font-semibold">#PO-2024-0891</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 text-[10px] font-bold">LT</div>
+<div>
+<p class="text-on-surface font-semibold">Lao Textile Co.</p>
+<p class="text-[10px] text-text-muted">Vientiane, LA</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-6 text-text-muted text-body-md">Oct 22, 2024</td>
+<td class="px-6 py-6 text-right">
+<p class="text-on-surface font-bold">¥4,200.00</p>
+<p class="text-[10px] text-text-muted">₭13,020,000</p>
+</td>
+<td class="px-6 py-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-blue/10 text-status-blue text-[11px] font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-status-blue"></span>
+                                        Received
+                                    </span>
+</td>
+<td class="px-8 py-6 text-center">
+<div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-8 h-8 rounded-lg hover:bg-surface-variant text-text-muted transition-all"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-variant text-text-muted transition-all"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-variant text-status-red transition-all"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-surface-container-high/40 transition-colors">
+<td class="px-8 py-6"><input class="rounded bg-surface-variant border-transparent focus:ring-neon-lime text-neon-lime" type="checkbox"/></td>
+<td class="px-6 py-6 font-mono-sm text-neon-lime font-semibold">#PO-2024-0890</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 text-[10px] font-bold">FF</div>
+<div>
+<p class="text-on-surface font-semibold">Forward Fashion</p>
+<p class="text-[10px] text-text-muted">Shenzhen, CN</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-6 text-text-muted text-body-md">Oct 20, 2024</td>
+<td class="px-6 py-6 text-right">
+<p class="text-on-surface font-bold">¥22,800.00</p>
+<p class="text-[10px] text-text-muted">₭70,680,000</p>
+</td>
+<td class="px-6 py-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neon-lime/10 text-neon-lime text-[11px] font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-neon-lime animate-pulse"></span>
+                                        Pending
+                                    </span>
+</td>
+<td class="px-8 py-6 text-center">
+<div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-8 h-8 rounded-lg hover:bg-surface-variant text-text-muted transition-all"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-variant text-text-muted transition-all"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-variant text-status-red transition-all"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="group hover:bg-surface-container-high/40 transition-colors">
+<td class="px-8 py-6"><input class="rounded bg-surface-variant border-transparent focus:ring-neon-lime text-neon-lime" type="checkbox"/></td>
+<td class="px-6 py-6 font-mono-sm text-neon-lime font-semibold">#PO-2024-0889</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 text-[10px] font-bold">UA</div>
+<div>
+<p class="text-on-surface font-semibold">Urban Apex Ltd.</p>
+<p class="text-[10px] text-text-muted">Shanghai, CN</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-6 text-text-muted text-body-md">Oct 19, 2024</td>
+<td class="px-6 py-6 text-right">
+<p class="text-on-surface font-bold">¥1,150.00</p>
+<p class="text-[10px] text-text-muted">₭3,565,000</p>
+</td>
+<td class="px-6 py-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-blue/10 text-status-blue text-[11px] font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-status-blue"></span>
+                                        Received
+                                    </span>
+</td>
+<td class="px-8 py-6 text-center">
+<div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-8 h-8 rounded-lg hover:bg-surface-variant text-text-muted transition-all"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-variant text-text-muted transition-all"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-variant text-status-red transition-all"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-6 bg-surface-container-low border-t border-surface-variant flex items-center justify-between">
+<p class="text-text-muted text-body-md">Showing <span class="text-on-surface font-semibold">1-10</span> of <span class="text-on-surface font-semibold">284</span> entries</p>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-surface-variant text-text-muted hover:text-on-surface disabled:opacity-50 transition-all" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-neon-lime text-black font-bold">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-text-muted transition-all">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-text-muted transition-all">3</button>
+<span class="text-text-muted px-1">...</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-text-muted transition-all">29</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-surface-variant text-text-muted hover:text-on-surface transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Contextual Help / Inventory Flow -->
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<div class="lg:col-span-2 bg-card-gray border border-surface-variant rounded-xl p-6 overflow-hidden relative group">
+<div class="absolute -right-20 -bottom-20 w-64 h-64 bg-neon-lime/5 rounded-full blur-[100px]"></div>
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-title-lg font-headline-md text-primary">Inventory Movement</h3>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-neon-lime"></div>
+<span class="text-[10px] text-text-muted uppercase font-label-md">Inbound</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-text-muted"></div>
+<span class="text-[10px] text-text-muted uppercase font-label-md">Outbound</span>
+</div>
+</div>
+</div>
+<!-- Micro Chart (Mockup with CSS) -->
+<div class="h-48 w-full flex items-end gap-2 px-2">
+<div class="flex-1 bg-surface-container-highest rounded-t-lg hover:bg-neon-lime/30 transition-all cursor-pointer relative group/bar h-[60%]"></div>
+<div class="flex-1 bg-surface-container-highest rounded-t-lg hover:bg-neon-lime/30 transition-all cursor-pointer relative group/bar h-[85%]"></div>
+<div class="flex-1 bg-neon-lime rounded-t-lg hover:bg-neon-lime transition-all cursor-pointer relative group/bar h-[100%] shadow-[0_0_15px_rgba(217,255,0,0.2)]"></div>
+<div class="flex-1 bg-surface-container-highest rounded-t-lg hover:bg-neon-lime/30 transition-all cursor-pointer relative group/bar h-[45%]"></div>
+<div class="flex-1 bg-surface-container-highest rounded-t-lg hover:bg-neon-lime/30 transition-all cursor-pointer relative group/bar h-[75%]"></div>
+<div class="flex-1 bg-surface-container-highest rounded-t-lg hover:bg-neon-lime/30 transition-all cursor-pointer relative group/bar h-[30%]"></div>
+<div class="flex-1 bg-surface-container-highest rounded-t-lg hover:bg-neon-lime/30 transition-all cursor-pointer relative group/bar h-[65%]"></div>
+<div class="flex-1 bg-surface-container-highest rounded-t-lg hover:bg-neon-lime/30 transition-all cursor-pointer relative group/bar h-[55%]"></div>
+<div class="flex-1 bg-surface-container-highest rounded-t-lg hover:bg-neon-lime/30 transition-all cursor-pointer relative group/bar h-[90%]"></div>
+</div>
+<div class="mt-4 flex justify-between px-2 text-[10px] font-label-md text-text-muted uppercase">
+<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+</div>
+</div>
+<div class="bg-card-gray border border-surface-variant rounded-xl p-6">
+<h3 class="text-title-lg font-headline-md text-primary mb-4">Supplier Health</h3>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-status-blue/20 flex items-center justify-center text-status-blue">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<div>
+<p class="text-body-md font-bold">Fast Fulfillment</p>
+<p class="text-[10px] text-text-muted">98.2% Accuracy</p>
+</div>
+</div>
+<span class="text-neon-lime font-mono-sm text-[11px]">Best</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-status-red/20 flex items-center justify-center text-status-red">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div>
+<p class="text-body-md font-bold">Logistics Delay</p>
+<p class="text-[10px] text-text-muted">3 Shipments late</p>
+</div>
+</div>
+<span class="text-status-red font-mono-sm text-[11px]">Action</span>
+</div>
+</div>
+<button class="w-full mt-8 py-3 border border-surface-variant rounded-xl text-on-surface font-bold text-body-md hover:bg-surface-container-highest transition-all">View All Suppliers</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button for Mobile Context -->
+<div class="md:hidden fixed bottom-6 right-6 z-50">
+<button class="w-16 h-16 bg-neon-lime text-black rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[32px] font-bold">add</span>
+</button>
+</div>
+<script>
+        // Micro-interaction: Row highlight effect
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.transform = 'translateX(4px)';
+                row.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+            });
+            row.addEventListener('mouseleave', () => {
+                row.style.transform = 'translateX(0)';
+            });
+        });
+
+        // Search Bar Focus Effect
+        const searchInput = document.querySelector('input[type="text"]');
+        const searchContainer = searchInput.parentElement;
+        searchInput.addEventListener('focus', () => {
+            searchContainer.classList.add('scale-[1.02]');
+            searchContainer.style.transition = 'all 0.3s ease';
+        });
+        searchInput.addEventListener('blur', () => {
+            searchContainer.classList.remove('scale-[1.02]');
+        });
+    </script>
+</body></html>

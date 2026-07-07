@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login | SHOW OFF Management System</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Geist:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#b2cad6",
+                        "on-primary": "#2b3400",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "surface": "#131313",
+                        "deep-charcoal": "#121212",
+                        "secondary-fixed": "#e5e2e1",
+                        "background": "#131313",
+                        "surface-tint": "#b4d400",
+                        "on-tertiary-container": "#516872",
+                        "on-secondary-fixed-variant": "#474746",
+                        "secondary-container": "#474746",
+                        "error-container": "#93000a",
+                        "status-blue": "#00E0FF",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-variant": "#353534",
+                        "surface-container": "#201f1f",
+                        "text-muted": "#888888",
+                        "primary": "#ffffff",
+                        "surface-container-highest": "#353534",
+                        "tertiary": "#ffffff",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-container": "#cee6f2",
+                        "on-tertiary-fixed": "#051e27",
+                        "primary-container": "#cdf200",
+                        "on-secondary-container": "#b7b5b4",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-black": "#0D0D0D",
+                        "on-primary-container": "#5a6b00",
+                        "on-error": "#690005",
+                        "inverse-primary": "#556500",
+                        "surface-bright": "#3a3939",
+                        "on-tertiary-fixed-variant": "#334a54",
+                        "primary-fixed-dim": "#b4d400",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "outline": "#8f9378",
+                        "on-surface": "#e5e2e1",
+                        "outline-variant": "#454932",
+                        "tertiary-fixed": "#cee6f2",
+                        "secondary": "#c8c6c5",
+                        "inverse-on-surface": "#313030",
+                        "on-primary-fixed": "#181e00",
+                        "on-tertiary": "#1c333d",
+                        "on-primary-fixed-variant": "#3f4c00",
+                        "inverse-surface": "#e5e2e1",
+                        "card-gray": "#1E1E1E",
+                        "on-secondary": "#313030",
+                        "neon-lime": "#D9FF00",
+                        "error": "#ffb4ab",
+                        "status-red": "#FF4D4D",
+                        "primary-fixed": "#cdf200",
+                        "surface-dim": "#131313",
+                        "on-surface-variant": "#c5c9ac",
+                        "on-background": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-padding": "32px",
+                        "sidebar-width": "280px",
+                        "card-gap": "20px",
+                        "gutter": "24px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"],
+                        "mono-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                        "title-lg": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "mono-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0D0D0D;
+            color: #e5e2e1;
+            overflow-x: hidden;
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(217, 255, 0, 0.15);
+        }
+
+        .glass-card {
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid #2A2A2A;
+        }
+
+        .login-input {
+            background-color: #121212;
+            border: 1px solid #2A2A2A;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .login-input:focus {
+            border-color: #D9FF00;
+            box-shadow: 0 0 0 2px rgba(217, 255, 0, 0.2);
+            outline: none;
+        }
+
+        @keyframes subtle-pulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.02); }
+        }
+
+        .ambient-bg {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(217, 255, 0, 0.05) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(60px);
+            animation: subtle-pulse 8s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+<!-- Atmospheric Background Elements -->
+<div class="ambient-bg top-[-10%] right-[-10%]"></div>
+<div class="ambient-bg bottom-[-10%] left-[-10%]" style="animation-delay: -4s;"></div>
+<!-- Main Container -->
+<main class="w-full max-w-[480px] px-6 py-12">
+<!-- Logo Section -->
+<div class="flex flex-col items-center mb-12 animate-fade-in">
+<div class="bg-neon-lime p-3 rounded-xl mb-4 transform -rotate-12 neon-glow">
+<span class="material-symbols-outlined text-surface-black text-4xl" style="font-variation-settings: 'FILL' 1;">
+                    bolt
+                </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg tracking-tighter text-white">
+                SHOW OFF
+            </h1>
+<p class="font-label-md text-label-md text-neon-lime uppercase tracking-widest mt-1">
+                Management System
+            </p>
+</div>
+<!-- Login Card -->
+<div class="glass-card rounded-[40px] p-10 md:p-12 shadow-2xl relative overflow-hidden">
+<!-- Contextual Decorative Element -->
+<div class="absolute top-0 right-0 p-8 opacity-10">
+<span class="material-symbols-outlined text-8xl">verified_user</span>
+</div>
+<div class="relative z-10">
+<div class="mb-10">
+<h2 class="font-headline-md text-headline-md text-white mb-2">Welcome Back</h2>
+<p class="font-body-md text-body-md text-text-muted">Enter your credentials to access your store dashboard.</p>
+</div>
+<form action="#" class="space-y-6" id="loginForm">
+<!-- Email Field -->
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-white block ml-1" for="email">WORK EMAIL</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-[20px]">
+                                mail
+                            </span>
+<input class="login-input w-full rounded-2xl py-4 pl-12 pr-4 font-body-md text-body-md text-white placeholder-text-muted/50" id="email" name="email" placeholder="evano@showoff.style" required="" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-2">
+<div class="flex justify-between items-center ml-1">
+<label class="font-label-md text-label-md text-white block" for="password">PASSWORD</label>
+<a class="font-label-md text-label-md text-neon-lime hover:underline transition-all" href="#">FORGOT?</a>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-[20px]">
+                                lock
+                            </span>
+<input class="login-input w-full rounded-2xl py-4 pl-12 pr-12 font-body-md text-body-md text-white placeholder-text-muted/50" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember Me -->
+<div class="flex items-center space-x-3 ml-1">
+<input class="w-5 h-5 rounded border-surface-variant bg-surface-black text-neon-lime focus:ring-neon-lime focus:ring-offset-surface-black" id="remember" type="checkbox"/>
+<label class="font-body-md text-body-md text-text-muted cursor-pointer select-none" for="remember">Remember this session</label>
+</div>
+<!-- Primary Action -->
+<button class="w-full bg-neon-lime hover:bg-[#e6ff4d] active:scale-[0.98] transition-all py-5 rounded-2xl font-headline-md text-headline-md text-surface-black flex items-center justify-center gap-2 mt-4" type="submit">
+<span>Login to SHOW OFF Dashboard</span>
+<span class="material-symbols-outlined font-bold">arrow_forward</span>
+</button>
+</form>
+<!-- Footer Text -->
+<div class="mt-12 text-center">
+<p class="font-body-md text-body-md text-text-muted">
+                        Unauthorized access is strictly monitored. 
+                        <br/>
+<a class="text-white hover:text-neon-lime underline underline-offset-4 transition-colors" href="#">Contact Support</a>
+</p>
+</div>
+</div>
+</div>
+<!-- System Status Bar -->
+<div class="mt-8 flex items-center justify-center gap-6 animate-fade-in opacity-50">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-neon-lime"></div>
+<span class="font-label-md text-label-md">SYSTEM ONLINE</span>
+</div>
+<div class="w-px h-3 bg-surface-variant"></div>
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md">V 2.4.0</span>
+</div>
+</div>
+</main>
+<!-- Micro-interaction Script -->
+<script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalContent = btn.innerHTML;
+            
+            // Loading state
+            btn.disabled = true;
+            btn.innerHTML = `
+                <svg class="animate-spin h-5 w-5 text-surface-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Authorizing...</span>
+            `;
+
+            // Mock redirect delay
+            setTimeout(() => {
+                btn.innerHTML = `
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <span>Redirecting...</span>
+                `;
+                btn.classList.replace('bg-neon-lime', 'bg-status-blue');
+                setTimeout(() => {
+                    // Logic would go here to navigate to dashboard
+                    console.log('Redirecting to dashboard');
+                }, 800);
+            }, 1500);
+        });
+
+        // Simple visibility toggle
+        const toggleBtn = document.querySelector('button[type="button"]');
+        const passInput = document.getElementById('password');
+        toggleBtn.addEventListener('click', () => {
+            const isPass = passInput.type === 'password';
+            passInput.type = isPass ? 'text' : 'password';
+            toggleBtn.querySelector('span').innerText = isPass ? 'visibility_off' : 'visibility';
+        });
+    </script>
+</body></html>

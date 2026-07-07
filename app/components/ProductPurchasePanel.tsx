@@ -19,6 +19,7 @@ type CartItem = {
   price: string;
   image: string;
   quantity: number;
+  stock?: number;
 };
 
 function readSavedItems() {
@@ -65,12 +66,13 @@ function CartIcon() {
   );
 }
 
-export function ProductPurchasePanel({ product, locale }: { product: CollectionProduct; locale: string }) {
+export function ProductPurchasePanel({ product, locale, initialColour }: { product: CollectionProduct; locale: string; initialColour?: string }) {
   const colourOptions = useMemo(() => productColourOptions(product.color, product.colors, product.colourImages), [product.color, product.colors, product.colourImages]);
   const visibleColourOptions = colourOptions.slice(0, 4);
   const needsColourSelection = colourOptions.length > 1;
+  const resolvedInitialColour = initialColour && colourOptions.includes(initialColour) ? initialColour : product.color;
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [selectedColour, setSelectedColour] = useState<string | null>(product.color);
+  const [selectedColour, setSelectedColour] = useState<string | null>(resolvedInitialColour);
   const [sizeError, setSizeError] = useState(false);
   const [colourError, setColourError] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -82,6 +84,17 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
     const colour = selectedColour ?? product.color;
     return product.variantSizes?.[colour] ?? sizes;
   }, [product.color, product.variantSizes, selectedColour]);
+  const stockBySize = useMemo(() => {
+    const colour = selectedColour ?? product.color;
+    return product.variantStockByColor?.[colour];
+  }, [product.color, product.variantStockByColor, selectedColour]);
+  const selectedStock = selectedSize ? stockBySize?.[selectedSize] : undefined;
+
+  useEffect(() => {
+    setSelectedColour(resolvedInitialColour);
+    setSelectedSize(null);
+    window.dispatchEvent(new CustomEvent("showoff-product-colour-selected", { detail: { colour: resolvedInitialColour } }));
+  }, [resolvedInitialColour]);
 
   useEffect(() => {
     if (selectedSize && !availableSizes.includes(selectedSize)) {
@@ -147,7 +160,13 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
       return false;
     }
 
+    if (stockBySize && (stockBySize[selectedSize] ?? 0) <= 0) {
+      setSizeError(true);
+      return false;
+    }
+
     const colour = selectedColour ?? product.color;
+    const stockLimit = typeof selectedStock === "number" ? Math.max(0, selectedStock) : 99;
     const nextItem: CartItem = {
       slug: product.slug,
       name: product.name,
@@ -156,6 +175,7 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
       price: product.price,
       image: productColourImage(colour, product.image, product.colourImages),
       quantity: 1,
+      stock: stockLimit,
     };
 
     let currentItems: CartItem[] = [];
@@ -167,8 +187,15 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
       currentItems = [];
     }
     const existingItem = currentItems.find((item) => item.slug === nextItem.slug && item.size === nextItem.size && item.color === nextItem.color);
+    if (existingItem && existingItem.quantity >= stockLimit) {
+      setSizeError(true);
+      if (openCart) {
+        window.dispatchEvent(new CustomEvent("showoff-cart-open"));
+      }
+      return false;
+    }
     const nextItems = existingItem
-      ? currentItems.map((item) => (item.slug === nextItem.slug && item.size === nextItem.size && item.color === nextItem.color ? { ...item, quantity: item.quantity + 1 } : item))
+      ? currentItems.map((item) => (item.slug === nextItem.slug && item.size === nextItem.size && item.color === nextItem.color ? { ...item, quantity: Math.min(stockLimit, item.quantity + 1), stock: stockLimit } : item))
       : [...currentItems, nextItem];
 
     window.localStorage.setItem(cartStorageKey, JSON.stringify(nextItems));
@@ -212,6 +239,11 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
   };
 
   const selectSize = (size: string) => {
+    if (stockBySize && (stockBySize[size] ?? 0) <= 0) {
+      setSizeError(true);
+      return;
+    }
+
     setSelectedSize(size);
     setSizeError(false);
   };
@@ -292,18 +324,32 @@ export function ProductPurchasePanel({ product, locale }: { product: CollectionP
           <div>
             <b>Size</b>
             <span>{selectedSize ?? "Select size"}</span>
-            {selectedSize ? <em>In Stock</em> : null}
+            {selectedSize ? <em>{selectedStock === 0 ? "Sold out" : "In Stock"}</em> : null}
           </div>
           <a href="#size-chart">Size Guide</a>
         </div>
 
         <div className="size-grid" role="radiogroup" aria-label="Select size">
-          {availableSizes.map((size) => (
-            <button className={size === selectedSize ? "is-selected" : ""} type="button" role="radio" aria-checked={size === selectedSize} onClick={() => selectSize(size)} key={size}>
-              {size}
-              {size === selectedSize ? <span aria-hidden="true" /> : null}
-            </button>
-          ))}
+          {availableSizes.map((size) => {
+            const isSoldOut = stockBySize ? (stockBySize[size] ?? 0) <= 0 : false;
+
+            return (
+              <button
+                className={`${size === selectedSize ? "is-selected" : ""}${isSoldOut ? " is-sold-out" : ""}`}
+                type="button"
+                role="radio"
+                aria-checked={size === selectedSize}
+                aria-disabled={isSoldOut}
+                disabled={isSoldOut}
+                onClick={() => selectSize(size)}
+                key={size}
+              >
+                {size}
+                {isSoldOut ? <small>Sold out</small> : null}
+                {size === selectedSize ? <span aria-hidden="true" /> : null}
+              </button>
+            );
+          })}
         </div>
         {sizeError ? <p className="size-error">Choose a size before adding this item.</p> : null}
 

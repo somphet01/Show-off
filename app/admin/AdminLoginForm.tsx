@@ -19,7 +19,7 @@ export function AdminLoginForm() {
     <form className="admin-login-form" action={formAction}>
       <label>
         <span>ອີເມວ</span>
-        <input name="email" type="email" autoComplete="email" required />
+        <input name="email" type="email" autoComplete="email" placeholder="name@email.com" required />
       </label>
       <label>
         <span>ລະຫັດຜ່ານ</span>
@@ -27,7 +27,7 @@ export function AdminLoginForm() {
       </label>
       {state.error ? <p className="admin-form-error">{state.error}</p> : null}
       <button type="submit" disabled={pending}>
-        {pending ? "ກຳລັງເຂົ້າ..." : "ເຂົ້າລະບົບ"}
+        {pending ? "ກໍາລັງເຂົ້າລະບົບ..." : "ເຂົ້າລະບົບ"}
       </button>
     </form>
   );

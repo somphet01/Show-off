@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
+import styles from "./AdminProductsConsole.module.css";
 
 type Relation<T> = T | T[] | null | undefined;
 
@@ -36,7 +38,7 @@ function firstRelation<T>(value: Relation<T>): T | null {
 }
 
 function formatLak(value: number) {
-  return `฿${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)}`;
+  return `₭${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)}`;
 }
 
 function statusLabel(status: string | null | undefined) {
@@ -64,6 +66,16 @@ function getProductStock(product: AdminProduct) {
   return product.stock_qty ?? 0;
 }
 
+function getMinStock(product: AdminProduct) {
+  const variants = getVariants(product);
+
+  if (variants.length > 0) {
+    return variants.reduce((sum, variant) => sum + (variant.min_stock_qty ?? 0), 0);
+  }
+
+  return 0;
+}
+
 function getCategory(product: AdminProduct) {
   return firstRelation(product.categories)?.name_en ?? "Uncategorized";
 }
@@ -79,7 +91,18 @@ function getMargin(product: AdminProduct) {
 
 function getColors(product: AdminProduct) {
   const colors = getVariants(product).map((variant) => variant.color_name).filter(Boolean);
-  return Array.from(new Set(colors)).slice(0, 3);
+  return Array.from(new Set(colors)).slice(0, 4);
+}
+
+function getStockTone(stock: number, minStock: number) {
+  if (stock <= 0) return "empty";
+  if (minStock > 0 && stock <= minStock) return "low";
+  return "healthy";
+}
+
+function stockWidth(stock: number, minStock: number) {
+  const target = Math.max(minStock * 2, 8);
+  return Math.max(18, Math.min(100, Math.round((stock / target) * 100)));
 }
 
 export function AdminProductsConsole({ products }: { products: AdminProduct[] }) {
@@ -96,9 +119,18 @@ export function AdminProductsConsole({ products }: { products: AdminProduct[] })
     const active = products.filter((product) => product.status === "active").length;
     const draft = products.filter((product) => product.status === "draft").length;
     const stock = products.reduce((sum, product) => sum + getProductStock(product), 0);
-    const variants = products.reduce((sum, product) => sum + getVariants(product).length, 0);
+    const lowStock = products.filter((product) => {
+      const stockQty = getProductStock(product);
+      const minStock = getMinStock(product);
+      return stockQty <= 0 || (minStock > 0 && stockQty <= minStock);
+    }).length;
 
-    return { active, draft, stock, variants };
+    return {
+      active,
+      draft,
+      stock,
+      lowStock,
+    };
   }, [products]);
 
   const filteredProducts = useMemo(() => {
@@ -118,6 +150,7 @@ export function AdminProductsConsole({ products }: { products: AdminProduct[] })
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
+
       const statusMatch =
         status === "all" ||
         (status === "active" && product.status === "active") ||
@@ -130,131 +163,186 @@ export function AdminProductsConsole({ products }: { products: AdminProduct[] })
 
   if (products.length === 0) {
     return (
-      <section className="admin-v2-card admin-products-empty">
-        <strong>ຍັງບໍ່ມີສິນຄ້າ</strong>
-        <p>ຫຼັງຈາກເພີ່ມສິນຄ້າ ຈະເຫັນລາຄາ, variant, ສະຖານະ ແລະສະຕ໊ອກຢູ່ໜ້ານີ້.</p>
+      <section className={styles.emptyState}>
+        <span className={styles.emptyBadge}>Products</span>
+        <strong>ຍັງບໍ່ມີສິນຄ້າໃນລະບົບ</strong>
+        <p>ເມື່ອເພີ່ມສິນຄ້າແລ້ວ ຫນ້ານີ້ຈະສະແດງລາຄາ, SKU, ສະຕ໋ອກ ແລະ ສະຖານະໃຫ້ທັນທີ.</p>
       </section>
     );
   }
 
   return (
-    <div className="admin-products-v2">
-      <section className="admin-products-stats">
-        <article>
-          <span>Active Products</span>
-          <strong>{stats.active}</strong>
-          <p>ສິນຄ້າທີ່ລູກຄ້າເຫັນ</p>
+    <div className={styles.page}>
+      <section className={styles.statGrid}>
+        <article className={`${styles.statCard} ${styles.statCardPeach}`}>
+          <span className={styles.statLabel}>ສິນຄ້າເປີດຂາຍ</span>
+          <strong className={styles.statValue}>{stats.active}</strong>
+          <p className={styles.statNote}>ສິນຄ້າທີ່ລູກຄ້າເຫັນໄດ້ຕອນນີ້</p>
         </article>
-        <article>
-          <span>Total Variants</span>
-          <strong>{stats.variants}</strong>
-          <p>ສີ, ໄຊສ໌ ແລະ SKU</p>
+
+        <article className={`${styles.statCard} ${styles.statCardGreen}`}>
+          <span className={styles.statLabel}>ຈຳນວນສະຕ໋ອກລວມ</span>
+          <strong className={styles.statValue}>{stats.stock}</strong>
+          <p className={styles.statNote}>ນັບລວມທຸກ variant ແລະ SKU</p>
         </article>
-        <article>
-          <span>Total Stock</span>
-          <strong>{stats.stock}</strong>
-          <p>ຈຳນວນພ້ອມຂາຍ</p>
+
+        <article className={`${styles.statCard} ${styles.statCardLilac}`}>
+          <span className={styles.statLabel}>ສິນຄ້າໃກ້ຫມົດ</span>
+          <strong className={styles.statValue}>{stats.lowStock}</strong>
+          <p className={styles.statNote}>ໂຕທີ່ຄວນເຕືອນໃຫ້ຈັດຊື້ເພີ່ມ</p>
         </article>
-        <article className="is-soft">
-          <span>Draft</span>
-          <strong>{stats.draft}</strong>
-          <p>ກຳລັງກຽມເປີດຂາຍ</p>
+
+        <article className={`${styles.statCard} ${styles.statCardSoft}`}>
+          <span className={styles.statLabel}>ຮ່າງ / ຍັງບໍ່ເປີດ</span>
+          <strong className={styles.statValue}>{stats.draft}</strong>
+          <p className={styles.statNote}>ສຳລັບສິນຄ້າທີ່ກຳລັງຈັດໜ້າຂາຍ</p>
         </article>
       </section>
 
-      <section className="admin-products-toolbar">
-        <div className="admin-products-search">
-          <span aria-hidden="true">⌕</span>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search products, SKU, colour..." />
-        </div>
-        <select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Category">
-          <option value="all">All Categories</option>
+      <section className={styles.toolbar}>
+        <label className={styles.searchBox}>
+          <span>⌕</span>
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ຄົ້ນຫາສິນຄ້າ, SKU, ສີ..." />
+        </label>
+
+        <select className={styles.select} value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Category">
+          <option value="all">ທຸກໝວດໝູ່</option>
           {categories.map((item) => (
-            <option key={item} value={item}>{item}</option>
+            <option key={item} value={item}>
+              {item}
+            </option>
           ))}
         </select>
-        <select value={status} onChange={(event) => setStatus(event.target.value as ProductStatus)} aria-label="Status">
-          <option value="all">All Status</option>
-          <option value="active">Active</option>
-          <option value="draft">Draft</option>
-          <option value="inactive">Inactive</option>
+
+        <select className={styles.select} value={status} onChange={(event) => setStatus(event.target.value as ProductStatus)} aria-label="Status">
+          <option value="all">ທຸກສະຖານະ</option>
+          <option value="active">ເປີດຂາຍ</option>
+          <option value="draft">ຮ່າງ</option>
+          <option value="inactive">ປິດຂາຍ</option>
         </select>
-        <div className="admin-products-view" aria-label="Product view">
-          <button className={view === "card" ? "is-active" : ""} onClick={() => setView("card")} type="button">Card</button>
-          <button className={view === "list" ? "is-active" : ""} onClick={() => setView("list")} type="button">List</button>
+
+        <div className={styles.viewSwitch} aria-label="Product view">
+          <button className={view === "card" ? styles.viewActive : ""} onClick={() => setView("card")} type="button">
+            Cards
+          </button>
+          <button className={view === "list" ? styles.viewActive : ""} onClick={() => setView("list")} type="button">
+            List
+          </button>
         </div>
       </section>
 
       {filteredProducts.length > 0 ? (
         view === "card" ? (
-          <section className="admin-products-grid">
+          <section className={styles.grid}>
             {filteredProducts.map((product) => {
               const stock = getProductStock(product);
+              const minStock = getMinStock(product);
               const margin = getMargin(product);
               const colors = getColors(product);
+              const tone = getStockTone(stock, minStock);
 
               return (
-                <article className="admin-product-card-v2" key={product.id}>
-                  <div className="admin-product-thumb-v2">
-                    <span>{(product.name_en ?? "SO").slice(0, 2).toUpperCase()}</span>
-                    <em>{statusLabel(product.status)}</em>
+                <article className={styles.card} key={product.id}>
+                  <div className={styles.cardTop}>
+                    <div className={styles.thumb}>
+                      <span>{(product.name_en ?? product.name_lo ?? "SO").slice(0, 2).toUpperCase()}</span>
+                    </div>
+                    <span className={`${styles.statusBadge} ${styles[`status_${product.status ?? "inactive"}`] ?? ""}`}>{statusLabel(product.status)}</span>
                   </div>
-                  <div className="admin-product-card-body">
-                    <div>
-                      <strong>{product.name_en ?? product.name_lo ?? "Untitled product"}</strong>
-                      <span>{getCategory(product)}</span>
+
+                  <div className={styles.cardBody}>
+                    <div className={styles.cardHeading}>
+                      <p>{getCategory(product)}</p>
+                      <h3>{product.name_en ?? product.name_lo ?? "Untitled product"}</h3>
+                      <small>{product.sku ?? product.slug ?? "No SKU"}</small>
                     </div>
-                    <b>{formatLak(product.sale_price ?? 0)}</b>
-                    <div className="admin-product-card-meta">
-                      <span>{stock} Units</span>
-                      <span>{getVariants(product).length || 1} Variants</span>
-                      <span>{margin !== null ? `${margin}% Margin` : "No margin"}</span>
+
+                    <div className={styles.priceRow}>
+                      <strong>{formatLak(product.sale_price ?? 0)}</strong>
+                      <span>{margin !== null ? `${margin}% margin` : "No margin data"}</span>
                     </div>
-                    <div className="admin-product-swatches">
-                      {colors.length > 0 ? colors.map((color) => <i key={color} title={color ?? ""} />) : <small>No colours</small>}
+
+                    <div className={styles.stockBlock}>
+                      <div className={styles.stockHead}>
+                        <span>Stock level</span>
+                        <b>{stock} ຊິ້ນ</b>
+                      </div>
+                      <div className={styles.stockTrack}>
+                        <span className={`${styles.stockFill} ${styles[`stock_${tone}`]}`} style={{ width: `${stockWidth(stock, minStock)}%` }} />
+                      </div>
+                      <div className={styles.stockMeta}>
+                        <small>{getVariants(product).length || 1} variants</small>
+                        <small>{minStock > 0 ? `Min ${minStock}` : "No minimum set"}</small>
+                      </div>
                     </div>
-                    <div className="admin-product-card-actions">
-                      <button type="button">Edit</button>
-                      <button type="button">Variants</button>
+
+                    <div className={styles.colorRow}>
+                      {colors.length > 0 ? (
+                        <>
+                          <div className={styles.swatches}>
+                            {colors.map((color) => (
+                              <i key={color} title={color ?? ""} />
+                            ))}
+                          </div>
+                          <span>{colors.join(", ")}</span>
+                        </>
+                      ) : (
+                        <span>ຍັງບໍ່ມີຂໍ້ມູນສີ</span>
+                      )}
                     </div>
+
+                    <Link className={styles.cardAction} href={`/admin/products/${product.id}/edit`}>
+                      ແກ້ໄຂສິນຄ້າ
+                    </Link>
                   </div>
                 </article>
               );
             })}
           </section>
         ) : (
-          <section className="admin-v2-card admin-products-list-card">
-            <div className="admin-products-list-row is-head">
+          <section className={styles.listWrap}>
+            <div className={`${styles.listRow} ${styles.listHead}`}>
               <span>Product</span>
               <span>Category</span>
               <span>Price</span>
               <span>Stock</span>
               <span>Status</span>
-              <span>Actions</span>
             </div>
-            {filteredProducts.map((product) => (
-              <div className="admin-products-list-row" key={product.id}>
-                <div className="admin-products-list-name">
-                  <span>{(product.name_en ?? "SO").slice(0, 2).toUpperCase()}</span>
-                  <strong>{product.name_en ?? product.name_lo ?? "Untitled product"}</strong>
-                  <small>{product.sku ?? product.slug ?? "-"}</small>
+
+            {filteredProducts.map((product) => {
+              const stock = getProductStock(product);
+              const minStock = getMinStock(product);
+              const tone = getStockTone(stock, minStock);
+
+              return (
+                <div className={styles.listRow} key={product.id}>
+                  <div className={styles.productCell}>
+                    <div className={styles.listThumb}>{(product.name_en ?? product.name_lo ?? "SO").slice(0, 2).toUpperCase()}</div>
+                    <div>
+                      <strong>{product.name_en ?? product.name_lo ?? "Untitled product"}</strong>
+                      <small>{product.sku ?? product.slug ?? "No SKU"}</small>
+                    </div>
+                  </div>
+
+                  <span>{getCategory(product)}</span>
+                  <strong>{formatLak(product.sale_price ?? 0)}</strong>
+                  <div className={styles.listStock}>
+                    <b>{stock} ຊິ້ນ</b>
+                    <em className={`${styles.stockDot} ${styles[`stock_${tone}`]}`} />
+                  </div>
+                  <Link className={`${styles.statusBadge} ${styles[`status_${product.status ?? "inactive"}`] ?? ""}`} href={`/admin/products/${product.id}/edit`}>
+                    {statusLabel(product.status)}
+                  </Link>
                 </div>
-                <em>{getCategory(product)}</em>
-                <strong>{formatLak(product.sale_price ?? 0)}</strong>
-                <span>{getProductStock(product)} Units</span>
-                <b>{statusLabel(product.status)}</b>
-                <div>
-                  <button type="button">Edit</button>
-                  <button type="button">⋮</button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </section>
         )
       ) : (
-        <section className="admin-products-no-results">
-          <strong>ບໍ່ພົບສິນຄ້າ</strong>
-          <p>ລອງປ່ຽນຄຳຄົ້ນຫາ, ໝວດໝູ່ ຫຼືສະຖານະ.</p>
+        <section className={styles.emptyState}>
+          <span className={styles.emptyBadge}>Search</span>
+          <strong>ບໍ່ພົບສິນຄ້າຕາມຄຳຄົ້ນຫາ</strong>
+          <p>ລອງປ່ຽນຄຳຄົ້ນຫາ ຫຼື ປັບ filter ເພື່ອເບິ່ງລາຍການທີ່ຕ້ອງການ.</p>
         </section>
       )}
     </div>
